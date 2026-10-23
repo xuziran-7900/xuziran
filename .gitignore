@@ -1,4 +1,15 @@
-# Build and Release Folders
+# macOS / 系统
+.DS_Store
+Thumbs.db
+
+# Logs / 临时
+*.log
+.env
+
+# Node
+node_modules/
+
+# Build and Release Folders（远程仓库原有）
 bin-debug/
 bin-release/
 [Oo]bj/
@@ -12,7 +23,3 @@ bin-release/
 *.air
 *.ipa
 *.apk
-
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.

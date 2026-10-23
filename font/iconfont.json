@@ -1,0 +1,37 @@
+{
+  "id": "5231932",
+  "name": "x",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "48426824",
+      "name": "资源 253",
+      "font_class": "a-ziyuan253",
+      "unicode": "e794",
+      "unicode_decimal": 59284
+    },
+    {
+      "icon_id": "48426825",
+      "name": "牛油果",
+      "font_class": "niuyouguo",
+      "unicode": "e795",
+      "unicode_decimal": 59285
+    },
+    {
+      "icon_id": "48426826",
+      "name": "公文包",
+      "font_class": "gongwenbao",
+      "unicode": "e796",
+      "unicode_decimal": 59286
+    },
+    {
+      "icon_id": "48426827",
+      "name": "灯泡",
+      "font_class": "dengpao",
+      "unicode": "e797",
+      "unicode_decimal": 59287
+    }
+  ]
+}

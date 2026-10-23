@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0d0a0a">
+    <title>ICON NAV · SVG图标 · 移动端下导航</title>
+    <style>
+        /* ========= 艺术品牌风格 · 设计变量（紫铜 + 翡翠绿） ========= */
+        :root {
+            --xzr-bg-deep: #0d0a0a;
+            --xzr-bg-mid: #171212;
+            --xzr-copper: #d4907a;
+            --xzr-copper-soft: #f5b89a;
+            --xzr-copper-deep: #8b4a38;
+            --xzr-emerald: #7fb89c;
+            --xzr-ink: #f4e6d8;
+            --xzr-muted: #6e5d50;
+            --xzr-nav-bg: rgba(18, 14, 14, 0.92);
+            --xzr-nav-border: rgba(212, 144, 122, 0.18);
+            --xzr-badge-red: #ff4d6d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            height: 100%;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--xzr-bg-deep);
+            color: var(--xzr-ink);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 金属纹理背景 */
+        body::before {
+            content: "";
+            position: fixed; inset: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 800px 500px at 15% 20%, rgba(212,144,122,0.11), transparent 60%),
+                radial-gradient(ellipse 600px 400px at 85% 80%, rgba(127,184,156,0.09), transparent 55%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed; inset: 0; pointer-events: none;
+            background-image:
+                repeating-linear-gradient(90deg, rgba(212,144,122,0.025) 0px, rgba(212,144,122,0.025) 1px, transparent 1px, transparent 5px),
+                repeating-linear-gradient(0deg, rgba(212,144,122,0.025) 0px, rgba(212,144,122,0.025) 1px, transparent 1px, transparent 5px);
+            mix-blend-mode: overlay;
+            z-index: 0;
+        }
+
+        .xzr_page {
+            position: relative; z-index: 1;
+            padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+            min-height: 100vh;
+        }
+
+        /* ========= 顶部栏 ========= */
+        .xzr_topbar {
+            position: sticky; top: 0; z-index: 40;
+            padding: 16px 20px;
+            padding-top: calc(16px + env(safe-area-inset-top, 0px));
+            background: rgba(13, 10, 10, 0.78);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 144, 122, 0.12);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .xzr_topbar-title {
+            font-size: 1.15rem; font-weight: 800; letter-spacing: 0.08em; color: var(--xzr-copper);
+        }
+        .xzr_topbar-sub { font-size: 0.75rem; color: var(--xzr-muted); letter-spacing: 0.1em; margin-top: 2px; }
+
+        /* ========= 主内容 ========= */
+        .xzr_main { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
+
+        .xzr_hero-card {
+            background: linear-gradient(145deg, rgba(30,24,22,0.9), rgba(18,14,14,0.95));
+            border: 1px solid rgba(212, 144, 122, 0.2);
+            border-radius: 20px;
+            padding: 28px 22px;
+            margin-bottom: 20px;
+            position: relative; overflow: hidden;
+        }
+
+        .xzr_hero-card::before {
+            content: ""; position: absolute; top: -40px; right: -40px;
+            width: 140px; height: 140px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,144,122,0.2), transparent 70%);
+        }
+
+        .xzr_hero-title { font-size: 1.5rem; font-weight: 900; color: var(--xzr-copper); margin-bottom: 8px; }
+        .xzr_hero-desc { font-size: 0.9rem; color: var(--xzr-muted); line-height: 1.75; }
+
+        /* SVG 图标展示网格 */
+        .xzr_grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+        .xzr_content-card {
+            background: linear-gradient(145deg, rgba(30,24,22,0.9), rgba(18,14,14,0.95));
+            border: 1px solid rgba(212, 144, 122, 0.12);
+            border-radius: 16px; padding: 22px 18px; text-align: center;
+            transition: all 0.3s;
+        }
+
+        .xzr_content-card:hover { border-color: var(--xzr-copper); transform: translateY(-3px); }
+
+        /* ===== SVG 图标样式 ===== */
+        .xzr_svg-icon {
+            width: 52px; height: 52px;
+            color: var(--xzr-copper);
+            display: block;
+            margin: 0 auto 12px;
+            /* SVG 内部 path/fill 会被 color 影响因为 iconfont 的 symbol 用的 fill */
+            transition: transform 0.3s;
+        }
+
+        .xzr_content-card:hover .xzr_svg-icon { transform: scale(1.1) rotate(-4deg); }
+
+        /* iconfont symbol 图标有 fill 属性，通过 currentColor 来控制 */
+        .xzr_svg-icon use,
+        .xzr_svg-icon path { fill: currentColor !important; }
+
+        .xzr_content-card h4 { font-size: 0.95rem; color: var(--xzr-ink); margin-bottom: 4px; }
+        .xzr_content-card p { font-size: 0.75rem; color: var(--xzr-muted); letter-spacing: 0.05em; }
+
+        /* 首页入口链接 */
+        .xzr_home-entry {
+            display: inline-flex; align-items: center; gap: 8px;
+            text-decoration: none; font-size: 0.78rem; color: var(--xzr-copper);
+            padding: 8px 14px; border: 1px solid var(--xzr-copper-deep);
+            border-radius: 999px; letter-spacing: 0.1em; transition: all 0.3s;
+        }
+        .xzr_home-entry:hover { background: rgba(212,144,122,0.1); }
+
+        /* ========= 固定底部导航 ========= */
+        .xzr_tabbar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            background: var(--xzr-nav-bg);
+            backdrop-filter: blur(24px) saturate(1.5);
+            -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border-top: 1px solid var(--xzr-nav-border);
+            box-shadow:
+                0 -1px 0 rgba(212,144,122,0.08) inset,
+                0 -20px 40px rgba(0,0,0,0.5);
+        }
+
+        .xzr_tabbar-inner {
+            display: flex; justify-content: space-around; align-items: stretch;
+            height: 72px; padding: 0 8px;
+        }
+
+        .xzr_tab-item {
+            flex: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 4px; cursor: pointer; text-decoration: none;
+            color: var(--xzr-muted); position: relative;
+            transition: color 0.3s; min-width: 0;
+        }
+        .xzr_tab-item:active { transform: scale(0.95); }
+
+        /* SVG 图标容器（相对定位用于 badge/dot） */
+        .xzr_tab-icon-wrap {
+            position: relative; width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ===== Tab 中的 SVG 图标 ===== */
+        .xzr_tab-icon {
+            width: 28px; height: 28px;
+            color: var(--xzr-muted);
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            display: block;
+        }
+
+        .xzr_tab-icon use,
+        .xzr_tab-icon path { fill: currentColor !important; }
+
+        .xzr_tab-label {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+            transition: all 0.35s; white-space: nowrap;
+        }
+
+        /* ========= 数字徽章（右上角） ========= */
+        .xzr_tab-badge {
+            position: absolute; top: -2px; right: -10px;
+            min-width: 18px; height: 18px; padding: 0 5px;
+            background: var(--xzr-badge-red);
+            border-radius: 999px; color: #fff;
+            font-size: 0.65rem; font-weight: 800;
+            line-height: 18px; text-align: center;
+            letter-spacing: 0;
+            box-shadow: 0 2px 6px rgba(255, 77, 109, 0.5);
+            border: 1.5px solid var(--xzr-bg-deep);
+            animation: xzr_badgePulse 2.4s ease-in-out infinite;
+        }
+
+        @keyframes xzr_badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* ========= 红点 ========= */
+        .xzr_tab-dot {
+            position: absolute; top: 0; right: -4px;
+            width: 9px; height: 9px;
+            background: var(--xzr-badge-red);
+            border-radius: 50%;
+            border: 1.5px solid var(--xzr-bg-deep);
+            box-shadow: 0 0 0 2px rgba(255,77,109,0.25);
+            animation: xzr_dotBreath 2s ease-in-out infinite;
+        }
+
+        @keyframes xzr_dotBreath {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px rgba(255,77,109,0.25); }
+            50% { transform: scale(1.15); box-shadow: 0 0 0 4px rgba(255,77,109,0.15); }
+        }
+
+        /* ========= 激活态 ========= */
+        .xzr_tab-item.xzr_active .xzr_tab-icon {
+            color: var(--xzr-copper);
+            transform: translateY(-3px);
+            filter: drop-shadow(0 4px 12px rgba(212,144,122,0.5));
+        }
+
+        .xzr_tab-item.xzr_active .xzr_tab-label {
+            color: var(--xzr-copper);
+            transform: translateY(2px);
+        }
+
+        .xzr_tab-item.xzr_active::before {
+            content: ""; position: absolute; bottom: 2px;
+            width: 16px; height: 2px; border-radius: 2px;
+            background: var(--xzr-copper);
+            box-shadow: 0 0 8px rgba(212,144,122,0.6);
+            animation: xzr_fadeRise 0.3s ease;
+        }
+
+        @keyframes xzr_fadeRise {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========= 响应式 ========= */
+        @media (min-width: 600px) {
+            .xzr_tabbar {
+                max-width: 480px; left: 50%; transform: translateX(-50%);
+                border-left: 1px solid var(--xzr-nav-border);
+                border-right: 1px solid var(--xzr-nav-border);
+                border-radius: 20px 20px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="xzr_page">
+
+    <!-- 顶部栏 -->
+    <header class="xzr_topbar">
+        <div>
+            <div class="xzr_topbar-title">ICON · FEST</div>
+            <div class="xzr_topbar-sub">SVG · iconfont · 移动端下导航</div>
+        </div>
+        <a href="index.html" class="xzr_home-entry">← 首页</a>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="xzr_main">
+
+        <section class="xzr_hero-card">
+            <div class="xzr_hero-title">艺术品牌 · 移动端下导航</div>
+            <div class="xzr_hero-desc">使用 font 目录下的 iconfont SVG symbol 方式，构建固定底部导航。4 个 Tab，带数字徽章与红点提示。紫铜 + 翡翠绿艺术品牌风格。</div>
+        </section>
+
+        <!-- SVG 图标展示卡片 -->
+        <section class="xzr_grid">
+            <div class="xzr_content-card">
+                <svg class="xzr_svg-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-a-ziyuan253"></use></svg>
+                <h4>首页</h4>
+                <p>资源 · HOME</p>
+            </div>
+            <div class="xzr_content-card">
+                <svg class="xzr_svg-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-niuyouguo"></use></svg>
+                <h4>发现</h4>
+                <p>牛油果 · DISCOVER</p>
+            </div>
+            <div class="xzr_content-card">
+                <svg class="xzr_svg-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-gongwenbao"></use></svg>
+                <h4>消息</h4>
+                <p>公文包 · MESSAGE</p>
+            </div>
+            <div class="xzr_content-card">
+                <svg class="xzr_svg-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-dengpao"></use></svg>
+                <h4>我的</h4>
+                <p>灯泡 · PROFILE</p>
+            </div>
+        </section>
+
+        <div style="text-align:center; margin-top:28px;">
+            <a href="index.html" class="xzr_home-entry">← 回到作品集首页</a>
+        </div>
+    </main>
+
+    <!-- ============== 固定底部导航（SVG 方式） ============== -->
+    <nav class="xzr_tabbar" aria-label="底部导航">
+        <div class="xzr_tabbar-inner">
+
+            <!-- 1. 首页（激活态） -->
+            <a class="xzr_tab-item xzr_active" href="iconfont-4.html">
+                <span class="xzr_tab-icon-wrap">
+                    <svg class="xzr_tab-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-a-ziyuan253"></use></svg>
+                </span>
+                <span class="xzr_tab-label">首页</span>
+            </a>
+
+            <!-- 2. 发现（带红点） -->
+            <a class="xzr_tab-item" href="#discover">
+                <span class="xzr_tab-icon-wrap">
+                    <svg class="xzr_tab-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-niuyouguo"></use></svg>
+                    <span class="xzr_tab-dot"></span>
+                </span>
+                <span class="xzr_tab-label">发现</span>
+            </a>
+
+            <!-- 3. 消息（带数字徽章） -->
+            <a class="xzr_tab-item" href="#message">
+                <span class="xzr_tab-icon-wrap">
+                    <svg class="xzr_tab-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-gongwenbao"></use></svg>
+                    <span class="xzr_tab-badge">99+</span>
+                </span>
+                <span class="xzr_tab-label">消息</span>
+            </a>
+
+            <!-- 4. 我的 -->
+            <a class="xzr_tab-item" href="#profile">
+                <span class="xzr_tab-icon-wrap">
+                    <svg class="xzr_tab-icon" viewBox="0 0 1024 1024"><use xlink:href="#icon-dengpao"></use></svg>
+                </span>
+                <span class="xzr_tab-label">我的</span>
+            </a>
+
+        </div>
+    </nav>
+
+</div>
+
+<!-- iconfont SVG symbol 注入脚本（本地） -->
+<script src="font/iconfont.js"></script>
+<script>
+    // ========= Tab 切换逻辑 =========
+    document.querySelectorAll('.xzr_tab-item').forEach(item => {
+        if (item.classList.contains('xzr_active')) return;
+
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.xzr_tab-item').forEach(t => t.classList.remove('xzr_active'));
+            this.classList.add('xzr_active');
+
+            // 清除徽章/红点
+            const badge = this.querySelector('.xzr_tab-badge');
+            const dot = this.querySelector('.xzr_tab-dot');
+            if (badge) badge.style.display = 'none';
+            if (dot) dot.style.display = 'none';
+
+            const label = this.querySelector('.xzr_tab-label').textContent;
+            console.log('切换到 Tab:', label);
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 移动端视口 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0c0a09">
+    <title>ICON NAV · 字体图标 · 移动端下导航</title>
+    <!-- 本地 iconfont 字体图标 CSS -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        /* ========= 艺术品牌风格 · 设计变量 ========= */
+        :root {
+            --xzr-bg-deep: #0c0a09;
+            --xzr-bg-mid: #181412;
+            --xzr-gold: #e8c67b;
+            --xzr-gold-soft: #f5dda0;
+            --xzr-gold-deep: #a67c2e;
+            --xzr-rose: #d98a8a;
+            --xzr-ink: #f4e9d1;
+            --xzr-muted: #6e5f48;
+            --xzr-nav-bg: rgba(18, 15, 13, 0.92);
+            --xzr-nav-border: rgba(232, 198, 123, 0.18);
+            --xzr-badge-red: #ff4d6d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            height: 100%;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--xzr-bg-deep);
+            color: var(--xzr-ink);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 金属纹理背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 800px 500px at 15% 20%, rgba(232,198,123,0.10), transparent 60%),
+                radial-gradient(ellipse 600px 400px at 85% 80%, rgba(217,138,138,0.08), transparent 55%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(90deg, rgba(232,198,123,0.02) 0px, rgba(232,198,123,0.02) 1px, transparent 1px, transparent 5px),
+                repeating-linear-gradient(0deg, rgba(232,198,123,0.02) 0px, rgba(232,198,123,0.02) 1px, transparent 1px, transparent 5px);
+            mix-blend-mode: overlay;
+            z-index: 0;
+        }
+
+        .xzr_page {
+            position: relative;
+            z-index: 1;
+            /* 为底部导航预留空间，使用 env 适配刘海屏 */
+            padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+            min-height: 100vh;
+        }
+
+        /* ========= 顶部栏 ========= */
+        .xzr_topbar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            padding: 16px 20px;
+            padding-top: calc(16px + env(safe-area-inset-top, 0px));
+            background: rgba(12, 10, 9, 0.78);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(232, 198, 123, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .xzr_topbar-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: var(--xzr-gold);
+        }
+
+        .xzr_topbar-sub {
+            font-size: 0.75rem;
+            color: var(--xzr-muted);
+            letter-spacing: 0.1em;
+            margin-top: 2px;
+        }
+
+        /* ========= 主内容区域（移动端模拟） ========= */
+        .xzr_main {
+            padding: 20px 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Hero 卡片 */
+        .xzr_hero-card {
+            background: linear-gradient(145deg, rgba(30,26,22,0.9), rgba(18,15,13,0.95));
+            border: 1px solid rgba(232, 198, 123, 0.2);
+            border-radius: 20px;
+            padding: 28px 22px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .xzr_hero-card::before {
+            content: "";
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232,198,123,0.2), transparent 70%);
+        }
+
+        .xzr_hero-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--xzr-gold);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .xzr_hero-desc {
+            font-size: 0.9rem;
+            color: var(--xzr-muted);
+            line-height: 1.75;
+        }
+
+        /* 内容卡片网格 */
+        .xzr_grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .xzr_content-card {
+            background: linear-gradient(145deg, rgba(30,26,22,0.9), rgba(18,15,13,0.95));
+            border: 1px solid rgba(232, 198, 123, 0.12);
+            border-radius: 16px;
+            padding: 22px 18px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .xzr_content-card:hover {
+            border-color: var(--xzr-gold);
+            transform: translateY(-3px);
+        }
+
+        /* 使用图标字体作为卡片装饰 */
+        .xzr_content-card .iconfont {
+            font-size: 2.5rem;
+            color: var(--xzr-gold);
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+
+        .xzr_content-card h4 {
+            font-size: 0.95rem;
+            color: var(--xzr-ink);
+            margin-bottom: 4px;
+        }
+
+        .xzr_content-card p {
+            font-size: 0.75rem;
+            color: var(--xzr-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* 首页入口链接 */
+        .xzr_home-entry {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.78rem;
+            color: var(--xzr-gold);
+            padding: 8px 14px;
+            border: 1px solid var(--xzr-gold-deep);
+            border-radius: 999px;
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+        }
+
+        .xzr_home-entry:hover { background: rgba(232,198,123,0.1); }
+
+        /* ========= 固定底部导航 ========= */
+        .xzr_tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            /* 使用 env() 适配 iPhone 刘海屏底部安全区 */
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            background: var(--xzr-nav-bg);
+            backdrop-filter: blur(24px) saturate(1.5);
+            -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border-top: 1px solid var(--xzr-nav-border);
+            /* 金属质感投影 */
+            box-shadow:
+                0 -1px 0 rgba(232,198,123,0.08) inset,
+                0 -20px 40px rgba(0,0,0,0.5);
+        }
+
+        .xzr_tabbar-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            height: 72px;
+            padding: 0 8px;
+        }
+
+        .xzr_tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--xzr-muted);
+            position: relative;
+            transition: color 0.3s;
+            min-width: 0; /* 防止 tab 被内容撑开 */
+        }
+
+        .xzr_tab-item:active { transform: scale(0.95); }
+
+        /* 图标容器（相对定位用于 badge） */
+        .xzr_tab-icon-wrap {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* iconfont 字体图标 */
+        .xzr_tab-item .iconfont {
+            font-size: 26px;
+            color: var(--xzr-muted);
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            display: block;
+            line-height: 1;
+        }
+
+        .xzr_tab-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            transition: all 0.35s;
+            white-space: nowrap;
+        }
+
+        /* ========= 数字徽章（右上角 99+） ========= */
+        .xzr_tab-badge {
+            position: absolute;
+            top: -2px;
+            right: -10px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: var(--xzr-badge-red);
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            line-height: 18px;
+            text-align: center;
+            letter-spacing: 0;
+            box-shadow: 0 2px 6px rgba(255, 77, 109, 0.5);
+            border: 1.5px solid var(--xzr-bg-deep);
+            animation: xzr_badgePulse 2.4s ease-in-out infinite;
+        }
+
+        @keyframes xzr_badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* ========= 红点 ========= */
+        .xzr_tab-dot {
+            position: absolute;
+            top: 0;
+            right: -4px;
+            width: 9px;
+            height: 9px;
+            background: var(--xzr-badge-red);
+            border-radius: 50%;
+            border: 1.5px solid var(--xzr-bg-deep);
+            box-shadow: 0 0 0 2px rgba(255,77,109,0.25);
+            animation: xzr_dotBreath 2s ease-in-out infinite;
+        }
+
+        @keyframes xzr_dotBreath {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px rgba(255,77,109,0.25); }
+            50% { transform: scale(1.15); box-shadow: 0 0 0 4px rgba(255,77,109,0.15); }
+        }
+
+        /* ========= 激活态 ========= */
+        .xzr_tab-item.xzr_active .iconfont {
+            color: var(--xzr-gold);
+            transform: translateY(-3px);
+            filter: drop-shadow(0 4px 12px rgba(232,198,123,0.5));
+        }
+
+        .xzr_tab-item.xzr_active .xzr_tab-label {
+            color: var(--xzr-gold);
+            transform: translateY(2px);
+        }
+
+        /* 激活态底部指示条（可选小横条） */
+        .xzr_tab-item.xzr_active::before {
+            content: "";
+            position: absolute;
+            bottom: 2px;
+            width: 16px;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--xzr-gold);
+            box-shadow: 0 0 8px rgba(232,198,123,0.6);
+            animation: xzr_fadeRise 0.3s ease;
+        }
+
+        @keyframes xzr_fadeRise {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========= 响应式适配 ========= */
+        @media (min-width: 600px) {
+            /* 桌面端居中显示模拟手机宽度 */
+            .xzr_tabbar {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-left: 1px solid var(--xzr-nav-border);
+                border-right: 1px solid var(--xzr-nav-border);
+                border-radius: 20px 20px 0 0;
+            }
+            .xzr_main { padding-bottom: 100px; }
+        }
+
+        @media (min-width: 481px) and (max-width: 599px) {
+            .xzr_tab-item .iconfont { font-size: 24px; }
+            .xzr_tab-icon-wrap { width: 32px; height: 32px; }
+        }
+    </style>
+</head>
+<body>
+<div class="xzr_page">
+
+    <!-- 顶部栏 -->
+    <header class="xzr_topbar">
+        <div>
+            <div class="xzr_topbar-title">ICON · FEST</div>
+            <div class="xzr_topbar-sub">字体图标 · iconfont · 移动端下导航</div>
+        </div>
+        <a href="index.html" class="xzr_home-entry">← 首页</a>
+    </header>
+
+    <!-- 主内容（移动端模拟） -->
+    <main class="xzr_main">
+
+        <!-- Hero -->
+        <section class="xzr_hero-card">
+            <div class="xzr_hero-title">艺术品牌 · 移动端下导航</div>
+            <div class="xzr_hero-desc">使用 font 目录下的 iconfont 自定义字体图标，构建固定底部导航。4 个 Tab，带数字徽章与红点提示。金属质感 + 金色艺术品牌风格。</div>
+        </section>
+
+        <!-- 内容卡片（使用 iconfont 字体图标展示 4 个 tab 对应的图标） -->
+        <section class="xzr_grid">
+            <div class="xzr_content-card">
+                <i class="iconfont icon-a-ziyuan253"></i>
+                <h4>首页</h4>
+                <p>资源 · HOME</p>
+            </div>
+            <div class="xzr_content-card">
+                <i class="iconfont icon-niuyouguo"></i>
+                <h4>发现</h4>
+                <p>牛油果 · DISCOVER</p>
+            </div>
+            <div class="xzr_content-card">
+                <i class="iconfont icon-gongwenbao"></i>
+                <h4>消息</h4>
+                <p>公文包 · MESSAGE</p>
+            </div>
+            <div class="xzr_content-card">
+                <i class="iconfont icon-dengpao"></i>
+                <h4>我的</h4>
+                <p>灯泡 · PROFILE</p>
+            </div>
+        </section>
+
+        <div style="text-align:center; margin-top:28px;">
+            <a href="index.html" class="xzr_home-entry">← 回到作品集首页</a>
+        </div>
+    </main>
+
+    <!-- ============== 固定底部导航（移动端自适应） ============== -->
+    <nav class="xzr_tabbar" aria-label="底部导航">
+        <div class="xzr_tabbar-inner">
+
+            <!-- 1. 首页（激活态） -->
+            <a class="xzr_tab-item xzr_active" href="iconfont-3.html">
+                <span class="xzr_tab-icon-wrap">
+                    <i class="iconfont icon-a-ziyuan253"></i>
+                </span>
+                <span class="xzr_tab-label">首页</span>
+            </a>
+
+            <!-- 2. 发现（带红点） -->
+            <a class="xzr_tab-item" href="#discover" data-target="discover">
+                <span class="xzr_tab-icon-wrap">
+                    <i class="iconfont icon-niuyouguo"></i>
+                    <span class="xzr_tab-dot"></span>
+                </span>
+                <span class="xzr_tab-label">发现</span>
+            </a>
+
+            <!-- 3. 消息（带数字徽章） -->
+            <a class="xzr_tab-item" href="#message" data-target="message">
+                <span class="xzr_tab-icon-wrap">
+                    <i class="iconfont icon-gongwenbao"></i>
+                    <span class="xzr_tab-badge">99+</span>
+                </span>
+                <span class="xzr_tab-label">消息</span>
+            </a>
+
+            <!-- 4. 我的 -->
+            <a class="xzr_tab-item" href="#profile" data-target="profile">
+                <span class="xzr_tab-icon-wrap">
+                    <i class="iconfont icon-dengpao"></i>
+                </span>
+                <span class="xzr_tab-label">我的</span>
+            </a>
+
+        </div>
+    </nav>
+
+</div>
+
+<script>
+    // ========= Tab 切换逻辑 =========
+    document.querySelectorAll('.xzr_tab-item').forEach(item => {
+        // 跳过第一个（本身就是激活态，且链接到当前页面）
+        if (item.classList.contains('xzr_active')) return;
+
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            // 切换激活态
+            document.querySelectorAll('.xzr_tab-item').forEach(t => t.classList.remove('xzr_active'));
+            this.classList.add('xzr_active');
+
+            // 清除徽章/红点（演示效果）
+            const badge = this.querySelector('.xzr_tab-badge');
+            const dot = this.querySelector('.xzr_tab-dot');
+            if (badge) badge.style.display = 'none';
+            if (dot) dot.style.display = 'none';
+
+            // 简单的提示
+            const label = this.querySelector('.xzr_tab-label').textContent;
+            console.log('切换到 Tab:', label);
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICON FEST — Font Awesome · 艺术品牌图标展</title>
+    <link rel="stylesheet" href="cdn/fontawesome/css/all.min.css">
+    <style>
+        /* ============== 艺术品牌风格 · 设计变量 ============== */
+        :root {
+            --xzr-bg-deep: #0c0a09;
+            --xzr-bg-mid: #1a1613;
+            --xzr-bg-sheen: linear-gradient(180deg, #1f1b17 0%, #12100e 100%);
+            --xzr-gold: #e8c67b;
+            --xzr-gold-soft: #f5dda0;
+            --xzr-gold-deep: #a67c2e;
+            --xzr-rose: #d98a8a;
+            --xzr-rose-deep: #8c3d4a;
+            --xzr-ink: #f4e9d1;
+            --xzr-muted: #8b7a62;
+            --xzr-card-bg: linear-gradient(145deg, rgba(30,26,22,0.95), rgba(18,15,13,0.98));
+            --xzr-card-border: rgba(232, 198, 123, 0.18);
+            --xzr-shadow-warm: 0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(232,198,123,0.05);
+        }
+
+        /* ============== 金属纹理背景 ============== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @keyframes xzr_ambientShift {
+            0%, 100% { transform: translate(0,0) rotate(0deg); opacity: 0.7; }
+            50% { transform: translate(30px, -20px) rotate(6deg); opacity: 1; }
+        }
+
+        @keyframes xzr_floatY {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+
+        @keyframes xzr_shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes xzr_spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes xzr_iconPop {
+            0% { transform: scale(1) rotate(0); }
+            40% { transform: scale(1.25) rotate(-8deg); }
+            70% { transform: scale(0.95) rotate(4deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        @keyframes xzr_fadeRise {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Playfair Display", "Noto Serif SC", "Times New Roman", serif;
+            background: var(--xzr-bg-deep);
+            color: var(--xzr-ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.7;
+        }
+
+        /* 金属纹理 + 环境光晕 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 800px 500px at 15% 20%, rgba(232,198,123,0.14), transparent 60%),
+                radial-gradient(ellipse 600px 400px at 85% 80%, rgba(217,138,138,0.10), transparent 55%),
+                radial-gradient(ellipse 500px 300px at 50% 50%, rgba(166,124,46,0.07), transparent 70%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(90deg, rgba(232,198,123,0.025) 0px, rgba(232,198,123,0.025) 1px, transparent 1px, transparent 4px),
+                repeating-linear-gradient(0deg, rgba(232,198,123,0.025) 0px, rgba(232,198,123,0.025) 1px, transparent 1px, transparent 4px);
+            mix-blend-mode: overlay;
+            z-index: 0;
+        }
+
+        .xzr_page {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============== 导航条 ============== */
+        .xzr_nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 22px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(12, 10, 9, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(232, 198, 123, 0.15);
+        }
+
+        .xzr_brand {
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            color: var(--xzr-gold);
+            text-shadow: 0 0 20px rgba(232,198,123,0.4);
+        }
+
+        .xzr_nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .xzr_nav-links a {
+            color: var(--xzr-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .xzr_nav-links a:hover { color: var(--xzr-gold); }
+
+        .xzr_home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--xzr-gold);
+            border-radius: 999px;
+            color: var(--xzr-gold) !important;
+            background: rgba(232,198,123,0.08);
+            transition: all 0.35s !important;
+        }
+
+        .xzr_home-link:hover {
+            background: var(--xzr-gold) !important;
+            color: var(--xzr-bg-deep) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(232,198,123,0.35);
+        }
+
+        /* ============== Hero 区 ============== */
+        .xzr_hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 40px 80px;
+            position: relative;
+        }
+
+        .xzr_hero::before {
+            content: "";
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232,198,123,0.12) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .xzr_hero-tag {
+            display: inline-block;
+            padding: 10px 26px;
+            border: 1px solid var(--xzr-gold-deep);
+            border-radius: 999px;
+            font-size: 0.78rem;
+            letter-spacing: 0.4em;
+            color: var(--xzr-gold);
+            background: rgba(232,198,123,0.06);
+            margin-bottom: 40px;
+            animation: xzr_fadeRise 0.8s ease both;
+        }
+
+        /* 3D 浮雕标题 */
+        .xzr_hero-title {
+            font-size: clamp(4rem, 12vw, 9rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 28px;
+            background: linear-gradient(180deg, var(--xzr-gold-soft) 0%, var(--xzr-gold) 40%, var(--xzr-gold-deep) 80%, #6e5020 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            animation: xzr_fadeRise 1s ease 0.1s both;
+            filter: drop-shadow(0 6px 30px rgba(232,198,123,0.25));
+        }
+
+        .xzr_hero-title::after {
+            content: attr(data-title);
+            position: absolute;
+            inset: 0;
+            -webkit-text-fill-color: transparent;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            transform: translateY(6px);
+            filter: blur(8px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .xzr_hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--xzr-muted);
+            letter-spacing: 0.15em;
+            margin-bottom: 50px;
+            animation: xzr_fadeRise 1s ease 0.3s both;
+        }
+
+        /* Hero 中央浮动装饰图标 */
+        .xzr_hero-icons {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .xzr_float-icon {
+            position: absolute;
+            color: var(--xzr-gold);
+            opacity: 0.12;
+            filter: blur(0.5px);
+            animation: xzr_floatY 6s ease-in-out infinite;
+        }
+
+        /* ============== 分类区块标题 ============== */
+        .xzr_section {
+            padding: 100px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .xzr_section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .xzr_section-number {
+            display: block;
+            font-family: "Playfair Display", serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--xzr-gold-deep);
+            letter-spacing: 0.4em;
+            margin-bottom: 14px;
+        }
+
+        .xzr_section-title {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, var(--xzr-gold-soft), var(--xzr-gold), var(--xzr-gold-soft));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: xzr_shimmer 4s linear infinite;
+        }
+
+        .xzr_section-line {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--xzr-gold), transparent);
+            margin: 24px auto 0;
+        }
+
+        /* ============== 图标卡片网格 ============== */
+        .xzr_icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 28px;
+        }
+
+        .xzr_icon-card {
+            background: var(--xzr-card-bg);
+            border: 1px solid var(--xzr-card-border);
+            border-radius: 20px;
+            padding: 38px 20px 28px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.45s cubic-bezier(0.22,1,0.36,1);
+            cursor: pointer;
+        }
+
+        .xzr_icon-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--xzr-gold), transparent);
+            opacity: 0;
+            transition: opacity 0.45s;
+        }
+
+        .xzr_icon-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--xzr-mx, 50%) var(--xzr-my, 50%), rgba(232,198,123,0.12), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .xzr_icon-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--xzr-gold);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,198,123,0.3);
+        }
+
+        .xzr_icon-card:hover::before,
+        .xzr_icon-card:hover::after { opacity: 1; }
+
+        .xzr_icon-card:hover .xzr_the-icon {
+            animation: xzr_iconPop 0.7s ease;
+            color: var(--xzr-gold-soft);
+            filter: drop-shadow(0 0 20px rgba(232,198,123,0.5));
+        }
+
+        .xzr_the-icon {
+            font-size: 3.2rem;
+            color: var(--xzr-ink);
+            margin-bottom: 18px;
+            display: inline-block;
+            transition: color 0.4s, filter 0.4s;
+        }
+
+        .xzr_icon-name {
+            font-size: 0.78rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--xzr-muted);
+            font-family: "SFMono-Regular", Consolas, monospace;
+            transition: color 0.3s;
+        }
+
+        .xzr_icon-card:hover .xzr_icon-name { color: var(--xzr-gold); }
+
+        /* 分类标签 */
+        .xzr_category-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .xzr_cat-solid { background: rgba(232,198,123,0.15); color: var(--xzr-gold); }
+        .xzr_cat-regular { background: rgba(217,138,138,0.15); color: var(--xzr-rose); }
+        .xzr_cat-brands { background: rgba(140,160,220,0.15); color: #aec3e8; }
+
+        /* ============== 底部 ============== */
+        .xzr_footer {
+            padding: 80px 40px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(232,198,123,0.12);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .xzr_footer-note {
+            color: var(--xzr-muted);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+        }
+
+        .xzr_back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 14px 32px;
+            border: 1px solid var(--xzr-gold);
+            border-radius: 999px;
+            color: var(--xzr-gold);
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            font-size: 0.85rem;
+            transition: all 0.35s;
+        }
+
+        .xzr_back-home:hover {
+            background: var(--xzr-gold);
+            color: var(--xzr-bg-deep);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(232,198,123,0.4);
+        }
+
+        /* ============== 响应式 ============== */
+        @media (max-width: 768px) {
+            .xzr_nav { padding: 16px 22px; }
+            .xzr_nav-links { gap: 14px; }
+            .xzr_nav-links a:not(.xzr_home-link) { display: none; }
+            .xzr_section { padding: 60px 24px; }
+            .xzr_icon-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px; }
+            .xzr_the-icon { font-size: 2.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="xzr_page">
+
+    <!-- 导航 -->
+    <nav class="xzr_nav">
+        <div class="xzr_brand">ICON · FEST</div>
+        <div class="xzr_nav-links">
+            <a href="#solid">SOLID</a>
+            <a href="#regular">REGULAR</a>
+            <a href="#brands">BRANDS</a>
+            <a class="xzr_home-link" href="index.html"><i class="fa-solid fa-house"></i> 返回首页</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="xzr_hero">
+        <div class="xzr_hero-icons">
+            <i class="xzr_float-icon fa-solid fa-crown" style="font-size:6rem; top:18%; left:8%; animation-delay:0s;"></i>
+            <i class="xzr_float-icon fa-solid fa-gem" style="font-size:5rem; top:28%; right:10%; animation-delay:1.2s;"></i>
+            <i class="xzr_float-icon fa-solid fa-star" style="font-size:4rem; bottom:22%; left:12%; animation-delay:2.4s;"></i>
+            <i class="xzr_float-icon fa-solid fa-fire" style="font-size:5.5rem; bottom:18%; right:8%; animation-delay:0.6s;"></i>
+            <i class="xzr_float-icon fa-solid fa-wand-magic-sparkles" style="font-size:4.5rem; top:55%; left:4%; animation-delay:1.8s;"></i>
+            <i class="xzr_float-icon fa-solid fa-feather" style="font-size:4rem; top:62%; right:6%; animation-delay:3s;"></i>
+        </div>
+        <span class="xzr_hero-tag">FONT · AWESOME · 6.5</span>
+        <h1 class="xzr_hero-title" data-title">ICON FESTIVAL</h1>
+        <p class="xzr_hero-subtitle">一场关于金属、光影与符号的艺术派对</p>
+    </section>
+
+    <!-- Solid Icons -->
+    <section class="xzr_section" id="solid">
+        <div class="xzr_section-header">
+            <span class="xzr_section-number">— 01 —</span>
+            <h2 class="xzr_section-title">Solid · 实心盛宴</h2>
+            <div class="xzr_section-line"></div>
+        </div>
+        <div class="xzr_icon-grid" id="xzr_solidGrid"></div>
+    </section>
+
+    <!-- Regular Icons -->
+    <section class="xzr_section" id="regular">
+        <div class="xzr_section-header">
+            <span class="xzr_section-number">— 02 —</span>
+            <h2 class="xzr_section-title">Regular · 优雅轮廓</h2>
+            <div class="xzr_section-line"></div>
+        </div>
+        <div class="xzr_icon-grid" id="xzr_regularGrid"></div>
+    </section>
+
+    <!-- Brands Icons -->
+    <section class="xzr_section" id="brands">
+        <div class="xzr_section-header">
+            <span class="xzr_section-number">— 03 —</span>
+            <h2 class="xzr_section-title">Brands · 品牌宇宙</h2>
+            <div class="xzr_section-line"></div>
+        </div>
+        <div class="xzr_icon-grid" id="xzr_brandsGrid"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="xzr_footer">
+        <p class="xzr_footer-note">FONTAWESOME · ARTISTIC BRAND · LOCAL CDN</p>
+        <a class="xzr_back-home" href="index.html"><i class="fa-solid fa-arrow-left"></i> 回到作品集首页</a>
+    </footer>
+
+</div>
+
+<script>
+    // ========== 图标数据 ==========
+    const xzr_solidIcons = [
+        'fa-house','fa-heart','fa-star','fa-rocket','fa-crown','fa-gem','fa-fire','fa-wand-magic-sparkles',
+        'fa-feather','fa-moon','fa-sun','fa-cloud','fa-bolt','fa-leaf','fa-flower','fa-mountain',
+        'fa-compass','fa-globe','fa-eye','fa-hand','fa-bolt','fa-shield','fa-key','fa-lock',
+        'fa-unlock','fa-music','fa-camera','fa-film','fa-palette','fa-brush','fa-pen','fa-pencil',
+        'fa-book','fa-scroll','fa-feather-pointed','fa-dice','fa-chess','fa-gamepad','fa-headphones',
+        'fa-microphone','fa-envelope','fa-phone','fa-location-dot','fa-calendar','fa-clock','fa-hourglass',
+        'fa-cube','fa-box','fa-diamond','fa-circle','fa-square','fa-triangle','fa-play','fa-pause'
+    ];
+
+    const xzr_regularIcons = [
+        'fa-heart','fa-star','fa-bookmark','fa-circle','fa-square','fa-comment','fa-envelope',
+        'fa-eye','fa-file','fa-folder','fa-image','fa-lightbulb','fa-map','fa-moon',
+        'fa-note-sticky','fa-paper-plane','fa-pen-to-square','fa-rectangle-list','fa-face-smile',
+        'fa-face-frown','fa-meh','fa-thumbs-up','fa-thumbs-down','fa-clock','fa-calendar',
+        'fa-gem','fa-hand','fa-key','fa-kit-medical','fa-lemon','fa-life-ring','fa-lightbulb',
+        'fa-magnifying-glass','fa-map-pin','fa-moon','fa-music','fa-newspaper','fa-paperclip',
+        'fa-pen','fa-pen-nib','fa-pen-ruler','fa-picture','fa-play-circle','fa-plus-square',
+        'fa-puzzle-piece','fa-quote-left','fa-quote-right','fa-rectangle','fa-rectangle-horizontal',
+        'fa-registered','fa-save','fa-scissors','fa-share','fa-share-from-square','fa-smile','fa-snowflake',
+        'fa-square','fa-star','fa-sticky-note','fa-stop-circle','fa-sun','fa-sun-plant-wilt'
+    ];
+
+    const xzr_brandsIcons = [
+        'fa-apple','fa-google','fa-microsoft','fa-amazon','fa-meta','fa-twitter','fa-instagram',
+        'fa-youtube','fa-spotify','fa-github','fa-gitlab','fa-docker','fa-react','fa-vuejs',
+        'fa-angular','fa-node-js','fa-python','fa-java','fa-js','fa-html5','fa-css3',
+        'fa-sass','fa-less','fa-npm','fa-yarn','fa-codepen','fa-dribbble','fa-behance',
+        'fa-pinterest','fa-tiktok','fa-weixin','fa-weibo','fa-qq','fa-bilibili','fa-zhihu',
+        'fa-alipay','fa-cc-visa','fa-cc-mastercard','fa-paypal','fa-steam','fa-playstation',
+        'fa-xbox','fa-nintendo-switch','fa-tesla','fa-bmw','fa-audi','fa-mercedes','fa-ferrari',
+        'fa-starbucks','fa-mcdonalds','fa-slack','fa-telegram','fa-whatsapp','fa-discord',
+        'fa-figma','fa-sketch','fa-adobe','fa-photoshop','fa-illustrator','fa-premier','fa-aftereffects'
+    ];
+
+    // ========== 渲染函数 ==========
+    function xzr_renderIcons(arr, containerId, catClass) {
+        const grid = document.getElementById(containerId);
+        if (!grid) return;
+        arr.forEach((cls, idx) => {
+            const card = document.createElement('div');
+            card.className = 'xzr_icon-card';
+            card.innerHTML = `
+                <span class="xzr_category-tag ${catClass}">${catClass.replace('xzr_cat-','').toUpperCase()}</span>
+                <i class="xzr_the-icon fa-solid ${cls}"></i>
+                <div class="xzr_icon-name">${cls.replace('fa-','')}</div>
+            `;
+            // 鼠标跟随光晕
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--xzr-mx', (e.clientX - rect.left) + 'px');
+                card.style.setProperty('--xzr-my', (e.clientY - rect.top) + 'px');
+            });
+            card.style.animation = `xzr_fadeRise 0.6s ease ${idx * 0.03}s both`;
+            grid.appendChild(card);
+        });
+    }
+
+    xzr_renderIcons(xzr_solidIcons, 'xzr_solidGrid', 'xzr_cat-solid');
+    xzr_renderIcons(xzr_regularIcons, 'xzr_regularGrid', 'xzr_cat-regular');
+    xzr_renderIcons(xzr_brandsIcons, 'xzr_brandsGrid', 'xzr_cat-brands');
+
+    // 让 regular 和 brands 使用正确的 style 前缀
+    document.querySelectorAll('#xzr_regularGrid .xzr_the-icon').forEach(el => {
+        el.classList.remove('fa-solid');
+        el.classList.add('fa-regular');
+    });
+    document.querySelectorAll('#xzr_brandsGrid .xzr_the-icon').forEach(el => {
+        el.classList.remove('fa-solid');
+        el.classList.add('fa-brands');
+    });
+</script>
+
+</body>
+</html>

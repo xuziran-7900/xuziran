@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICON FEST · Lucide · 艺术品牌图标展</title>
+    <style>
+        /* ============== 艺术品牌风格 · 设计变量 ============== */
+        :root {
+            --xzr-bg-deep: #0d0a0a;
+            --xzr-bg-mid: #171212;
+            --xzr-copper: #d4907a;
+            --xzr-copper-soft: #f5b89a;
+            --xzr-copper-deep: #8b4a38;
+            --xzr-emerald: #7fb89c;
+            --xzr-emerald-deep: #3d7a5e;
+            --xzr-ink: #f4e6d8;
+            --xzr-muted: #8b7a6a;
+            --xzr-card-bg: linear-gradient(145deg, rgba(26,20,18,0.95), rgba(16,12,12,0.98));
+            --xzr-card-border: rgba(212, 144, 122, 0.18);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @keyframes xzr_fadeRise {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes xzr_floatY {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(4deg); }
+        }
+
+        @keyframes xzr_shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes xzr_spinRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes xzr_svgBreathe {
+            0%, 100% { transform: scale(1); stroke-width: 1.75; }
+            50% { transform: scale(1.08); stroke-width: 2.2; }
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Playfair Display", "Noto Serif SC", "Times New Roman", serif;
+            background: var(--xzr-bg-deep);
+            color: var(--xzr-ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.7;
+        }
+
+        /* 金属纹理 + 环境光晕 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 700px 500px at 20% 30%, rgba(212,144,122,0.14), transparent 60%),
+                radial-gradient(ellipse 600px 400px at 80% 70%, rgba(127,184,156,0.10), transparent 55%),
+                radial-gradient(ellipse 500px 300px at 50% 50%, rgba(139,74,56,0.08), transparent 70%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(90deg, rgba(212,144,122,0.03) 0px, rgba(212,144,122,0.03) 1px, transparent 1px, transparent 5px),
+                repeating-linear-gradient(0deg, rgba(212,144,122,0.03) 0px, rgba(212,144,122,0.03) 1px, transparent 1px, transparent 5px);
+            mix-blend-mode: overlay;
+            z-index: 0;
+        }
+
+        .xzr_page { position: relative; z-index: 1; }
+
+        /* ============== 导航 ============== */
+        .xzr_nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 50;
+            padding: 22px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(13,10,10,0.78);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(212,144,122,0.15);
+        }
+
+        .xzr_brand {
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            color: var(--xzr-copper);
+            text-shadow: 0 0 20px rgba(212,144,122,0.4);
+        }
+
+        .xzr_nav-links {
+            display: flex; gap: 28px; align-items: center;
+        }
+
+        .xzr_nav-links a {
+            color: var(--xzr-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .xzr_nav-links a:hover { color: var(--xzr-copper); }
+
+        .xzr_home-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--xzr-copper);
+            border-radius: 999px;
+            color: var(--xzr-copper) !important;
+            background: rgba(212,144,122,0.08);
+            transition: all 0.35s !important;
+        }
+
+        .xzr_home-link svg {
+            width: 14px; height: 14px;
+        }
+
+        .xzr_home-link:hover {
+            background: var(--xzr-copper) !important;
+            color: var(--xzr-bg-deep) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212,144,122,0.35);
+        }
+
+        /* ============== Hero ============== */
+        .xzr_hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 40px 80px;
+            position: relative;
+        }
+
+        .xzr_hero::before {
+            content: "";
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,144,122,0.12) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .xzr_hero-ring {
+            position: absolute;
+            width: 520px; height: 520px;
+            border-radius: 50%;
+            border: 1px dashed rgba(212,144,122,0.25);
+            animation: xzr_spinRing 40s linear infinite;
+            pointer-events: none;
+        }
+        .xzr_hero-ring::before {
+            content: "";
+            position: absolute;
+            inset: -40px;
+            border-radius: 50%;
+            border: 1px solid rgba(212,144,122,0.08);
+        }
+        .xzr_hero-ring::after {
+            content: "";
+            position: absolute;
+            inset: 80px;
+            border-radius: 50%;
+            border: 1px dashed rgba(127,184,156,0.2);
+            animation: xzr_spinRing -28s linear infinite;
+        }
+
+        .xzr_hero-tag {
+            display: inline-block;
+            padding: 10px 26px;
+            border: 1px solid var(--xzr-copper-deep);
+            border-radius: 999px;
+            font-size: 0.78rem;
+            letter-spacing: 0.4em;
+            color: var(--xzr-copper);
+            background: rgba(212,144,122,0.06);
+            margin-bottom: 40px;
+            animation: xzr_fadeRise 0.8s ease both;
+        }
+
+        /* 3D 浮雕标题 */
+        .xzr_hero-title {
+            font-size: clamp(4rem, 12vw, 9rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 28px;
+            background: linear-gradient(180deg, var(--xzr-copper-soft) 0%, var(--xzr-copper) 40%, var(--xzr-copper-deep) 80%, #5a2f22 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: xzr_fadeRise 1s ease 0.1s both;
+            filter: drop-shadow(0 6px 30px rgba(212,144,122,0.28));
+        }
+
+        .xzr_hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--xzr-muted);
+            letter-spacing: 0.15em;
+            margin-bottom: 50px;
+            animation: xzr_fadeRise 1s ease 0.3s both;
+        }
+
+        /* ============== 分类区块标题 ============== */
+        .xzr_section {
+            padding: 100px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .xzr_section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .xzr_section-number {
+            display: block;
+            font-family: "Playfair Display", serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--xzr-copper-deep);
+            letter-spacing: 0.4em;
+            margin-bottom: 14px;
+        }
+
+        .xzr_section-title {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, var(--xzr-copper-soft), var(--xzr-copper), var(--xzr-copper-soft));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: xzr_shimmer 4s linear infinite;
+        }
+
+        .xzr_section-line {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--xzr-copper), transparent);
+            margin: 24px auto 0;
+        }
+
+        /* ============== 图标卡片网格 ============== */
+        .xzr_icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 28px;
+        }
+
+        .xzr_icon-card {
+            background: var(--xzr-card-bg);
+            border: 1px solid var(--xzr-card-border);
+            border-radius: 20px;
+            padding: 38px 20px 28px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.45s cubic-bezier(0.22,1,0.36,1);
+            cursor: pointer;
+        }
+
+        .xzr_icon-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--xzr-copper), transparent);
+            opacity: 0;
+            transition: opacity 0.45s;
+        }
+
+        .xzr_icon-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--xzr-mx, 50%) var(--xzr-my, 50%), rgba(212,144,122,0.14), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .xzr_icon-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--xzr-copper);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,144,122,0.3);
+        }
+
+        .xzr_icon-card:hover::before,
+        .xzr_icon-card:hover::after { opacity: 1; }
+
+        /* Lucide SVG 基础样式 */
+        .xzr_the-icon {
+            width: 64px !important;
+            height: 64px !important;
+            stroke: var(--xzr-ink);
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            margin-bottom: 18px;
+            display: inline-block;
+            transition: stroke 0.4s, filter 0.4s, transform 0.4s;
+        }
+
+        .xzr_icon-card:hover .xzr_the-icon {
+            stroke: var(--xzr-copper-soft);
+            filter: drop-shadow(0 0 20px rgba(212,144,122,0.55));
+            transform: scale(1.12) rotate(-4deg);
+        }
+
+        .xzr_icon-name {
+            font-size: 0.78rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--xzr-muted);
+            font-family: "SFMono-Regular", Consolas, monospace;
+            transition: color 0.3s;
+        }
+
+        .xzr_icon-card:hover .xzr_icon-name { color: var(--xzr-copper); }
+
+        .xzr_category-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .xzr_cat-outline { background: rgba(212,144,122,0.15); color: var(--xzr-copper); }
+        .xzr_cat-solid-style { background: rgba(127,184,156,0.15); color: var(--xzr-emerald); }
+        .xzr_cat-brand { background: rgba(164,148,210,0.15); color: #c4b6e8; }
+
+        /* ============== 特色展示卡 ============== */
+        .xzr_feature-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+            margin-bottom: 100px;
+        }
+
+        .xzr_feature-card {
+            background: var(--xzr-card-bg);
+            border: 1px solid var(--xzr-card-border);
+            border-radius: 24px;
+            padding: 48px 36px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.45s;
+        }
+
+        .xzr_feature-card:hover {
+            border-color: var(--xzr-copper);
+            transform: translateY(-6px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+        }
+
+        .xzr_feature-icon svg {
+            width: 72px; height: 72px;
+            stroke: var(--xzr-copper);
+            stroke-width: 1.5;
+            filter: drop-shadow(0 0 18px rgba(212,144,122,0.4));
+            animation: xzr_floatY 5s ease-in-out infinite;
+        }
+
+        .xzr_feature-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin: 22px 0 12px;
+            letter-spacing: 0.02em;
+        }
+
+        .xzr_feature-desc {
+            color: var(--xzr-muted);
+            font-size: 0.95rem;
+            line-height: 1.85;
+        }
+
+        /* ============== 底部 ============== */
+        .xzr_footer {
+            padding: 80px 40px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(212,144,122,0.12);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .xzr_footer-note {
+            color: var(--xzr-muted);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+        }
+
+        .xzr_back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 14px 32px;
+            border: 1px solid var(--xzr-copper);
+            border-radius: 999px;
+            color: var(--xzr-copper);
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            font-size: 0.85rem;
+            transition: all 0.35s;
+        }
+
+        .xzr_back-home svg { width: 16px; height: 16px; }
+
+        .xzr_back-home:hover {
+            background: var(--xzr-copper);
+            color: var(--xzr-bg-deep);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212,144,122,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .xzr_nav { padding: 16px 22px; }
+            .xzr_nav-links { gap: 14px; }
+            .xzr_nav-links a:not(.xzr_home-link) { display: none; }
+            .xzr_section { padding: 60px 24px; }
+            .xzr_icon-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="xzr_page">
+
+    <!-- 导航 -->
+    <nav class="xzr_nav">
+        <div class="xzr_brand">ICON · FEST</div>
+        <div class="xzr_nav-links">
+            <a href="#features">FEATURES</a>
+            <a href="#outline">OUTLINE</a>
+            <a href="#more">MORE</a>
+            <a class="xzr_home-link" href="index.html">
+                <i data-lucide="home"></i> 返回首页
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="xzr_hero">
+        <div class="xzr_hero-ring"></div>
+        <span class="xzr_hero-tag">LUCIDE · 0.445</span>
+        <h1 class="xzr_hero-title">LUCIDE · LINES</h1>
+        <p class="xzr_hero-subtitle">SVG · 线条的诗 · 矢量的礼赞</p>
+    </section>
+
+    <!-- 特色区 -->
+    <section class="xzr_section" id="features">
+        <div class="xzr_section-header">
+            <span class="xzr_section-number">— 特色 —</span>
+            <h2 class="xzr_section-title">为什么是 Lucide</h2>
+            <div class="xzr_section-line"></div>
+        </div>
+        <div class="xzr_feature-row">
+            <div class="xzr_feature-card">
+                <div class="xzr_feature-icon"><i data-lucide="sparkles"></i></div>
+                <h3 class="xzr_feature-title">纯矢量 SVG</h3>
+                <p class="xzr_feature-desc">无论放大多少倍都清晰锐利，颜色、线宽、圆角全部可由 CSS 自由定义，无需加载字体文件。</p>
+            </div>
+            <div class="xzr_feature-card">
+                <div class="xzr_feature-icon"><i data-lucide="paintbrush"></i></div>
+                <h3 class="xzr_feature-title">手绘质感</h3>
+                <p class="xzr_feature-desc">由设计师手绘线条打磨而成，统一的 1.5px 线宽、圆润的端点，自带艺术与温度。</p>
+            </div>
+            <div class="xzr_feature-card">
+                <div class="xzr_feature-icon"><i data-lucide="infinity"></i></div>
+                <h3 class="xzr_feature-title">无限可定制</h3>
+                <p class="xzr_feature-desc">通过 stroke、stroke-width、fill、class 属性和 CSS 变量，轻松实现千变万化的风格。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Outline 图标展示 -->
+    <section class="xzr_section" id="outline">
+        <div class="xzr_section-header">
+            <span class="xzr_section-number">— 01 —</span>
+            <h2 class="xzr_section-title">Outline · 线条集</h2>
+            <div class="xzr_section-line"></div>
+        </div>
+        <div class="xzr_icon-grid" id="xzr_outlineGrid"></div>
+    </section>
+
+    <!-- More 图标展示 -->
+    <section class="xzr_section" id="more">
+        <div class="xzr_section-header">
+            <span class="xzr_section-number">— 02 —</span>
+            <h2 class="xzr_section-title">More · 更多</h2>
+            <div class="xzr_section-line"></div>
+        </div>
+        <div class="xzr_icon-grid" id="xzr_moreGrid"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="xzr_footer">
+        <p class="xzr_footer-note">LUCIDE · ARTISTIC BRAND · LOCAL CDN · SVG POWERED</p>
+        <a class="xzr_back-home" href="index.html">
+            <i data-lucide="arrow-left"></i> 回到作品集首页
+        </a>
+    </footer>
+
+</div>
+
+<!-- Lucide 本地 CDN -->
+<script src="cdn/lucide/lucide.min.js"></script>
+<script>
+    // ========== 图标数据 ==========
+    const xzr_outlineIcons = [
+        'home','heart','star','rocket','crown','gem','flame','wand-sparkles',
+        'feather','moon','sun','cloud','zap','leaf','flower-2','mountain',
+        'compass','globe','eye','hand','shield','key','lock','unlock',
+        'music','camera','film','palette','brush','pen-tool','book','scroll',
+        'dice-5','chess-knight','gamepad-2','headphones','mic','mail','phone',
+        'map-pin','calendar','clock','hourglass','box','circle','square','triangle',
+        'play','pause','skull','ghost','bot','cpu','database','server',
+        'wifi','bluetooth','battery','signal','airplay','cast','radio','tv',
+        'coffee','utensils','chef-hat','cake','apple','cherry','car','bike'
+    ];
+
+    const xzr_moreIcons = [
+        'briefcase','building','landmark','store','warehouse','factory','bank',
+        'truck','ship','plane','train','car','bus','taxi','ferry','tramway',
+        'accessibility','baby','dog','cat','bird','fish','rabbit','turtle',
+        'anchor','bell','bookmark','book-open','book-marked','library','graduation-cap',
+        'award','badge','medal','trophy','crown','sword','candle','gift',
+        'heart-handshake','heart-pulse','heart-crack','heart','heart-off','heart-handshake',
+        'layers','type','file-text','file-plus','file-minus','file-x','file-lock',
+        'folder','folder-plus','folder-minus','folder-x','folder-open','file-archive',
+        'download','upload','share-2','share','link','link-off','copy','scissors',
+        'edit-3','edit-2','edit','pen-line','pen-tool','pencil','eraser','sticky-note'
+    ];
+
+    // ========== 渲染函数 ==========
+    function xzr_renderIcons(names, containerId, catClass) {
+        const grid = document.getElementById(containerId);
+        if (!grid) return;
+        names.forEach((name, idx) => {
+            const card = document.createElement('div');
+            card.className = 'xzr_icon-card';
+            card.innerHTML = `
+                <span class="xzr_category-tag ${catClass}">${catClass.replace('xzr_cat-','').toUpperCase()}</span>
+                <i data-lucide="${name}" class="xzr_the-icon"></i>
+                <div class="xzr_icon-name">${name}</div>
+            `;
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--xzr-mx', (e.clientX - rect.left) + 'px');
+                card.style.setProperty('--xzr-my', (e.clientY - rect.top) + 'px');
+            });
+            card.style.animation = `xzr_fadeRise 0.6s ease ${idx * 0.03}s both`;
+            grid.appendChild(card);
+        });
+    }
+
+    xzr_renderIcons(xzr_outlineIcons, 'xzr_outlineGrid', 'xzr_cat-outline');
+    xzr_renderIcons(xzr_moreIcons, 'xzr_moreGrid', 'xzr_cat-solid-style');
+
+    // 初始化 Lucide
+    lucide.createIcons({
+        attrs: {
+            class: ['xzr_the-icon']
+        }
+    });
+</script>
+
+</body>
+</html>
