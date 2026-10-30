@@ -55,3 +55,15 @@
 - **提示词内容**:
 
 创建技能skill：提交到github，将本项目提交commit并push到`https://github.com/xuziran-7900/xuziran.git`，使用已设置公钥。
+
+---
+
+- **时间**: 2026-10-30
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+扫描当前整个项目，自动分析项目技术栈、目录结构、编码规范、构建命令、测试命令、依赖、分支规范，生成标准AGENTS.md文件，保存到项目根目录。
+要求：
+1. Markdown 格式
+2. 内容包含：项目简介、技术栈、目录说明、开发命令、代码规范、提交规范、注意事项
+3. 生成后写入文件 AGENTS.md
