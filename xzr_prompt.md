@@ -39,3 +39,19 @@
 - **提示词内容**:
 
 创建 skills：提交项目：使用 commit 并 push 到 gittee 仓库，gitee 私人令牌：919890123fa1f3f711adf39230795653;仓库地址：`https://gitee.com/neusoft_wangyao_jsj/xu-ziran-xzr.git`
+
+---
+
+- **时间**: 2026-10-30
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+获得 git 公钥，没有则先创建一个
+
+---
+
+- **时间**: 2026-10-30
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+创建技能skill：提交到github，将本项目提交commit并push到`https://github.com/xuziran-7900/xuziran.git`，使用已设置公钥。
