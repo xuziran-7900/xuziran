@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 建立时间: 2026-11-04                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 视频热播排行榜 · 每日/每周/每月/全部 四 Tab 切换 │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>tv-ranking · 视频热播榜</title>
+<style>
+  /* ========== 基础重置 ========== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+    background: #ffffff;
+    color: #222;
+    min-height: 100vh;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  /* ========== 返回首页按钮 ========== */
+  .xzr_back-home {
+    position: fixed; top: 16px; left: 16px; z-index: 100;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 8px 16px; border-radius: 18px;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #555; font-size: 13px;
+    transition: all 0.25s ease;
+  }
+  .xzr_back-home:hover { background: rgba(0,0,0,0.1); color: #222; }
+
+  /* ========== 页面外层容器 ========== */
+  .xzr_page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+  }
+
+  /* ========== 大标题区 ========== */
+  .xzr_page-title {
+    padding: 72px 0 20px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  /* ========== Tab 栏 ========== */
+  .xzr_rank_tab_container {
+    border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 24px;
+  }
+  .xzr_rank_tab_nav {
+    display: flex;
+    gap: 0;
+  }
+  /* 单个 Tab 头 */
+  .xzr_rank_tab-item {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.25s ease;
+  }
+  .xzr_rank_tab-item:hover { color: #444; }
+  /* ✅ 选中态：深灰胶囊背景 + 白色文字 + 底部无下划线（胶囊代替） */
+  .xzr_rank_tab-item.xzr_active {
+    color: #ffffff;
+    background: #2c2c2e;
+    border-radius: 6px;
+    margin: 0 2px;
+  }
+  /* Tab 胶囊左右 margin 补偿选中态圆角 */
+  .xzr_rank_tab-item:not(.xzr_active) {
+    margin: 0 4px;
+  }
+  .xzr_rank_tab-item.xzr_active:first-child { margin-left: 0; }
+  .xzr_rank_tab-item.xzr_active:last-child  { margin-right: 0; }
+
+  /* ========== Tab 内容面板 ========== */
+  .xzr_rank_tab-pane { display: none; }
+  .xzr_rank_tab-pane.xzr_active {
+    display: block;
+    animation: xzr_rankFade 0.3s ease;
+  }
+  @keyframes xzr_rankFade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== 两列排行榜布局 ========== */
+  .xzr_rank_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 28px;
+    row-gap: 0;
+  }
+
+  /* 单行排名（左列 / 右列项结构完全相同） */
+  .xzr_rank-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .xzr_rank-row:hover { background: rgba(0,0,0,0.02); }
+
+  /* 排名数字：红底白字圆角方块 */
+  .xzr_rank-num {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  /* 前 3 名略大一丢丢，视觉强调（图片中所有 1-10 数字块大小一致） */
+  .xzr_rank-row:nth-child(3n+1) .xzr_rank-num { /* no-op, 预留 */ }
+
+  /* 剧名 */
+  .xzr_rank-title {
+    font-size: 15px;
+    color: #1a1a1a;
+    font-weight: 500;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ========== 移动端适配 ========== */
+  @media (max-width: 480px) {
+    .xzr_rank_grid { column-gap: 14px; }
+    .xzr_rank-title { font-size: 13px; }
+    .xzr_rank-num { width: 20px; height: 20px; font-size: 11px; }
+    .xzr_rank-row { gap: 8px; padding: 10px 0; }
+    .xzr_page-title { font-size: 22px; padding-top: 56px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 返回作品集首页 -->
+<a href="index.html" class="xzr_back-home">← 作品集</a>
+
+<main class="xzr_page">
+
+  <!-- 页面大标题 -->
+  <h1 class="xzr_page-title">热播榜</h1>
+
+  <!--
+    ✅ 复用 js/xzr_tab.js 的通用 Tab 组件：
+      - 容器 id="xzr_rank_tab" 由 xzr_initTab 初始化
+      - 容器 class 加 xzr_tab_container，DOMContentLoaded 后自动扫描
+      - Tab 头用 .xzr_rank_tab-item（加 xzr_tab-item 类供 JS 识别）
+      - Tab 头 data-target 对应面板 id
+      - 面板用 .xzr_rank_tab-pane（加 xzr_tab-pane 类供 JS 识别）
+  -->
+  <div class="xzr_rank_tab_container xzr_tab_container" id="xzr_rank_tab">
+
+    <!-- Tab 导航栏 -->
+    <nav class="xzr_rank_tab_nav" role="tablist">
+      <!-- ✅ 默认选中"每日"：加 xzr_default 类，JS 自动激活 -->
+      <button class="xzr_rank_tab-item xzr_tab-item xzr_default" data-target="xzr_pane_daily" role="tab" aria-selected="true">每日</button>
+      <button class="xzr_rank_tab-item xzr_tab-item" data-target="xzr_pane_weekly" role="tab" aria-selected="false">每周</button>
+      <button class="xzr_rank_tab-item xzr_tab-item" data-target="xzr_pane_monthly" role="tab" aria-selected="false">每月</button>
+      <button class="xzr_rank_tab-item xzr_tab-item" data-target="xzr_pane_all" role="tab" aria-selected="false">全部</button>
+    </nav>
+
+    <!-- Tab 内容面板 -->
+    <div class="xzr_rank_tab_content">
+
+      <!-- ========== Tab 1：每日 ========== -->
+      <div class="xzr_rank_tab-pane xzr_tab-pane xzr_active" id="xzr_pane_daily" role="tabpanel">
+        <div class="xzr_rank_grid">
+          <!-- 左列 1-5 -->
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">1</span><span class="xzr_rank-title">最美的时光</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">2</span><span class="xzr_rank-title">咱们结婚吧</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">3</span><span class="xzr_rank-title">渗透</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">4</span><span class="xzr_rank-title">继承者们</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">5</span><span class="xzr_rank-title">烽火佳人</span></div>
+          </div>
+          <!-- 右列 6-10 -->
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">6</span><span class="xzr_rank-title">极品女士第2季</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">7</span><span class="xzr_rank-title">爱闪亮</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">8</span><span class="xzr_rank-title">狼烟</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">9</span><span class="xzr_rank-title">钱多多炼爱记</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">10</span><span class="xzr_rank-title">苍狼</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== Tab 2：每周 ========== -->
+      <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_weekly" role="tabpanel">
+        <div class="xzr_rank_grid">
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">1</span><span class="xzr_rank-title">咱们结婚吧</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">2</span><span class="xzr_rank-title">继承者们</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">3</span><span class="xzr_rank-title">最美的时光</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">4</span><span class="xzr_rank-title">爱闪亮</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">5</span><span class="xzr_rank-title">渗透</span></div>
+          </div>
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">6</span><span class="xzr_rank-title">狼烟（2013）</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">7</span><span class="xzr_rank-title">三十岁，你好</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">8</span><span class="xzr_rank-title">钱多多炼爱记</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">9</span><span class="xzr_rank-title">特种兵之火凤凰</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">10</span><span class="xzr_rank-title">极品女士第2季</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== Tab 3：每月 ========== -->
+      <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_monthly" role="tabpanel">
+        <div class="xzr_rank_grid">
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">1</span><span class="xzr_rank-title">特种兵之火凤凰</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">2</span><span class="xzr_rank-title">咱们结婚吧</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">3</span><span class="xzr_rank-title">继承者们</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">4</span><span class="xzr_rank-title">金玉满堂</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">5</span><span class="xzr_rank-title">王的女人</span></div>
+          </div>
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">6</span><span class="xzr_rank-title">爱闪亮</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">7</span><span class="xzr_rank-title">爱情面前谁怕谁</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">8</span><span class="xzr_rank-title">英雄联盟</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">9</span><span class="xzr_rank-title">小爸爸</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">10</span><span class="xzr_rank-title">我们这拨人</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== Tab 4：全部 ========== -->
+      <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_all" role="tabpanel">
+        <div class="xzr_rank_grid">
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">1</span><span class="xzr_rank-title">永不磨灭的番号</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">2</span><span class="xzr_rank-title">特种兵之火凤凰</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">3</span><span class="xzr_rank-title">新还珠格格</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">4</span><span class="xzr_rank-title">咱们结婚吧</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">5</span><span class="xzr_rank-title">小爸爸</span></div>
+          </div>
+          <div class="xzr_rank_col">
+            <div class="xzr_rank-row"><span class="xzr_rank-num">6</span><span class="xzr_rank-title">心术</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">7</span><span class="xzr_rank-title">乡村爱情5</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">8</span><span class="xzr_rank-title">天天有喜</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">9</span><span class="xzr_rank-title">一不小心爱上你</span></div>
+            <div class="xzr_rank-row"><span class="xzr_rank-num">10</span><span class="xzr_rank-title">夏日甜心</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.xzr_rank_tab_content -->
+  </div><!-- /#xzr_rank_tab -->
+
+</main>
+
+<!-- ✅ 复用 js/xzr_tab.js 可复用 Tab 组件（规则：JS 独立文件夹） -->
+<script src="js/xzr_tab.js"></script>
+
+</body>
+</html>
