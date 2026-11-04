@@ -16,22 +16,18 @@
   /* ========== 基础重置 ========== */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
-    background: #ffffff;      /* 纯白，图上无任何装饰 */
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #ffffff;
     color: #222222;
     -webkit-font-smoothing: antialiased;
     font-size: 14px;
-    line-height: 1;
   }
 
   /* ========== Tab ========== */
-  /* ✅ 关键：分隔线画在 nav 底部，选中胶囊靠 margin-bottom: -1px 压在线上，遮住中间 */
   .xzr_rank_tab_nav {
     display: flex;
     border-bottom: 1px solid #e4e4e4;
   }
-
-  /* 未选中 Tab */
   .xzr_rank_tab-item {
     flex: 1;
     padding: 11px 0;
@@ -44,13 +40,12 @@
     font-family: inherit;
     line-height: 1;
   }
-
-  /* ✅ 选中态：中深灰胶囊 + 白字，margin-bottom: -1px 盖住分隔线 */
+  /* 选中态：中深灰胶囊 + 白字，margin-bottom: -1px 盖住分隔线 */
   .xzr_rank_tab-item.xzr_active {
     color: #ffffff;
     background: #3a3a3a;
     border-radius: 3px;
-    margin: 6px 5px -1px 5px;   /* ⬅ 底部 -1px 压住分隔线，左右 5px 留白 */
+    margin: 6px 5px -1px 5px;
     padding: 11px 0;
   }
 
@@ -63,22 +58,25 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
-
   .xzr_rank_row {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 11px 16px;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;   /* 默认浅灰分隔线 */
+  }
+  /* ✅ 关键：红底排名号的行，底部分隔线也是红色 */
+  .xzr_rank_row.xzr_rank_red-line {
+    border-bottom-color: #d93025;
   }
 
-  /* 排名号方块 */
+  /* 排名号方块 — 默认灰底 */
   .xzr_rank_num {
     flex-shrink: 0;
     width: 22px;
     height: 22px;
     border-radius: 3px;
-    background: #d93025;
+    background: #999999;       /* 默认灰底 */
     color: #ffffff;
     font-size: 12px;
     font-weight: 700;
@@ -86,6 +84,10 @@
     align-items: center;
     justify-content: center;
     line-height: 1;
+  }
+  /* ✅ 红底排名号（1-3、6-8） */
+  .xzr_rank_num.xzr_num_red {
+    background: #d93025;
   }
 
   .xzr_rank_title {
@@ -110,80 +112,81 @@
     <button class="xzr_rank_tab-item xzr_tab-item" data-target="xzr_pane_all" role="tab">全部</button>
   </nav>
 
-  <!-- 每日 -->
+  <!-- ========== 每日 ========== -->
   <div class="xzr_rank_tab-pane xzr_tab-pane xzr_active" id="xzr_pane_daily" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">1</span><span class="xzr_rank_title">最美的时光</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">2</span><span class="xzr_rank_title">咱们结婚吧</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">3</span><span class="xzr_rank_title">渗透</span></div>
+        <!-- 排名规则：1红 2红 3红 | 4灰 5灰 | 6红 7红 8红 | 9灰 10灰 -->
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">1</span><span class="xzr_rank_title">最美的时光</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">2</span><span class="xzr_rank_title">咱们结婚吧</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">3</span><span class="xzr_rank_title">渗透</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">4</span><span class="xzr_rank_title">继承者们</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">5</span><span class="xzr_rank_title">烽火佳人</span></div>
       </div>
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">6</span><span class="xzr_rank_title">极品女士第2季</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">7</span><span class="xzr_rank_title">爱闪亮</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">8</span><span class="xzr_rank_title">狼烟</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">6</span><span class="xzr_rank_title">极品女士第2季</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">7</span><span class="xzr_rank_title">爱闪亮</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">8</span><span class="xzr_rank_title">狼烟</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">9</span><span class="xzr_rank_title">钱多多炼爱记</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">10</span><span class="xzr_rank_title">苍狼</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 每周 -->
+  <!-- ========== 每周 ========== -->
   <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_weekly" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">1</span><span class="xzr_rank_title">咱们结婚吧</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">2</span><span class="xzr_rank_title">继承者们</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">3</span><span class="xzr_rank_title">最美的时光</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">1</span><span class="xzr_rank_title">咱们结婚吧</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">2</span><span class="xzr_rank_title">继承者们</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">3</span><span class="xzr_rank_title">最美的时光</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">4</span><span class="xzr_rank_title">爱闪亮</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">5</span><span class="xzr_rank_title">渗透</span></div>
       </div>
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">6</span><span class="xzr_rank_title">狼烟（2013）</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">7</span><span class="xzr_rank_title">三十岁，你好</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">8</span><span class="xzr_rank_title">钱多多炼爱记</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">6</span><span class="xzr_rank_title">狼烟（2013）</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">7</span><span class="xzr_rank_title">三十岁，你好</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">8</span><span class="xzr_rank_title">钱多多炼爱记</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">9</span><span class="xzr_rank_title">特种兵之火凤凰</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">10</span><span class="xzr_rank_title">极品女士第2季</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 每月 -->
+  <!-- ========== 每月 ========== -->
   <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_monthly" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">1</span><span class="xzr_rank_title">特种兵之火凤凰</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">2</span><span class="xzr_rank_title">咱们结婚吧</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">3</span><span class="xzr_rank_title">继承者们</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">1</span><span class="xzr_rank_title">特种兵之火凤凰</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">2</span><span class="xzr_rank_title">咱们结婚吧</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">3</span><span class="xzr_rank_title">继承者们</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">4</span><span class="xzr_rank_title">金玉满堂</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">5</span><span class="xzr_rank_title">王的女人</span></div>
       </div>
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">6</span><span class="xzr_rank_title">爱闪亮</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">7</span><span class="xzr_rank_title">爱情面前谁怕谁</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">8</span><span class="xzr_rank_title">英雄联盟</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">6</span><span class="xzr_rank_title">爱闪亮</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">7</span><span class="xzr_rank_title">爱情面前谁怕谁</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">8</span><span class="xzr_rank_title">英雄联盟</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">9</span><span class="xzr_rank_title">小爸爸</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">10</span><span class="xzr_rank_title">我们这拨人</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 全部 -->
+  <!-- ========== 全部 ========== -->
   <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_all" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">1</span><span class="xzr_rank_title">永不磨灭的番号</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">2</span><span class="xzr_rank_title">特种兵之火凤凰</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">3</span><span class="xzr_rank_title">新还珠格格</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">1</span><span class="xzr_rank_title">永不磨灭的番号</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">2</span><span class="xzr_rank_title">特种兵之火凤凰</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">3</span><span class="xzr_rank_title">新还珠格格</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">4</span><span class="xzr_rank_title">咱们结婚吧</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">5</span><span class="xzr_rank_title">小爸爸</span></div>
       </div>
       <div class="xzr_rank_col">
-        <div class="xzr_rank_row"><span class="xzr_rank_num">6</span><span class="xzr_rank_title">心术</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">7</span><span class="xzr_rank_title">乡村爱情5</span></div>
-        <div class="xzr_rank_row"><span class="xzr_rank_num">8</span><span class="xzr_rank_title">天天有喜</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">6</span><span class="xzr_rank_title">心术</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">7</span><span class="xzr_rank_title">乡村爱情5</span></div>
+        <div class="xzr_rank_row xzr_rank_red-line"><span class="xzr_rank_num xzr_num_red">8</span><span class="xzr_rank_title">天天有喜</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">9</span><span class="xzr_rank_title">一不小心爱上你</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">10</span><span class="xzr_rank_title">夏日甜心</span></div>
       </div>
