@@ -67,3 +67,19 @@
 1. Markdown 格式
 2. 内容包含：项目简介、技术栈、目录说明、开发命令、代码规范、提交规范、注意事项
 3. 生成后写入文件 AGENTS.md
+
+---
+
+- **时间**: 2026-10-30
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+安装 opencode
+
+---
+
+- **时间**: 2026-11-04
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+修改规则文件AGENTS.md，在新建html文件时加入注释，注释包括：徐子然，建立时间，使用大模型，功能名称。在js部分函数加上函数主要实现功能的注释。

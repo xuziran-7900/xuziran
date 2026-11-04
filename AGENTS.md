@@ -174,14 +174,94 @@ function renderIcons() { ... }
 - 新页面必须在 `index.html`（作品集首页）添加超链接入口卡片（规则 3）
 - 新页面的顶部/底部应包含返回 `index.html` 的导航链接（双向互通）
 
-### 5.3 CSS 规范
+### 5.3 新建文件头注释（强制）
+
+**每个新建的 `.html` 文件，必须在 `<head>` 顶部加入以下 HTML 注释块**（格式固定，字段完整）：
+
+```html
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 建立时间: YYYY-MM-DD                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 一句话描述页面用途                     │
+└─────────────────────────────────────────────────┘
+-->
+```
+
+**示例**：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 建立时间: 2026-11-04                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 移动端底部导航 · 字体图标版            │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>iconfont-3 · 移动端下导航</title>
+```
+
+**字段说明**：
+
+| 字段 | 内容 |
+|---|---|
+| 作者 | 固定为 `徐子然 (xu-ziran)` |
+| 建立时间 | 当天日期，格式 `YYYY-MM-DD`（如 2026-11-04） |
+| 使用大模型 | 固定为 `Trae (proprietary model from Trae team)` |
+| 功能名称 | 简洁中文，一句话说清页面做什么（如 "Font Awesome 字体图标艺术展"） |
+
+### 5.4 JS 函数注释（强制）
+
+**每个 JS 函数（包括独立函数和事件回调），必须在函数定义前加上功能说明注释**。使用 `//` 单行或 `/* */` 块注释均可，关键是**说清这个函数做什么**。
+
+```javascript
+// ✅ 正确 —— 单行注释说明功能
+// 激活底部导航指定 tab，清除其他 tab 的徽章和红点，切换视觉状态
+function xzr_activateTab(index) {
+    // ...
+}
+
+/* ✅ 正确 —— 块注释说明功能 + 参数
+ * 根据屏幕宽度切换移动端/桌面端布局
+ * @param {number} width 当前视口宽度（px）
+ */
+function xzr_toggleLayout(width) {
+    // ...
+}
+
+// ❌ 禁止 —— 没有注释直接写函数
+function xzr_activateTab(index) {
+    // ...
+}
+
+// ❌ 禁止 —— 注释过于模糊（"处理点击" 不是功能说明）
+// 处理点击
+function xzr_activateTab(index) {
+    // ...
+}
+```
+
+**注释撰写指南**：
+- 开头用动词（激活 / 渲染 / 切换 / 初始化 / 计算 / 监听）
+- 不要只写"处理 xx 事件"，要说明处理后做了什么
+- 超过 5 行的函数建议用块注释；简短工具函数用单行即可
+- 事件回调也需要注释（"点击底部 Tab 时，切换激活态并清除徽章"）
+
+### 5.5 CSS 规范
 
 - 使用 CSS Variables（`--xzr-xxx`）统一设计 token
 - `box-sizing: border-box;` 全局重置
 - 优先 Flexbox / Grid，避免浮动布局
 - 艺术品牌风格参考 `skills/SKILL.md`（frontend-design 设计指南）
 
-### 5.4 图标引用方式
+### 5.6 图标引用方式
 
 ```html
 <!-- 自定义 iconfont · 字体图标（方式 1） -->
@@ -202,7 +282,7 @@ function renderIcons() { ... }
 <script>lucide.createIcons();</script>
 ```
 
-### 5.5 提示词审计规则（强制）
+### 5.7 提示词审计规则（强制）
 
 **每次执行操作前，必须将用户的提示词以追加方式写入 `xzr_prompt.md`，不覆盖历史。** 写入格式：
 
@@ -294,11 +374,13 @@ git push github origin master          # 4. 推送到双 remote
 
 ## 9. 注意事项
 
-### 9.1 必须遵守的三条硬规则
+### 9.1 必须遵守的五条硬规则
 
 1. **命名前缀**：所有 CSS 类名 / id / JS 变量 → `xzr_` 开头
 2. **提示词审计**：每次执行前 → 提示词追加写入 `xzr_prompt.md`
 3. **首页入口**：新建 HTML → 必须在 `index.html` 添加超链接卡片
+4. **文件头注释**：新建 HTML → `<head>` 顶部必须加入含作者/时间/模型/功能的注释块（格式见 5.3）
+5. **JS 函数注释**：每个 JS 函数（含事件回调）→ 函数定义前必须加功能说明注释（格式见 5.4）
 
 ### 9.2 iconfont 使用注意
 
