@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 建立时间: 2026-11-04                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 新闻 Tab 选项卡 · 可复用切换组件演示   │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>tab-news · 新闻选项卡</title>
+<!-- 返回首页按钮样式（内联，独立页面自包含） -->
+<style>
+  /* ---------- 基础重置 ---------- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    color: #e8e8ea;
+    background: #0a0a0c;
+    overflow-x: hidden;
+  }
+
+  /* ---------- 艺术品牌金属质感背景 ---------- */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(255, 196, 58, 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, rgba(200, 140, 255, 0.1) 0%, transparent 50%),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 40px);
+    z-index: -1;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.6) 100%);
+    z-index: -1;
+  }
+
+  /* ---------- 返回首页按钮 ---------- */
+  .xzr_back-home {
+    position: fixed; top: 20px; left: 20px; z-index: 100;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 196, 58, 0.3);
+    color: #ffc43a; font-size: 14px; text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .xzr_back-home:hover {
+    background: rgba(255, 196, 58, 0.15);
+    border-color: rgba(255, 196, 58, 0.6);
+    transform: translateX(-3px);
+    box-shadow: 0 0 20px rgba(255, 196, 58, 0.3);
+  }
+
+  /* ---------- Hero 标题区 ---------- */
+  .xzr_hero {
+    padding: 120px 24px 40px;
+    text-align: center;
+  }
+  .xzr_hero h1 {
+    font-size: clamp(28px, 6vw, 56px);
+    font-weight: 800; letter-spacing: 4px;
+    background: linear-gradient(135deg, #ffc43a 0%, #ff8c1a 50%, #c88cff 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 0 rgba(0,0,0,0.8)) drop-shadow(0 0 24px rgba(255, 196, 58, 0.4));
+    margin-bottom: 12px;
+  }
+  .xzr_hero p {
+    font-size: 14px; color: rgba(232, 232, 234, 0.55);
+    letter-spacing: 2px;
+  }
+
+  /* ---------- Tab 组件容器 ---------- */
+  .xzr_tab_container {
+    max-width: 720px; margin: 0 auto;
+    padding: 0 20px 120px;
+  }
+
+  /* Tab 导航栏（毛玻璃） */
+  .xzr_tab_nav {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    margin-bottom: 24px;
+  }
+
+  /* 单个 Tab 头 */
+  .xzr_tab-item {
+    flex: 1;
+    padding: 14px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(232, 232, 234, 0.55);
+    font-size: 15px; font-weight: 500; letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .xzr_tab-item:hover {
+    color: rgba(232, 232, 234, 0.9);
+    background: rgba(255,255,255,0.04);
+  }
+  /* ✅ 选中态（xzr_active 类由 JS 动态切换） */
+  .xzr_tab-item.xzr_active {
+    color: #ffc43a;
+    background: linear-gradient(135deg, rgba(255, 196, 58, 0.18), rgba(255, 140, 26, 0.12));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 196, 58, 0.4),
+      0 4px 16px rgba(255, 196, 58, 0.25);
+  }
+  /* 选中态底部发光指示条 */
+  .xzr_tab-item.xzr_active::after {
+    content: "";
+    position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+    width: 24px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, #ffc43a, #ff8c1a);
+    box-shadow: 0 0 8px rgba(255, 196, 58, 0.8);
+  }
+
+  /* Tab 内容面板（默认隐藏，激活显示） */
+  .xzr_tab-pane {
+    display: none;
+    padding: 32px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    min-height: 320px;
+  }
+  /* ✅ 选中态内容面板 */
+  .xzr_tab-pane.xzr_active {
+    display: block;
+    animation: xzr_paneFade 0.4s ease;
+  }
+  @keyframes xzr_paneFade {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 新闻列表（内容面板内） */
+  .xzr_news-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .xzr_news-item {
+    padding: 16px 18px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    transition: all 0.25s ease;
+  }
+  .xzr_news-item:hover {
+    border-color: rgba(255, 196, 58, 0.4);
+    background: rgba(255, 196, 58, 0.05);
+    transform: translateX(4px);
+  }
+  .xzr_news-title { font-size: 15px; font-weight: 600; color: #f0f0f0; margin-bottom: 6px; }
+  .xzr_news-meta { font-size: 12px; color: rgba(232,232,234,0.4); display: flex; gap: 12px; }
+  .xzr_news-tag {
+    padding: 2px 8px; border-radius: 4px;
+    background: linear-gradient(135deg, rgba(255,196,58,0.2), rgba(255,140,26,0.15));
+    color: #ffc43a; font-size: 11px; font-weight: 500;
+  }
+
+  /* ---------- 移动端适配 ---------- */
+  @media (max-width: 480px) {
+    .xzr_tab-item { font-size: 13px; padding: 12px 6px; }
+    .xzr_tab-pane { padding: 20px; min-height: 280px; }
+    .xzr_hero { padding: 100px 16px 32px; }
+    .xzr_back-home { top: 12px; left: 12px; font-size: 12px; padding: 6px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 返回作品集首页按钮 -->
+<a href="index.html" class="xzr_back-home">← 作品集</a>
+
+<!-- Hero 标题区 -->
+<header class="xzr_hero">
+  <h1>新闻实时动态</h1>
+  <p>TAB · 可复用选项卡组件演示</p>
+</header>
+
+<!-- ✅ Tab 容器（带 id，JS 用 id 初始化；带 xzr_tab_container 类，DOMContentLoaded 后自动扫描） -->
+<div class="xzr_tab_container" id="xzr_news_tab">
+
+  <!-- Tab 导航栏 -->
+  <nav class="xzr_tab_nav" role="tablist">
+    <!-- ✅ 国内新闻设为默认选中：加 .xzr_default 类，JS 初始化时自动激活 -->
+    <button class="xzr_tab-item xzr_default" data-target="xzr_pane_domestic" role="tab" aria-selected="true">国内新闻</button>
+    <button class="xzr_tab-item" data-target="xzr_pane_province" role="tab" aria-selected="false">省内新闻</button>
+    <button class="xzr_tab-item" data-target="xzr_pane_international" role="tab" aria-selected="false">国际新闻</button>
+    <button class="xzr_tab-item" data-target="xzr_pane_hot" role="tab" aria-selected="false">最热新闻</button>
+  </nav>
+
+  <!-- Tab 内容面板 -->
+  <div class="xzr_tab_content">
+
+    <!-- ✅ 国内新闻内容（默认显示，加 .xzr_active 类；JS 初始化也会确认一次） -->
+    <div class="xzr_tab-pane xzr_active" id="xzr_pane_domestic" role="tabpanel">
+      <ul class="xzr_news-list">
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">全国多地迎来入秋首场降温 部分地区降幅超10℃</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">要闻</span><span>2026-11-04 10:23</span><span>北京</span></div>
+        </li>
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">国产大飞机C919完成全球首次商业飞行满一年</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">科技</span><span>2026-11-04 09:15</span><span>上海</span></div>
+        </li>
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">全国秋粮收购进入高峰期 预计总量超2亿吨</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">民生</span><span>2026-11-03 18:40</span><span>黑龙江</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 省内新闻内容 -->
+    <div class="xzr_tab-pane" id="xzr_pane_province" role="tabpanel">
+      <ul class="xzr_news-list">
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">辽宁省启动冬季供暖 全省2300万居民受益</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">民生</span><span>2026-11-04 08:00</span><span>沈阳</span></div>
+        </li>
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">大连金石滩国家地质公园获评世界自然遗产</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">文旅</span><span>2026-11-03 20:10</span><span>大连</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 国际新闻内容 -->
+    <div class="xzr_tab-pane" id="xzr_pane_international" role="tabpanel">
+      <ul class="xzr_news-list">
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">联合国气候变化大会COP31达成新框架协议</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">国际</span><span>2026-11-04 06:30</span><span>迪拜</span></div>
+        </li>
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">全球首款量子计算机商用产品在日本发布</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">科技</span><span>2026-11-03 22:55</span><span>东京</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 最热新闻内容 -->
+    <div class="xzr_tab-pane" id="xzr_pane_hot" role="tabpanel">
+      <ul class="xzr_news-list">
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">⚡ 热搜第一：国产AI大模型登顶全球权威榜单</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">热榜</span><span>热度 999w+</span></div>
+        </li>
+        <li class="xzr_news-item">
+          <div class="xzr_news-title">⚡ 热搜第二：某顶流官宣结婚 微博服务器短暂崩溃</div>
+          <div class="xzr_news-meta"><span class="xzr_news-tag">娱乐</span><span>热度 880w+</span></div>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /.xzr_tab_content -->
+</div><!-- /.xzr_tab_container -->
+
+<!-- ✅ 外部引用可复用 Tab JS（所有逻辑放在独立 js 文件夹，便于维护） -->
+<script src="js/xzr_tab.js"></script>
+
+</body>
+</html>
