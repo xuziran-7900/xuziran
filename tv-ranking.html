@@ -35,25 +35,29 @@
   /* ========== Tab 栏 ========== */
   .xzr_rank_tab_nav {
     display: flex;
-    border-bottom: 1px solid #e4e4e4;
+    gap: 0;
+    padding: 4px;
+    background: #dcdcdc;        /* ✅ Tab 栏整体浅灰底 */
+    border-bottom: 2px solid #aaaaaa;  /* ✅ 下方深灰线 */
   }
+  /* 未选中：浅灰色块 */
   .xzr_rank_tab-item {
     flex: 1;
     padding: 7px 0;
     border: none;
-    background: transparent;
-    color: #666666;
+    background: #dcdcdc;        /* ✅ 浅灰块 */
+    color: #555555;
     font-size: 13px;
     font-weight: 400;
     cursor: pointer;
     font-family: inherit;
     line-height: 1;
   }
+  /* 选中：深灰色块 */
   .xzr_rank_tab-item.xzr_active {
     color: #ffffff;
-    background: #3a3a3a;
-    border-radius: 3px;
-    margin: 4px 4px -1px 4px;
+    background: #555555;        /* ✅ 深灰块 */
+    border-radius: 2px;
     padding: 7px 0;
   }
 
