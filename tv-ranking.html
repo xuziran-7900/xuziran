@@ -32,35 +32,29 @@
   }
 
   /* ========== Tab 栏 ========== */
-  /* ✅ 整体白底，下方一条灰色细线贯穿 */
+  /* ✅ 整体浅灰色块 + 下方深灰粗横杠 */
   .xzr_rank_tab_nav {
     display: flex;
-    border-bottom: 1px solid #cccccc;
-    background: #ffffff;
+    background: #cccccc;          /* ✅ 浅灰整体底 */
+    border-bottom: 2px solid #666666;  /* ✅ 下方深灰粗横杠！ */
   }
-  /* ✅ 未选中：纯白底，无边框，深灰字 */
+  /* ✅ 未选中：在浅灰底上，深灰字 */
   .xzr_rank_tab-item {
     flex: 1;
-    padding: 8px 0;
+    padding: 7px 0;
     border: none;
-    border-right: 1px solid #dddddd;  /* Tab 之间的分隔细线 */
-    background: #ffffff;              /* 纯白！没有边框！ */
+    background: transparent;      /* ✅ 透明，显示整体浅灰底 */
     color: #555555;
     font-size: 13px;
     font-weight: 400;
     cursor: pointer;
     font-family: inherit;
     line-height: 1;
-    margin-bottom: -1px;              /* 盖住底线 */
   }
-  /* 最后一个Tab不要右边框 */
-  .xzr_rank_tab-item:last-child { border-right: none; }
-
-  /* ✅ 选中：深灰填充，深灰底线覆盖 */
+  /* ✅ 选中：深灰填充盖在浅灰底上 */
   .xzr_rank_tab-item.xzr_active {
     color: #ffffff;
-    background: #4a4a4a;
-    border-bottom: 1px solid #4a4a4a;  /* 用同色深灰盖住底线 */
+    background: #4a4a4a;          /* ✅ 深灰覆盖 */
   }
 
   /* ========== Tab 内容 ========== */
@@ -86,7 +80,7 @@
     width: 18px;
     height: 18px;
     border-radius: 3px;
-    background: #a8a8a8;       /* 4~10 灰（参考图色） */
+    background: #a8a8a8;
     color: #ffffff;
     font-size: 11px;
     font-weight: 700;
@@ -96,7 +90,7 @@
     line-height: 1;
   }
   .xzr_rank_num.xzr_num_red {
-    background: #d93025;       /* 1~3 红（参考图色） */
+    background: #d93025;
   }
 
   .xzr_rank_title {
