@@ -10,78 +10,75 @@
 │ 功能名称: 视频热播排行榜 · 每日/每周/每月/全部 四 Tab │
 └─────────────────────────────────────────────────┘
 -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>热播榜</title>
 <style>
   /* ========== 基础重置 ========== */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
-    background: #ffffff;   /* ✅ 纯白背景，图上没有任何渐变/纹理 */
-    color: #1a1a1a;
+    background: #ffffff;      /* 纯白，图上无任何装饰 */
+    color: #222222;
     -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1;
   }
 
-  /* ========== Tab 容器 ========== */
-  /* ✅ 图上 Tab 栏紧贴顶部，下方一条细灰线 */
-  .xzr_rank_tab_container {
-    border-bottom: 1px solid #e5e5e5;
-    padding: 0 0 0 0;
-  }
+  /* ========== Tab ========== */
+  /* ✅ 关键：分隔线画在 nav 底部，选中胶囊靠 margin-bottom: -1px 压在线上，遮住中间 */
   .xzr_rank_tab_nav {
     display: flex;
+    border-bottom: 1px solid #e4e4e4;
   }
 
-  /* 单个 Tab 头（未选中） */
+  /* 未选中 Tab */
   .xzr_rank_tab-item {
     flex: 1;
-    padding: 10px 0;
+    padding: 11px 0;
     border: none;
     background: transparent;
-    color: #666666;          /* ✅ 图上未选中 Tab 是深灰色字 */
+    color: #555555;
     font-size: 15px;
     font-weight: 400;
-    letter-spacing: 0;
     cursor: pointer;
     font-family: inherit;
+    line-height: 1;
   }
 
-  /* ✅ 选中态：深灰胶囊 + 白字（图上"每日"Tab 就是这个效果） */
+  /* ✅ 选中态：中深灰胶囊 + 白字，margin-bottom: -1px 盖住分隔线 */
   .xzr_rank_tab-item.xzr_active {
     color: #ffffff;
-    background: #1a1a1a;     /* ✅ 深灰/黑胶囊底 */
-    border-radius: 4px;
-    margin: 6px 6px;         /* ✅ 胶囊与未选中项之间留白 */
-    padding: 10px 0;
+    background: #3a3a3a;
+    border-radius: 3px;
+    margin: 6px 5px -1px 5px;   /* ⬅ 底部 -1px 压住分隔线，左右 5px 留白 */
+    padding: 11px 0;
   }
 
   /* ========== Tab 内容 ========== */
   .xzr_rank_tab-pane { display: none; }
   .xzr_rank_tab-pane.xzr_active { display: block; }
 
-  /* ========== 两列排行榜 ========== */
-  /* ✅ 图上严格两列，左 1-5 / 右 6-10，等宽 */
+  /* ========== 两列榜单 ========== */
   .xzr_rank_list {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
 
-  /* 单行 */
   .xzr_rank_row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
-    border-bottom: 1px solid #eeeeee;   /* ✅ 每行底部极细灰线 */
+    padding: 11px 16px;
+    border-bottom: 1px solid #eeeeee;
   }
 
-  /* 排名号方块（红底白字圆角） */
+  /* 排名号方块 */
   .xzr_rank_num {
     flex-shrink: 0;
     width: 22px;
     height: 22px;
     border-radius: 3px;
-    background: #d93025;       /* ✅ 图上红色排名号块 */
+    background: #d93025;
     color: #ffffff;
     font-size: 12px;
     font-weight: 700;
@@ -91,10 +88,9 @@
     line-height: 1;
   }
 
-  /* 剧名 */
   .xzr_rank_title {
     font-size: 14px;
-    color: #1a1a1a;           /* ✅ 图上深黑色剧名 */
+    color: #222222;
     font-weight: 400;
     line-height: 1;
     white-space: nowrap;
@@ -105,14 +101,8 @@
 </head>
 <body>
 
-<!--
-  ✅ 图上的结构：只有 Tab + 两列榜单。
-  没有页面大标题、没有返回按钮、没有 Hero 区、没有额外 padding。
-  紧贴顶部开始。
--->
 <div class="xzr_rank_tab_container xzr_tab_container" id="xzr_rank_tab">
 
-  <!-- Tab 导航 -->
   <nav class="xzr_rank_tab_nav" role="tablist">
     <button class="xzr_rank_tab-item xzr_tab-item xzr_default" data-target="xzr_pane_daily" role="tab">每日</button>
     <button class="xzr_rank_tab-item xzr_tab-item" data-target="xzr_pane_weekly" role="tab">每周</button>
@@ -120,10 +110,9 @@
     <button class="xzr_rank_tab-item xzr_tab-item" data-target="xzr_pane_all" role="tab">全部</button>
   </nav>
 
-  <!-- ========== 每日 ========== -->
+  <!-- 每日 -->
   <div class="xzr_rank_tab-pane xzr_tab-pane xzr_active" id="xzr_pane_daily" role="tabpanel">
     <div class="xzr_rank_list">
-      <!-- 左列 1-5 -->
       <div class="xzr_rank_col">
         <div class="xzr_rank_row"><span class="xzr_rank_num">1</span><span class="xzr_rank_title">最美的时光</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">2</span><span class="xzr_rank_title">咱们结婚吧</span></div>
@@ -131,7 +120,6 @@
         <div class="xzr_rank_row"><span class="xzr_rank_num">4</span><span class="xzr_rank_title">继承者们</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">5</span><span class="xzr_rank_title">烽火佳人</span></div>
       </div>
-      <!-- 右列 6-10 -->
       <div class="xzr_rank_col">
         <div class="xzr_rank_row"><span class="xzr_rank_num">6</span><span class="xzr_rank_title">极品女士第2季</span></div>
         <div class="xzr_rank_row"><span class="xzr_rank_num">7</span><span class="xzr_rank_title">爱闪亮</span></div>
@@ -142,7 +130,7 @@
     </div>
   </div>
 
-  <!-- ========== 每周 ========== -->
+  <!-- 每周 -->
   <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_weekly" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
@@ -162,7 +150,7 @@
     </div>
   </div>
 
-  <!-- ========== 每月 ========== -->
+  <!-- 每月 -->
   <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_monthly" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
@@ -182,7 +170,7 @@
     </div>
   </div>
 
-  <!-- ========== 全部 ========== -->
+  <!-- 全部 -->
   <div class="xzr_rank_tab-pane xzr_tab-pane" id="xzr_pane_all" role="tabpanel">
     <div class="xzr_rank_list">
       <div class="xzr_rank_col">
@@ -204,7 +192,7 @@
 
 </div>
 
-<!-- ✅ 复用 js/xzr_tab.js 可复用 Tab 组件 -->
+<!-- ✅ 复用 js/xzr_tab.js -->
 <script src="js/xzr_tab.js"></script>
 
 </body>
