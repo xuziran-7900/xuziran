@@ -210,7 +210,6 @@
       <button data-fx="coverflow">coverflow 画廊堆叠（沉浸）</button>
       <button data-fx="flip">flip 翻页（复古）</button>
       <button data-fx="cards">cards 卡片（俏皮）</button>
-      <button data-fx="creative">creative 电影墙（创作）</button>
     </div>
     <div class="wy-demo">
       <span class="wy-demo-tag">🎛️ 演示四 · 效果实验台（点按钮切换 effect）</span>
@@ -240,90 +239,67 @@
   // ══════════════════════════════════════════════════════════
 
   // ── 任务 1：初始化 #wySw1，让它至少可以拖动 ──
-  // 作者: 徐子然
-  // 功能: 最小可用 Swiper 初始化，空配置对象即可让图片可拖动
-  var xzr_sw1 = new Swiper('#wySw1', {});
-
+var swiper = new Swiper("#wySw1", {});
 
   // ── 任务 2：初始化 #wySw2，循环 + 600ms + 圆点可点 + 箭头切换 ──
-  // 作者: 徐子然
-  // 功能: 无缝循环播放，600ms 切换动画，底部圆点分页器可点击，左右箭头导航
-  var xzr_sw2 = new Swiper('#wySw2', {
-    loop: true,
-    speed: 600,
-    pagination: { el: '#wyPag2', clickable: true },
-    navigation: { nextEl: '#wyNext2', prevEl: '#wyPrev2' }
-  });
-
+  // TODO: 在这里写你的代码
+var swiper = new Swiper("#wySw2", {
+      speed: 600,
+      loop: true,
+      pagination: {
+        el: "#wyPag2",
+        clickable: true,
+      },
+      navigation: {
+        nextEl: "#wyNext2",
+        prevEl: "#wyPrev2",
+      },
+    });
 
   // ── 任务 3：初始化 #wySw3，循环 + 2.6 秒自动翻页 + 拖动后不停 + 圆点 ──
-  // 作者: 徐子然
-  // 功能: 每 2.6 秒自动翻页，用户手动拖动后自动播放继续，循环不停止
-  var xzr_sw3 = new Swiper('#wySw3', {
-    loop: true,
-    autoplay: { delay: 2600, disableOnInteraction: false },
-    speed: 700,
-    pagination: { el: '#wyPag3', clickable: true }
-  });
+  // TODO: 在这里写你的代码
+var swiper = new Swiper("#wySw3", {
+      autoplay: {
+        delay: 2600,
+        disableOnInteraction: false,
+      },
+      pagination: {
+        el: "#wyPag3",
+        clickable: true,
+      },
+    });
 
-
-  // ── 任务 4 + 进阶：初始化 #wySw4 + 七种效果实时切换 ──
-  // 作者: 徐子然
-  // 功能: 初始化时 slide 效果，按钮点击切换包括 creative 电影墙在内的 7 种效果
-
-  // 电影墙 creativeEffect 配置：上一张缩小左移带角度，下一张放大右移进场
-  var xzr_creativeFx = {
-    prev: {
-      shadow: true,
-      origin: 'left center',         // 变换原点：左边中心
-      translate: ['-120%', 0, -300], // 向左移出屏幕 120%，Z 轴后退
-      scale: 0.75,                    // 缩小到 75%
-      rotate: [0, 0, -15]             // 逆时针旋转 15 度（左倾斜）
-    },
-    next: {
-      shadow: true,
-      origin: 'right center',        // 变换原点：右边中心
-      translate: ['100%', 0, -100],  // 从右边进场
-      scale: 1.1,                     // 放大到 110%
-      rotate: [0, 0, 10]              // 顺时针旋转 10 度（右倾斜）
-    }
-  };
-
-  // 统一配置生成器（creative 需要额外带 creativeEffect）
-  function xzr_buildSw4Config(effectName) {
-    var cfg = {
+  // ── 任务 4：初始化 #wySw4，循环 + 3.2 秒自动播放 + 圆点 + 初始 effect ──
+  // TODO: 在这里写你的代码
+function createSwiper4(fx) {
+    return new Swiper('#wySw4', {
       loop: true,
-      effect: effectName,
+      effect: fx,
       speed: 800,
       autoplay: { delay: 3200, disableOnInteraction: false },
-      pagination: { el: '#wyPag4', clickable: true },
-      grabCursor: true
-    };
-    if (effectName === 'creative') {
-      cfg.creativeEffect = xzr_creativeFx;
-    }
-    return cfg;
+      pagination: { el: '#wyPag4', clickable: true }
+    });
   }
 
-  // 初始化（默认 slide）
-  var xzr_sw4 = new Swiper('#wySw4', xzr_buildSw4Config('slide'));
+  // 初始效果为 slide（平推）
+  var swiper4 = createSwiper4('slide');
 
-  // 按钮点击：高亮 + 销毁旧实例 + 重建新实例
+  // ── 任务 4 进阶：补全按钮点击事件，实现六种效果实时切换 ──
+  // 提示 1：动态换 effect 只改参数是无效的，必须销毁旧实例再重建（destroy + new）
+  // 提示 2：按钮上已有 data-fx 属性，用 btn.dataset.fx 读取要切换的效果名
   document.querySelectorAll('.wy-fx button').forEach(function(btn){
     btn.addEventListener('click', function(){
-      var fx = btn.dataset.fx;
+      // TODO 1：先给当前按钮加 wy-on 类、其余按钮去掉 wy-on（高亮当前按钮）
 
-      // TODO 1：高亮当前按钮，其余去掉高亮
-      document.querySelectorAll('.wy-fx button').forEach(function(b){ b.classList.remove('wy-on'); });
+document.querySelectorAll('.wy-fx button').forEach(function(item){
+        item.classList.remove('wy-on');
+      });
       btn.classList.add('wy-on');
-
       // TODO 2：销毁旧的 wySw4 实例
-      if (xzr_sw4) {
-        xzr_sw4.destroy(true, true);
-      }
+swiper4.destroy(true, true);
 
-      // TODO 3：用新 effect 重建实例
-      xzr_sw4 = new Swiper('#wySw4', xzr_buildSw4Config(fx));
+      // TODO 3：用新 effect 重建实例（把其它配置原样保留）
+      swiper4 = createSwiper4(btn.dataset.fx);
     });
   });
 </script>
