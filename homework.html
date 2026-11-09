@@ -73,9 +73,8 @@
   .xzr_verify{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
   .xzr_v{border:1px solid #e8ecf5;border-radius:12px;padding:13px;background:#fbfcff}
   .xzr_v h4{font-size:13.5px;color:var(--xzr_navy);margin-bottom:9px;line-height:1.6}
-  .xzr_shot{min-height:132px;border:1.5px dashed #c7d8f8;border-radius:10px;background:#f4f8ff;color:#7b8fb5;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px;line-height:1.8}
-  .xzr_shot em{font-style:normal;font-size:18px;display:block;margin-bottom:2px}
-  .xzr_shot.xzr_wide{min-height:200px}
+  .xzr_shot_img{width:100%;display:block;border-radius:10px;border:1px solid #e8ecf5;background:#0f1b33}
+  .xzr_shot_cap{display:block;font-size:11.5px;color:#7b8fb5;margin-top:5px;line-height:1.7}
   .xzr_concl{margin-top:9px;font-size:12.5px;color:var(--xzr_green);line-height:1.9}
   .xzr_concl b{color:#0f2b5b}
 
@@ -199,23 +198,27 @@
     <div class="xzr_verify">
       <div class="xzr_v">
         <h4>① 无缝循环 <code>loop: true</code></h4>
-        <div class="xzr_shot"><em>📷</em>截图位 · 最后一张翻回第一张</div>
+        <img class="xzr_shot_img" src="homework-imgs/xzr_t1_loop.png" alt="停在最后一张后继续翻，回到第一张天宫空间站">
+        <span class="xzr_shot_cap">最后一张之后继续翻 → 回到第一张「天宫空间站」</span>
         <div class="xzr_concl"><b>结论：</b>最后一张继续往后拖，直接回到第 1 张，中间没有空白断档。</div>
       </div>
       <div class="xzr_v">
         <h4>② 3.2 秒自动翻页 + 手动后不停</h4>
-        <div class="xzr_shot"><em>📷</em>截图位 · 拖动松手后仍在自动播</div>
+        <img class="xzr_shot_img" src="homework-imgs/xzr_t1_autoplay.png" alt="手动切换后静置 3.2 秒，已自动翻到爱达·魔都号">
+        <span class="xzr_shot_cap">手动切换后静置 3.2 秒 → 自动翻到下一张「爱达·魔都号」</span>
         <div class="xzr_concl"><b>结论：</b>静置约 3.2 秒翻一次；拖动松手后仍继续自动翻页。</div>
       </div>
       <div class="xzr_v">
         <h4>③ 圆点分页器可点击 <code>clickable: true</code></h4>
-        <div class="xzr_shot"><em>📷</em>截图位 · 点第 4 个圆点已跳转</div>
+        <img class="xzr_shot_img" src="homework-imgs/xzr_t1_pagination.png" alt="点击第 4 个圆点后跳到第 4 张奋斗者号">
+        <span class="xzr_shot_cap">点第 4 个圆点 → 立即跳到第 4 张「奋斗者号」</span>
         <div class="xzr_concl"><b>结论：</b>点第 4 个圆点立刻跳转，其它轮播的圆点没有被串。</div>
       </div>
       <div class="xzr_v">
         <h4>④ 初始效果 cube <code>effect: 'cube'</code></h4>
-        <div class="xzr_shot"><em>📷</em>截图位 · 立方体翻转瞬间</div>
-        <div class="xzr_concl"><b>结论：</b>一刷新就是立方体翻转，800ms 过渡完整不闪跳。</div>
+        <img class="xzr_shot_img" src="homework-imgs/xzr_t1_cube.png" alt="cube 立方体翻转中间帧，天宫空间站与复兴号两面同时可见">
+        <span class="xzr_shot_cap">cube 效果下翻页的中间帧 · 两个画面以透视角度同时可见</span>
+        <div class="xzr_concl"><b>结论：</b>cube 效果下翻页是 3D 立方体翻转，800ms 过渡完整不闪跳。</div>
       </div>
     </div>
 
@@ -271,7 +274,10 @@
 
     <div class="xzr_v" style="margin-top:14px">
       <h4>运行截图 · 第 7 个按钮「creative 电影墙」</h4>
-      <div class="xzr_shot xzr_wide"><em>📷</em>截图位 · 点 creative 按钮后的选片墙效果（上一张侧倾缩小、下一张放大右移）</div>
+      <div>
+      <img class="xzr_shot_img" src="homework-imgs/xzr_t2_creative.png" alt="creative 电影墙：上一张 C919 侧倾缩小，当前张奋斗者号居中">
+      <span class="xzr_shot_cap">点「creative 电影墙」后的切换中间帧：上一张侧倾缩小退场，下一张放大右移进场</span>
+      </div>
       <div class="xzr_concl"><b>我的理解：</b>prev 控"已经退场的那张"——缩小、左移、带角度退到侧后方；next 控"即将进场的那张"——从右侧放大推入；当前这张永远居中不动。</div>
     </div>
 
@@ -345,11 +351,13 @@
     <div class="xzr_verify">
       <div class="xzr_v">
         <h4>第六件展品 · 爱达·魔都号</h4>
-        <div class="xzr_shot"><em>📷</em>截图位 · 第 6 张 slide 完整显示（图 + 标题 + 说明）</div>
+        <img class="xzr_shot_img" src="homework-imgs/xzr_t3_exhibit.png" alt="第 6 张 slide 爱达·魔都号，含标题与说明">
+        <span class="xzr_shot_cap">第 6 张 slide 完整显示：配图 + 标题 + 说明</span>
       </div>
       <div class="xzr_v">
         <h4>键盘 ← → 翻页</h4>
-        <div class="xzr_shot"><em>📷</em>截图位 · 按下方向键后已切换</div>
+        <img class="xzr_shot_img" src="homework-imgs/xzr_t3_keyboard.png" alt="按下方向键后轮播从第 4 张切到第 5 张">
+        <span class="xzr_shot_cap">按下 ← / → 方向键后，从第 4 张切到第 5 张「中国天眼」</span>
       </div>
     </div>
 
