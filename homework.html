@@ -125,8 +125,8 @@
 
   <!-- 提交说明 -->
   <div class="xzr_rule">
-    <b>📌 提交要求：</b><span class="xzr_deadline">任务一、二、三在 11.11 号之前提交到 GitHub 或 Netlify 发布</span>，
-    并给提示词留访问入口；下次课抽查每个人回答问题。页面地址：<code>swiper-task.html</code>（运行效果）· <code>homework.html</code>（本页）<br>
+    <b>📌 提交要求：</b><span class="xzr_deadline">任务一、二、三课次（11.11 号之前提交到 GitHub 或 Netlify 发布）</span>，
+    并且给提示词留访问入口，下次课抽查每个人回答问题。页面地址：<code>swiper-task.html</code>（运行效果）· <code>homework.html</code>（本页）<br>
     <b>💡 提醒：</b>AI 也会犯错——它给的代码必须验证，报错给 AI 只是起点，最终责任人是写作业的你。
   </div>
 
@@ -139,8 +139,8 @@
 
     <div class="xzr_req">
       <h3>✍️ 任务要求</h3>
-      <p><b>本任务不写代码，写提示词。</b>把下面需求"翻译"给 AI，让它生成 <code>new Swiper('#wySw4', {…})</code> 配置：<b>① 无缝循环</b> <b>② 3.2 秒自动翻页且手动操作后不停止</b> <b>③ 圆点分页器可点击</b> <b>④ 初始效果 cube</b>。</p>
-      <p>硬性要求：至少迭代 <b>2 轮提示词</b>（第 1 轮 AI 答案大概率有遗漏或错误），保留每轮提示词与 AI 回答；亲自粘进页面验证每项需求，<b>用截图 + 一句话结论</b>说明验证结果。</p>
+      <p><b>本任务不写代码，写提示词。</b>把下面需求"翻译"给 AI，让它生成 <code>new Swiper('#wySw4', {…})</code> 配置：<b>① 无缝循环</b> <b>② 3.2 秒自动翻页且手动操作后不停止</b> <b>③ 圆点分页器可点击</b> <b>④ 初始效果为 cube</b>。</p>
+      <p>硬性要求：至少迭代 <b>2 轮提示词</b>（第 1 轮 AI 答案大概率有遗漏或错误），<b>保存</b>每轮提示词与 AI 回答；亲自粘进页面验证每项需求，<b>用截图 + 一句话结论</b>说明验证结果。</p>
       <span class="xzr_star">⭐ 答辩追问：你的第一版提示词漏掉了哪个需求？你是怎么在第二轮里"说清楚"的？AI 第一次给的代码错在哪？</span>
       <span class="xzr_exam">考核点：需求拆解 → 提示词精确性 → AI 输出验证 · 计入课堂分</span>
     </div>
@@ -178,7 +178,7 @@
 
     <span class="xzr_label">第 2 轮 · AI 回答（最终采用，已粘进 swiper-task.html 演示四）</span>
     <div class="xzr_panel">
-      <div class="xzr_bar"><span>AI → 学生</span><span>四条需求逐条落地</span></div>
+      <div class="xzr_bar"><span>AI → 学生</span><span>最终采用，已并入演示四的初始化配置</span></div>
       <div class="xzr_body xzr_code"><span class="xzr_key">new</span> Swiper(<span class="xzr_str">'#wySw4'</span>, {
   loop: <span class="xzr_kw">true</span>,                              <span class="xzr_cm">// ① 无缝循环</span>
   speed: <span class="xzr_kw">800</span>,                            <span class="xzr_cm">// ④ 切换动画 800ms</span>
@@ -215,7 +215,7 @@
         <div class="xzr_concl"><b>结论：</b>点第 4 个圆点立刻跳转，其它轮播的圆点没有被串。</div>
       </div>
       <div class="xzr_v">
-        <h4>④ 初始效果 cube <code>effect: 'cube'</code></h4>
+        <h4>④ 初始效果为 cube <code>effect: 'cube'</code></h4>
         <img class="xzr_shot_img" src="homework-imgs/xzr_t1_cube.png" alt="cube 立方体翻转中间帧，天宫空间站与复兴号两面同时可见">
         <span class="xzr_shot_cap">cube 效果下翻页的中间帧 · 两个画面以透视角度同时可见</span>
         <div class="xzr_concl"><b>结论：</b>cube 效果下翻页是 3D 立方体翻转，800ms 过渡完整不闪跳。</div>
@@ -251,7 +251,7 @@
       <p>课堂上只讲了 6 种 effect，Swiper 其实还有第 7 种——<b>creative（自定义变换，本课未讲解）</b>。请打开官方示例 <code>swiper/demo/257-effect-creative.html</code>，配合 AI 读懂 <code>creativeEffect</code> 的 <code>transform</code> 写法，为演示四新增第 7 个按钮 <b>「creative 电影墙」</b>。</p>
       <p>效果要求：<b>上一张缩小左移并带角度</b>、<b>下一张放大右移进场</b>（参数自定，但要看像"电影选片墙"）。实现后须向 AI 追问，并<b>用自己的话写下：prev / next 的 transform 各控制什么？</b></p>
       <span class="xzr_star">⭐ 答辩追问：transform 里的百分号是相对谁的？改一个数值让卡片转 20 度试试？</span>
-      <span class="xzr_exam">考核点：用 AI 自学未讲过的 API + 官方示例阅读能力 · 计入课堂分</span>
+      <span class="xzr_exam">考核点：用 AI 自学没讲过的 API + 官方示例阅读能力 · 计入课堂分</span>
     </div>
 
     <span class="xzr_label">我的电影墙参数（swiper-task.html · 演示四 · 第 7 个按钮）</span>
@@ -344,7 +344,7 @@
       <div class="xzr_msg xzr_me"><b>我</b>给 Swiper 加左右方向键翻页，但不要整页都抢按键——只有轮播出现在屏幕里才响应，怎么写？</div>
       <div class="xzr_msg xzr_ai"><b>AI</b>用 <code>keyboard: true</code> 即可，Swiper 会自动绑定左右方向键。</div>
       <div class="xzr_msg xzr_me"><b>我</b>不对，我要"只在可见时响应"，布尔值做不到吧？改成配置对象并说明每个子选项。</div>
-      <div class="xzr_msg xzr_ai"><b>AI</b>改成 <code>keyboard: { enabled: true, onlyInViewport: true, pageUpDown: false }</code>：<code>enabled</code> 总开关；<code>onlyInViewport</code> 只在轮播进入视口时监听；<code>pageUpDown</code> 控制 PageUp / PageDown 是否也翻页。</div>
+      <div class="xzr_msg xzr_ai"><b>AI</b>改成 <code>keyboard: { enabled: true, onlyInViewport: true }</code>：<code>enabled</code> 总开关；<code>onlyInViewport</code> 只在轮播进入视口时监听；另外还有 <code>pageUpDown</code> 控制 PageUp / PageDown 是否也翻页，默认 true，我没动。</div>
     </div>
 
     <span class="xzr_label">运行截图</span>
