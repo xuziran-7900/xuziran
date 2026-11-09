@@ -6,6 +6,9 @@ Thumbs.db
 *.log
 .env
 
+# 工具生成的分享包
+.trae-html-share-packages/
+
 # Node
 node_modules/
 
