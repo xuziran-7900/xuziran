@@ -31,11 +31,12 @@
   .xzr_head h1{font-size:29px;letter-spacing:1px;line-height:1.4}
   .xzr_head h1 b{color:#ffd166}
   .xzr_head p{margin-top:12px;font-size:14px;color:#d9e3f5;line-height:2}
-  .xzr_goals{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-  .xzr_goals i{font-style:normal;font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:8px}
+  .xzr_jump{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .xzr_jump a{text-decoration:none;font-size:13px;font-weight:bold;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:7px 16px;transition:background .2s}
+  .xzr_jump a:hover{background:rgba(255,255,255,.28)}
 
   /* 章节 */
-  .xzr_sec{background:#fff;border-radius:18px;padding:26px 28px;margin-bottom:24px;border:1px solid #e8ecf5;box-shadow:0 4px 14px rgba(31,41,55,.06);position:relative;overflow:hidden}
+  .xzr_sec{background:#fff;border-radius:18px;padding:26px 28px;margin-bottom:24px;border:1px solid #e8ecf5;box-shadow:0 4px 14px rgba(31,41,55,.06);position:relative;overflow:hidden;scroll-margin-top:20px}
   .xzr_sec::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(#0f2b5b,#1d5bbf)}
   .xzr_sec_head{display:flex;align-items:center;gap:14px;margin-bottom:12px}
   .xzr_no{flex:none;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0f2b5b,#1d5bbf);color:#fff;font-size:19px;font-weight:bold;display:flex;align-items:center;justify-content:center}
@@ -114,11 +115,15 @@
     <span class="xzr_badge">高 级 网 页 设 计 · 作 业 · 徐 子 然</span>
     <h1>Swiper 作业 · <b>任务一 / 任务二 / 任务三</b></h1>
     <p>提示词工程师 → creative 仿写 → 综合创作，三份作业合在一页，提示词与 AI 回答全部留档。</p>
-    <div class="xzr_goals"><i>任务一 · 提示词工程师</i><i>任务二 · creative 仿写</i><i>任务三 · 综合创作</i></div>
+    <div class="xzr_jump">
+      <a href="#xzr_t1">任务一 · 提示词</a>
+      <a href="#xzr_t2">任务二 · creative</a>
+      <a href="#xzr_t3">任务三 · 综合创作</a>
+    </div>
   </div>
 
   <!-- ══════════ 任务一 ══════════ -->
-  <div class="xzr_sec">
+  <div class="xzr_sec" id="xzr_t1">
     <div class="xzr_sec_head">
       <span class="xzr_no">一</span>
       <h2>任务一 · 提示词工程师：让 AI 听懂需求<small>⭐⭐ 需求拆解 → 提示词精确性 → AI 输出验证</small></h2>
@@ -227,7 +232,7 @@
   </div>
 
   <!-- ══════════ 任务二 ══════════ -->
-  <div class="xzr_sec">
+  <div class="xzr_sec" id="xzr_t2">
     <div class="xzr_sec_head">
       <span class="xzr_no">二</span>
       <h2>任务二 · creative 仿写：课堂没讲，AI 教你<small>⭐⭐⭐ 官方示例 257-effect-creative.html → creativeEffect</small></h2>
@@ -282,7 +287,7 @@
   </div>
 
   <!-- ══════════ 任务三 ══════════ -->
-  <div class="xzr_sec">
+  <div class="xzr_sec" id="xzr_t3">
     <div class="xzr_sec_head">
       <span class="xzr_no">三</span>
       <h2>任务三 · 综合创作 + 技术答辩：超纲加分项<small>⭐⭐⭐ 第六件展品 + 一个课堂没讲过的 Swiper 能力</small></h2>
