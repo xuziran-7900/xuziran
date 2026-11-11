@@ -269,18 +269,23 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
     <div class="xzr_panel">
       <div class="xzr_bar"><span>creativeEffect 配置</span><span>prev 缩小左移倾斜 · next 放大右移进场</span></div>
       <div class="xzr_body xzr_code"><span class="xzr_key">var</span> xzr_creative = {
+  limitProgress: <span class="xzr_kw">2</span>,                         <span class="xzr_cm">// 左右各 2 张参与变换，形成墙的纵深</span>
   prev: {                                  <span class="xzr_cm">// 上一张：缩小 + 左移 + 倾斜退场</span>
-    translate: [<span class="xzr_str">'-58%'</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-240</span>],
-    rotate: [<span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-18</span>],
+    translate: [<span class="xzr_str">'-58%'</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-260</span>],
+    rotate: [<span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-18</span>],     <span class="xzr_cm">// 改 -20 即左倾 20 度</span>
     scale: <span class="xzr_kw">0.82</span>,
-    shadow: { translate: [<span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-300</span>] }
+    opacity: <span class="xzr_kw">0.72</span>,                         <span class="xzr_cm">// 压暗，退为背景</span>
+    shadow: { translate: [<span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-320</span>], opacity: <span class="xzr_kw">0.6</span> }
   },
   next: {                                  <span class="xzr_cm">// 下一张：放大 + 右移进场</span>
-    translate: [<span class="xzr_str">'85%'</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>],
-    scale: <span class="xzr_kw">1.12</span>
+    translate: [<span class="xzr_str">'72%'</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-120</span>],
+    rotate: [<span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">10</span>],       <span class="xzr_cm">// 右倾，与左侧对称</span>
+    scale: <span class="xzr_kw">1.12</span>,
+    opacity: <span class="xzr_kw">1</span>,
+    shadow: { translate: [<span class="xzr_kw">0</span>, <span class="xzr_kw">0</span>, <span class="xzr_kw">-200</span>], opacity: <span class="xzr_kw">0.5</span> }
   }
 };
-<span class="xzr_cm">// 创建：effect: 'creative' 时把 xzr_creative 挂到 creativeEffect</span></div>
+<span class="xzr_cm">// 创建：effect: 'creative' 时挂 creativeEffect；speed 调 900ms 更顺滑</span></div>
     </div>
 
     <div class="xzr_v" style="margin-top:14px">
@@ -290,18 +295,6 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
       <span class="xzr_shot_cap">点「creative 电影墙」后的切换中间帧：上一张侧倾缩小退场，下一张放大右移进场</span>
       </div>
       <div class="xzr_concl"><b>我的理解：</b>prev 控"已经退场的那张"——缩小、左移、带角度退到侧后方；next 控"即将进场的那张"——从右侧放大推入；当前这张永远居中不动。</div>
-    </div>
-
-    <span class="xzr_label">与 AI 的关键问答</span>
-    <div class="xzr_qa">
-      <div class="xzr_q">
-        <h4><span>我</span>刚看了官方 257 号示例，还是没懂 prev 和 next 各控什么，请用最直白的话讲。</h4>
-        <p><b>AI：</b>creative 允许给"离场"和"入场"两侧自定义 transform。prev 是当前张退场后的样子，next 是还没进来的下一张待在场外的样子，当前张始终居中。translate 单位是百分比或像素，rotate 单位是度，scale 是无单位倍数。</p>
-      </div>
-      <div class="xzr_q">
-        <h4><span>我</span><code>translate: ['-58%', 0, -240]</code> 里的 <code>-58%</code> 是相对谁的？想让卡片斜 20 度改哪个数？</h4>
-        <p><b>AI：</b>百分比相对 <code>swiper-slide</code> <b>自身宽度</b>，不是容器也不是屏幕，换屏宽比例不变。要斜 20 度改 <code>rotate</code> 第三个值（Z 轴）：<code>[0, 0, -20]</code> 向左斜，<code>[0, 0, 20]</code> 向右斜。</p>
-      </div>
     </div>
   </div>
 
