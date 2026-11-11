@@ -65,14 +65,6 @@
   .xzr_concl{margin-top:9px;font-size:12.5px;color:var(--xzr_green);line-height:1.9}
   .xzr_concl b{color:#0f2b5b}
 
-  /* 一问一答 */
-  .xzr_qa{display:grid;gap:10px;margin-top:4px}
-  .xzr_q{border-left:3px solid #1d5bbf;background:#f8faff;border-radius:0 10px 10px 0;padding:11px 15px}
-  .xzr_q h4{font-size:13.5px;color:var(--xzr_navy);margin-bottom:4px}
-  .xzr_q h4 span{display:inline-block;font-size:11.5px;color:#fff;background:#1d5bbf;border-radius:5px;padding:0 6px;margin-right:6px;font-weight:normal}
-  .xzr_q p{font-size:13px;color:#475569;line-height:1.9}
-  .xzr_q code{background:#eef2ff;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
-
   /* 对话记录 */
   .xzr_dialog{display:grid;gap:8px;margin-top:4px}
   .xzr_msg{font-size:13px;line-height:1.9;border-radius:10px;padding:10px 14px}
@@ -353,26 +345,6 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
         <h4>键盘 ← → 翻页</h4>
         <img class="xzr_shot_img" src="homework-imgs/xzr_t3_keyboard.png" alt="按下方向键后轮播从第 4 张切到第 5 张">
         <span class="xzr_shot_cap">按下 ← / → 方向键后，从第 4 张切到第 5 张「中国天眼」</span>
-      </div>
-    </div>
-
-    <span class="xzr_label">答辩四连问</span>
-    <div class="xzr_qa">
-      <div class="xzr_q">
-        <h4><span>Q1</span>这段代码什么意思？</h4>
-        <p>给演示四实例加键盘控制：<code>enabled: true</code> 打开键盘监听，<code>onlyInViewport: true</code> 让监听只在轮播确实出现在视口里时生效。整段放进 <code>createSwiper4</code> 工厂函数，所以切到 cube、creative 等效果重建实例后键盘控制依然在。</p>
-      </div>
-      <div class="xzr_q">
-        <h4><span>Q2</span>AI 第一次给的那里不对、你改了什么？</h4>
-        <p>第一次只给 <code>keyboard: true</code>——它等价于"开启但不限视口"，页面上有 4 个轮播，会把整页方向键都抢走。我改成配置对象并补 <code>onlyInViewport: true</code>，把响应范围收回到"这个轮播可见时"。</p>
-      </div>
-      <div class="xzr_q">
-        <h4><span>Q3</span>新参数的作用？</h4>
-        <p><code>onlyInViewport</code>：轮播不在视口就不响应，避免抢键；<code>enabled</code>：整个 keyboard 模块的开关，设 false 等于删掉这段；<code>pageUpDown</code>：PageUp / PageDown 是否也翻页，默认 true，我没动。</p>
-      </div>
-      <div class="xzr_q">
-        <h4><span>Q4</span>现场把 delay 改成指定值，并解释预期变化</h4>
-        <p>把 <code>delay: 3200</code> 改成 <b>1800</b>：自动翻页间隔从 3.2 秒缩到 1.8 秒，节奏明显变快；改成 0 会几乎不停翻。<b>只影响"多久翻一次"</b>，不影响 <code>speed: 800</code> 的过渡时长——delay 是停留时间，speed 是过渡时间。</p>
       </div>
     </div>
   </div>
