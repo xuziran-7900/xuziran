@@ -67,6 +67,15 @@
   }
   .wy-swiper .swiper-button-next:hover,.wy-swiper .swiper-button-prev:hover{background:#e8890c}
 
+  /* creative 电影墙：非当前张的投影与层级，做出前后堆叠的厚度 */
+  .wy-swiper .swiper-slide-shadow-creative{
+    border-radius:16px;
+    box-shadow:inset 0 0 40px rgba(5,15,35,.55);
+  }
+  .wy-swiper .swiper-slide{transition-timing-function:cubic-bezier(.22,.61,.36,1)}
+  .wy-swiper .swiper-slide-active{z-index:3}
+  .wy-swiper .swiper-slide-prev,.wy-swiper .swiper-slide-next{z-index:2}
+
   /* 效果切换按钮 */
   .wy-fx{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}
   .wy-fx button{
@@ -278,15 +287,21 @@ var swiper = new Swiper("#wySw3", {
   // 任务二新增：creative（第 7 种效果）的自定义变换参数
   // prev 描述"上一张怎么退场"：缩小 + 左移 + 倾斜；next 描述"下一张怎么进场"：放大 + 右移
   var xzr_creative = {
+    // limitProgress 2：左右各渲染两张参与变换，形成"一堵墙"的纵深
+    limitProgress: 2,
     prev: {
-      translate: ['-58%', 0, -240],
+      translate: ['-58%', 0, -260],
       rotate: [0, 0, -18],
       scale: 0.82,
-      shadow: { translate: [0, 0, -300] }
+      opacity: 0.72,
+      shadow: { translate: [0, 0, -320], opacity: 0.6 }
     },
     next: {
-      translate: ['85%', 0, 0],
-      scale: 1.12
+      translate: ['72%', 0, -120],
+      rotate: [0, 0, 10],
+      scale: 1.12,
+      opacity: 1,
+      shadow: { translate: [0, 0, -200], opacity: 0.5 }
     }
   };
 
@@ -295,7 +310,7 @@ var swiper = new Swiper("#wySw3", {
     var xzr_cfg = {
       loop: true,
       effect: fx,
-      speed: 800,
+      speed: 900,
       autoplay: { delay: 3200, disableOnInteraction: false },
       pagination: { el: '#wyPag4', clickable: true },
       keyboard: { enabled: true, onlyInViewport: true }
