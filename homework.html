@@ -256,22 +256,6 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
         <div class="xzr_concl"><b>结论：</b>cube 效果下翻页是 3D 立方体翻转，800ms 过渡完整不闪跳。</div>
       </div>
     </div>
-
-    <span class="xzr_label">答辩追问</span>
-    <div class="xzr_qa">
-      <div class="xzr_q">
-        <h4><span>Q1</span>你的第一版提示词漏掉了哪个需求？</h4>
-        <p>漏了两个"行为型"需求——"手动操作后自动播放不能停"和"圆点必须可点击"；还漏了两处归属与数值：没指定圆点绑 <code>#wyPag4</code>，也没给动画时长 800ms。根因是把需求写成了名词（"有圆点""自动播 3 秒"），没写"操作后应该发生什么"。</p>
-      </div>
-      <div class="xzr_q">
-        <h4><span>Q2</span>你怎么在第二轮"说清楚"的？</h4>
-        <p>三件事：① 把需求编号成 1)–4)，一条一行；② 把行为写成可验证的句子（"手动拖动或点击之后，自动播放必须继续"）；③ 给出硬指标与踩坑提示（3200 毫秒、800 毫秒、"用 id 不要用类名"），并要求 AI 逐行注释对应哪条需求。</p>
-      </div>
-      <div class="xzr_q">
-        <h4><span>Q3</span>AI 第一次给的代码错在哪？</h4>
-        <p>① 分页器用类选择器 <code>.swiper-pagination</code>，会命中页面其它轮播；② <code>autoplay</code> 缺 <code>disableOnInteraction: false</code>，一拖动自动播放就永久停；③ 缺 <code>clickable: true</code>，圆点只能看不能点；④ <code>delay</code> 写成 3000（要 3200），且完全没给 <code>speed</code>。</p>
-      </div>
-    </div>
   </div>
 
   <!-- ══════════ 任务二 ══════════ -->
