@@ -65,16 +65,6 @@
   .xzr_concl{margin-top:9px;font-size:12.5px;color:var(--xzr_green);line-height:1.9}
   .xzr_concl b{color:#0f2b5b}
 
-  /* 对话记录 */
-  .xzr_dialog{display:grid;gap:8px;margin-top:4px}
-  .xzr_msg{font-size:13px;line-height:1.9;border-radius:10px;padding:10px 14px}
-  .xzr_msg b{font-size:12px;display:inline-block;margin-right:6px;padding:0 6px;border-radius:5px;color:#fff;font-weight:normal}
-  .xzr_me{background:#f4f8ff;border:1px solid #dbe6ff}
-  .xzr_me b{background:#1d5bbf}
-  .xzr_ai{background:#f7faf8;border:1px solid #d9eadf}
-  .xzr_ai b{background:#15803d}
-  .xzr_msg code{background:#eef2ff;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
-
   /* 展品配图 */
   .xzr_img{width:100%;max-width:560px;display:block;border-radius:12px;margin:10px 0 2px;box-shadow:0 8px 20px rgba(15,43,91,.14)}
   .xzr_tip{font-size:12.5px;color:#64748b;margin-top:6px;line-height:1.9}
@@ -324,14 +314,6 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
 };
 <span class="xzr_key">if</span> (fx === <span class="xzr_str">'creative'</span>) { xzr_cfg.creativeEffect = xzr_creative; }
 <span class="xzr_key">return</span> <span class="xzr_key">new</span> Swiper(<span class="xzr_str">'#wySw4'</span>, xzr_cfg);</div>
-    </div>
-
-    <span class="xzr_label">与 AI 的关键对话</span>
-    <div class="xzr_dialog">
-      <div class="xzr_msg xzr_me"><b>我</b>给 Swiper 加左右方向键翻页，但不要整页都抢按键——只有轮播出现在屏幕里才响应，怎么写？</div>
-      <div class="xzr_msg xzr_ai"><b>AI</b>用 <code>keyboard: true</code> 即可，Swiper 会自动绑定左右方向键。</div>
-      <div class="xzr_msg xzr_me"><b>我</b>不对，我要"只在可见时响应"，布尔值做不到吧？改成配置对象并说明每个子选项。</div>
-      <div class="xzr_msg xzr_ai"><b>AI</b>改成 <code>keyboard: { enabled: true, onlyInViewport: true }</code>：<code>enabled</code> 总开关；<code>onlyInViewport</code> 只在轮播进入视口时监听；另外还有 <code>pageUpDown</code> 控制 PageUp / PageDown 是否也翻页，默认 true，我没动。</div>
     </div>
 
     <span class="xzr_label">运行截图</span>
