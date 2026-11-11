@@ -141,33 +141,92 @@
 
     <span class="xzr_label">第 2 轮 · 我的提示词</span>
     <div class="xzr_panel">
-      <div class="xzr_bar"><span>学生 → AI</span><span>结构化版</span></div>
-      <div class="xzr_body">用 Swiper 为 #wySw4 生成初始化配置，逐条满足下面 4 条，不要省略任何参数：
-
-1) 无缝循环：loop 开启，翻到最后一张继续往后能回到第一张；
-2) 自动播放：每 3200 毫秒翻一页；用户手动拖动或点击之后，自动播放不能停，必须继续；
-3) 分页器：圆点绑定 #wyPag4，用 id 不要用类名（页面还有其它 swiper，会串），并且圆点必须可点击跳转；
-4) 初始效果 cube（3D 立方体），切换动画时长 800 毫秒。
-
-只输出 new Swiper('#wySw4', {…}) 这一段代码，并在每行后面用注释标注对应第几条需求。</div>
+      <div class="xzr_bar"><span>学生 → AI</span><span>指出漏项</span></div>
+      <div class="xzr_body">刚才的代码还有一个需求没实现：用户手动滑动或者点击分页器后，自动轮播不能停止，要继续按 3.2 秒循环播放。
+请在现有配置基础上补全，并且再次确认全部 4 项需求都满足：1. 无缝循环 loop；2. 自动翻页 delay 3200ms；3. 分页器 clickable 可点击；4. 初始效果是 cube 立方体。
+同时告诉我用哪个参数保证手动后自动播放不停止。</div>
     </div>
 
     <span class="xzr_label">第 2 轮 · AI 回答</span>
     <div class="xzr_panel">
-      <div class="xzr_bar"><span>AI → 学生</span><span>最终采用，已并入演示四的初始化配置</span></div>
+      <div class="xzr_bar"><span>AI → 学生</span><span>补上 ② 的"手动后不停"</span></div>
       <div class="xzr_body xzr_code"><span class="xzr_key">new</span> Swiper(<span class="xzr_str">'#wySw4'</span>, {
-  loop: <span class="xzr_kw">true</span>,                              <span class="xzr_cm">// ① 无缝循环</span>
-  speed: <span class="xzr_kw">800</span>,                            <span class="xzr_cm">// ④ 切换动画 800ms</span>
-  effect: <span class="xzr_str">'cube'</span>,                         <span class="xzr_cm">// ④ 初始效果 3D 立方体</span>
+  loop: <span class="xzr_kw">true</span>,                       <span class="xzr_cm">// ① 无缝循环</span>
+  effect: <span class="xzr_str">'cube'</span>,                  <span class="xzr_cm">// ④ 初始 cube</span>
+  speed: <span class="xzr_kw">800</span>,                       <span class="xzr_cm">// 切换动画时长</span>
   autoplay: {
-    delay: <span class="xzr_kw">3200</span>,                        <span class="xzr_cm">// ② 每 3.2 秒自动翻一页</span>
-    disableOnInteraction: <span class="xzr_kw">false</span>         <span class="xzr_cm">// ② 手动操作后继续自动播放</span>
+    delay: <span class="xzr_kw">3200</span>,                    <span class="xzr_cm">// ② 每 3.2 秒翻一页</span>
+    disableOnInteraction: <span class="xzr_kw">false</span>    <span class="xzr_cm">// ★ 手动后不停，默认是 true</span>
   },
   pagination: {
-    el: <span class="xzr_str">'#wyPag4'</span>,                     <span class="xzr_cm">// ③ id 精准绑定，不串实例</span>
-    clickable: <span class="xzr_kw">true</span>                    <span class="xzr_cm">// ③ 圆点可点击跳转</span>
+    el: <span class="xzr_str">'#wyPag4'</span>,                 <span class="xzr_cm">// ③ 精确绑定</span>
+    clickable: <span class="xzr_kw">true</span>                <span class="xzr_cm">// ③ 圆点可点</span>
   }
 });</div>
+    </div>
+    <div class="xzr_tip"><b>关键：</b><code>autoplay.disableOnInteraction</code> 默认是 <code>true</code>，不显式改成 <code>false</code> 的话，拖一下或点一下圆点，自动播放就永久停了。</div>
+
+    <span class="xzr_label">第 3 轮 · 我的提示词</span>
+    <div class="xzr_panel">
+      <div class="xzr_bar"><span>学生 → AI</span><span>追问边界情况</span></div>
+      <div class="xzr_body">前两轮已经实现了 loop、3.2 秒自动播放、可点击分页器、cube 效果，但我担心还有几个边界问题没处理：
+1. 要保证页面 DOM 完全加载后再初始化 Swiper，避免拿不到元素；
+2. 自动播放不能在最后一张停止，要一直循环；
+3. 手动点击分页器或滑动后，自动播放要重新从 3.2 秒开始计时，不能乱序；
+4. cube 效果要写清楚必要的 HTML 结构和基础 CSS，避免效果不显示；
+5. 请帮我检查 loop 模式下分页器点击是否正常，并给出逐项测试步骤。
+请在之前代码基础上完善，标注新增了哪些配置、分别解决什么问题。</div>
+    </div>
+
+    <span class="xzr_label">第 3 轮 · AI 回答 · JS</span>
+    <div class="xzr_panel">
+      <div class="xzr_bar"><span>AI → 学生</span><span>最终采用 · 已并入演示四</span></div>
+      <div class="xzr_body xzr_code"><span class="xzr_cm">// 新增 ①：等 DOM 与样式就绪再初始化，否则拿不到宽高</span>
+document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span class="xzr_key">function</span> () {
+  <span class="xzr_key">var</span> xzr_swiper4 = <span class="xzr_key">new</span> Swiper(<span class="xzr_str">'#wySw4'</span>, {
+    loop: <span class="xzr_kw">true</span>,
+    effect: <span class="xzr_str">'cube'</span>,
+    slidesPerView: <span class="xzr_kw">1</span>,                    <span class="xzr_cm">// 新增：cube 只支持单张</span>
+    speed: <span class="xzr_kw">800</span>,
+    autoplay: {
+      delay: <span class="xzr_kw">3200</span>,
+      disableOnInteraction: <span class="xzr_kw">false</span>,
+      stopOnLastSlide: <span class="xzr_kw">false</span>,           <span class="xzr_cm">// 新增：不停在最后一张</span>
+      pauseOnMouseEnter: <span class="xzr_kw">false</span>          <span class="xzr_cm">// 新增：悬停不暂停</span>
+    },
+    pagination: { el: <span class="xzr_str">'#wyPag4'</span>, clickable: <span class="xzr_kw">true</span> }
+  });
+
+  <span class="xzr_cm">// 新增：点圆点后计时器清零，重新数满 3.2 秒</span>
+  document.querySelector(<span class="xzr_str">'#wyPag4'</span>).addEventListener(<span class="xzr_str">'click'</span>, <span class="xzr_key">function</span> () {
+    xzr_swiper4.autoplay.stop();
+    xzr_swiper4.autoplay.start();
+  });
+
+  <span class="xzr_cm">// 新增：拖动结束后同样重置，节奏不乱序</span>
+  xzr_swiper4.on(<span class="xzr_str">'touchEnd'</span>, <span class="xzr_key">function</span> () {
+    xzr_swiper4.autoplay.stop();
+    xzr_swiper4.autoplay.start();
+  });
+});</div>
+    </div>
+
+    <span class="xzr_label">第 3 轮 · AI 回答 · HTML 与 CSS</span>
+    <div class="xzr_panel">
+      <div class="xzr_bar"><span>cube 必需的三层结构 + 基础样式</span><span>缺一项就只看到平移</span></div>
+      <div class="xzr_body xzr_code">&lt;div class="swiper" id="wySw4"&gt;
+  &lt;div class="swiper-wrapper"&gt;
+    &lt;div class="swiper-slide"&gt;&lt;img src="swiper-imgs/tiangong_1.jpg" alt=""&gt;&lt;/div&gt;
+    &lt;!-- 其余 slide 同理 --&gt;
+  &lt;/div&gt;
+  &lt;div class="swiper-pagination" id="wyPag4"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  #wySw4 { width:100%; height:290px; overflow:hidden }              /* 必须有明确高度 */
+  #wySw4 .swiper-slide { height:100%; backface-visibility:hidden }  /* 背面不穿帮 */
+  #wySw4 .swiper-slide img { width:100%; height:100%; object-fit:cover; display:block }
+&lt;/style&gt;</div>
     </div>
 
     <span class="xzr_label">逐项验证 · 截图 + 一句话结论</span>
