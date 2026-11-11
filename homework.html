@@ -65,6 +65,23 @@
   .xzr_concl{margin-top:9px;font-size:12.5px;color:var(--xzr_green);line-height:1.9}
   .xzr_concl b{color:#0f2b5b}
 
+  /* 一问一答 / 对话记录 */
+  .xzr_dialog{display:grid;gap:8px;margin-top:4px}
+  .xzr_msg{font-size:13px;line-height:1.9;border-radius:10px;padding:10px 14px}
+  .xzr_msg b{font-size:12px;display:inline-block;margin-right:6px;padding:0 6px;border-radius:5px;color:#fff;font-weight:normal}
+  .xzr_me{background:#f4f8ff;border:1px solid #dbe6ff}
+  .xzr_me b{background:#1d5bbf}
+  .xzr_ai{background:#f7faf8;border:1px solid #d9eadf}
+  .xzr_ai b{background:#15803d}
+  .xzr_msg code{background:#eef2ff;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
+
+  .xzr_qa{display:grid;gap:10px;margin-top:4px}
+  .xzr_q{border-left:3px solid #1d5bbf;background:#f8faff;border-radius:0 10px 10px 0;padding:11px 15px}
+  .xzr_q h4{font-size:13.5px;color:var(--xzr_navy);margin-bottom:4px}
+  .xzr_q h4 span{display:inline-block;font-size:11.5px;color:#fff;background:#1d5bbf;border-radius:5px;padding:0 6px;margin-right:6px;font-weight:normal}
+  .xzr_q p{font-size:13px;color:#475569;line-height:1.9}
+  .xzr_q code{background:#eef2ff;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
+
   /* 展品配图 */
   .xzr_img{width:100%;max-width:560px;display:block;border-radius:12px;margin:10px 0 2px;box-shadow:0 8px 20px rgba(15,43,91,.14)}
   .xzr_tip{font-size:12.5px;color:#64748b;margin-top:6px;line-height:1.9}
@@ -316,6 +333,16 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
 <span class="xzr_key">return</span> <span class="xzr_key">new</span> Swiper(<span class="xzr_str">'#wySw4'</span>, xzr_cfg);</div>
     </div>
 
+    <span class="xzr_label">与 AI 的关键对话记录</span>
+    <div class="xzr_dialog">
+      <div class="xzr_msg xzr_me"><b>提示词</b>给演示四 #wySw4 加一个课堂没讲过的能力：键盘左右方向键翻页。但不要整页抢按键——只有这个轮播出现在屏幕里时才响应。给我配置代码并说明每个选项。</div>
+      <div class="xzr_msg xzr_ai"><b>AI</b>用 <code>keyboard: true</code> 即可，Swiper 会自动绑定左右方向键。</div>
+      <div class="xzr_msg xzr_me"><b>我</b>不对。布尔值只能开关，做不到"只在可见时响应"，页面上有 4 个轮播会互相抢键。请改成配置对象，并逐项说明子选项的作用。</div>
+      <div class="xzr_msg xzr_ai"><b>AI</b>改成 <code>keyboard: { enabled: true, onlyInViewport: true }</code>：<code>enabled</code> 是总开关；<code>onlyInViewport</code> 只在轮播进入视口时监听，离开视口就不响应。另外还有 <code>pageUpDown</code> 控制 PageUp / PageDown 是否也翻页，默认 true，这次没改。</div>
+      <div class="xzr_msg xzr_me"><b>我</b>那 PageUp/PageDown 会误触怎么办？我只想保留 ← →。另外换成 cube / creative 会重建实例，键盘配置会不会丢？</div>
+      <div class="xzr_msg xzr_ai"><b>AI</b>加 <code>pageUpDown: false</code> 就只响应 ← →。重建会丢配置，所以把 <code>keyboard</code> 放进 <code>createSwiper4</code> 工厂函数的配置对象里，每次 destroy 后重建都会重新带上。</div>
+    </div>
+
     <span class="xzr_label">运行截图</span>
     <div class="xzr_verify">
       <div class="xzr_v">
@@ -327,6 +354,26 @@ document.addEventListener(<span class="xzr_str">'DOMContentLoaded'</span>, <span
         <h4>键盘 ← → 翻页</h4>
         <img class="xzr_shot_img" src="homework-imgs/xzr_t3_keyboard.png" alt="按下方向键后轮播从第 4 张切到第 5 张">
         <span class="xzr_shot_cap">按下 ← / → 方向键后，从第 4 张切到第 5 张「中国天眼」</span>
+      </div>
+    </div>
+
+    <span class="xzr_label">答辩四连问</span>
+    <div class="xzr_qa">
+      <div class="xzr_q">
+        <h4><span>Q1</span>这段代码什么意思？</h4>
+        <p>给演示四实例加键盘控制：<code>enabled: true</code> 打开键盘监听，<code>onlyInViewport: true</code> 让监听只在轮播确实出现在视口里时生效。整段放进 <code>createSwiper4</code> 工厂函数，所以切到 cube、creative 等效果重建实例后键盘控制依然在。</p>
+      </div>
+      <div class="xzr_q">
+        <h4><span>Q2</span>AI 第一次给的哪里不对、你改了什么？</h4>
+        <p>第一次只给 <code>keyboard: true</code>——它等价于"开启但不限视口"，页面上有 4 个轮播，会把整页方向键都抢走。我改成配置对象并补 <code>onlyInViewport: true</code>，把响应范围收回到"这个轮播可见时"。</p>
+      </div>
+      <div class="xzr_q">
+        <h4><span>Q3</span>新参数的作用？</h4>
+        <p><code>onlyInViewport</code>：轮播不在视口就不响应，避免抢键；<code>enabled</code>：整个 keyboard 模块的开关，设 false 等于删掉这段；<code>pageUpDown</code>：PageUp / PageDown 是否也翻页，默认 true，本次保留默认、只靠方向键。</p>
+      </div>
+      <div class="xzr_q">
+        <h4><span>Q4</span>现场把 delay 改成指定值，并解释预期变化</h4>
+        <p>把 <code>delay: 3200</code> 改成 <b>1800</b>：自动翻页间隔从 3.2 秒缩到 1.8 秒，节奏明显变快；改成 0 会几乎不停翻。<b>只影响"多久翻一次"</b>，不影响 <code>speed: 900</code> 的过渡时长——delay 是停留时间，speed 是过渡时间。</p>
       </div>
     </div>
   </div>
