@@ -452,6 +452,10 @@
             background: linear-gradient(135deg, #8fd3a8, #4fae7f);
         }
 
+        .card:nth-child(19) .card-top {
+            background: linear-gradient(135deg, #f0a6c8, #c2547f);
+        }
+
         .card-body {
             padding: 22px 20px 22px;
             position: relative;
@@ -673,6 +677,15 @@
                         <h3>提示词记录</h3>
                         <p>从第一条规则到本次作业的完整提示词审计日志，按时间追加、不覆盖，含使用的模型与提示词原文。</p>
                         <a href="xzr_prompt.md" target="_blank" rel="noopener">查看记录</a>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-top">FETCH</div>
+                    <div class="card-body">
+                        <h3>诗词卡片 · JSON + fetch</h3>
+                        <p>Express 本地服务器提供 poems / authors 两个接口，Promise.all 并发取数，支持关键字搜索与按标题长度排序。</p>
+                        <a href="poems.html">进入页面</a>
                     </div>
                 </article>
 

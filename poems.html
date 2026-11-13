@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 建立时间: 2026-11-13                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 诗词卡片页 · fetch 并发取接口 + 搜索筛选 + 按标题长度排序 │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>诗词卡片 · JSON → Express → fetch</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f8fc;color:#1f2937}
+  .xzr_wrap{max-width:1080px;margin:0 auto;padding:36px 20px 60px}
+
+  .xzr_head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
+    background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:20px;padding:30px 32px;color:#fff;
+    box-shadow:0 12px 30px rgba(15,43,91,.3)}
+  .xzr_head .xzr_badge{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.3);font-size:12.5px;letter-spacing:2px;margin-bottom:12px}
+  .xzr_head h1{font-size:26px;letter-spacing:1px;line-height:1.4}
+  .xzr_head h1 b{color:#ffd166}
+  .xzr_head p{margin-top:10px;font-size:13.5px;color:#d9e3f5;line-height:1.9}
+  .xzr_head a{flex:none;text-decoration:none;color:#0f2b5b;background:#fff;border:1px solid #dbe4ff;
+    border-radius:999px;padding:9px 20px;font-size:13.5px;font-weight:bold;transition:transform .2s}
+  .xzr_head a:hover{transform:translateY(-2px)}
+
+  .xzr_bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 8px}
+  .xzr_search{flex:1 1 260px;min-width:200px;border:1.5px solid #c7d8f8;border-radius:999px;
+    padding:11px 18px;font-size:14px;font-family:inherit;color:#1f2937;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+  .xzr_search:focus{border-color:#1d5bbf;box-shadow:0 0 0 3px rgba(29,91,191,.12)}
+  .xzr_btn{border:1.5px solid #c7d8f8;background:#fff;color:#1d5bbf;font-size:13.5px;font-family:inherit;
+    padding:10px 20px;border-radius:999px;cursor:pointer;transition:all .2s}
+  .xzr_btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(29,91,191,.18)}
+  .xzr_btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+  .xzr_btn.xzr_on{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);color:#fff;border-color:transparent}
+
+  .xzr_tip{font-size:12.5px;color:#7b8fb5;line-height:1.9;margin-bottom:16px}
+  .xzr_tip b{color:#0f2b5b}
+
+  .xzr_list{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+  .xzr_card{background:#fff;border:1px solid #e8ecf5;border-radius:16px;overflow:hidden;
+    box-shadow:0 4px 14px rgba(31,41,55,.06);transition:transform .25s,box-shadow .25s;
+    display:flex;flex-direction:column}
+  .xzr_card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(15,43,91,.14)}
+  .xzr_card img{width:100%;height:170px;object-fit:cover;display:block;background:#e8ecf5}
+  .xzr_body{padding:14px 16px 18px}
+  .xzr_body h2{font-size:17px;color:#111827;letter-spacing:.5px;margin-bottom:6px}
+  .xzr_author{display:inline-block;font-size:11.5px;color:#15803d;background:#f0fdf4;
+    border:1px solid #bbf7d0;border-radius:999px;padding:1px 9px;margin-bottom:8px}
+  .xzr_body p{font-size:13px;color:#4b5563;line-height:1.9}
+
+  .xzr_empty{grid-column:1/-1;text-align:center;color:#9ca3af;font-size:14px;padding:40px 0;line-height:2}
+  .xzr_err{grid-column:1/-1;background:#fef2f2;border:1.5px dashed #f87171;border-radius:14px;
+    padding:18px 22px;color:#b42318;font-size:13.5px;line-height:2}
+  .xzr_err code{background:#fee2e2;padding:1px 7px;border-radius:5px;font-family:Consolas,monospace}
+
+  footer{text-align:center;margin-top:36px;color:#9ca3af;font-size:12.5px;line-height:2}
+  @media (max-width:640px){
+    .xzr_head{flex-direction:column;align-items:flex-start}
+    .xzr_head h1{font-size:21px}
+  }
+</style>
+</head>
+<body>
+<div class="xzr_wrap">
+
+  <header class="xzr_head">
+    <div>
+      <span class="xzr_badge">高 级 网 页 设 计 · JSON → EXPRESS → FETCH</span>
+      <h1>诗词卡片 · <b>数据从接口来</b></h1>
+      <p>数据源：<code>db/db.json</code> → <code>localhost:3004/api/poems</code> 与 <code>/api/authors</code>（Promise.all 并发请求）</p>
+    </div>
+    <a href="index.html">← 返回首页</a>
+  </header>
+
+  <div class="xzr_bar">
+    <input class="xzr_search" id="xzr_search" type="search" placeholder="输入关键字，只显示标题或内容匹配的诗词…">
+    <button class="xzr_btn" id="xzr_sort" type="button">按标题长度排序</button>
+    <button class="xzr_btn" id="xzr_reset" type="button">重置</button>
+  </div>
+  <p class="xzr_tip" id="xzr_tip">正在从 <b>http://localhost:3004</b> 取数据…</p>
+
+  <ul class="xzr_list" id="xzr_list"></ul>
+
+  <footer>诗词数据来自本地 Express 服务器 · 端口 3004 · 徐子然 · 高级网页设计</footer>
+</div>
+
+<script>
+  // 接口基础地址：两个接口共用，末尾保留斜杠方便拼接
+  var xzr_api = 'http://localhost:3004/api/';
+
+  // 两个接口的数据都放在这里，搜索与排序都在内存里做，不重复请求
+  var xzr_poems = [];
+  var xzr_authors = [];
+
+  // 排序状态：false = 原始顺序；true = 按标题长度排序（再点一次恢复原始顺序）
+  var xzr_sorted = false;
+
+  // 用 Promise.all 同时请求两个接口，全部拿到后再渲染，避免先后闪烁
+  function xzr_loadData() {
+    Promise.all([
+      fetch(xzr_api + 'poems').then(function (res) { return res.json(); }),
+      fetch(xzr_api + 'authors').then(function (res) { return res.json(); })
+    ]).then(function (result) {
+      xzr_poems = result[0];
+      xzr_authors = result[1];
+      document.getElementById('xzr_tip').innerHTML =
+        '接口连通 · 共 <b>' + xzr_poems.length + '</b> 首诗词、<b>' + xzr_authors.length + '</b> 位作者 · 数据来自 localhost:3004';
+      xzr_render();
+    }).catch(function () {
+      // 服务器没启动时给出可操作提示，而不是白屏
+      document.getElementById('xzr_tip').innerHTML = '接口未连通';
+      document.getElementById('xzr_list').innerHTML =
+        '<li class="xzr_err">数据获取失败！请先在 <code>db</code> 文件夹里运行 <code>node server.js</code>（端口 3004），' +
+        '再刷新本页。</li>';
+    });
+  }
+
+  // 按标题在作者表里查出作者信息，查不到时返回空对象
+  function xzr_findAuthor(title) {
+    for (var i = 0; i < xzr_authors.length; i++) {
+      if (xzr_authors[i].poem === title) { return xzr_authors[i]; }
+    }
+    return null;
+  }
+
+  // 按搜索关键字过滤 + 按标题长度排序，然后把卡片渲染到列表里
+  function xzr_render() {
+    var xzr_keyword = document.getElementById('xzr_search').value.trim().toLowerCase();
+
+    // ① 过滤：标题或内容包含关键字才保留
+    var xzr_list = xzr_poems.filter(function (item) {
+      if (!xzr_keyword) { return true; }
+      return item.title.toLowerCase().indexOf(xzr_keyword) > -1
+        || item.content.toLowerCase().indexOf(xzr_keyword) > -1;
+    });
+
+    // ② 排序：只在点击过排序按钮时执行，按标题长度从短到长
+    if (xzr_sorted) {
+      xzr_list = xzr_list.slice().sort(function (a, b) {
+        return a.title.length - b.title.length;
+      });
+    }
+
+    // ③ 拼 HTML：上图下文，作者信息来自第二个接口
+    var xzr_html = '';
+    xzr_list.forEach(function (item) {
+      var xzr_author = xzr_findAuthor(item.title);
+      xzr_html += '<li class="xzr_card">'
+        + '<img src="' + item.pic + '" alt="' + item.title + '">'
+        + '<div class="xzr_body">'
+        + '<h2>' + item.title + '</h2>'
+        + (xzr_author ? '<span class="xzr_author">' + xzr_author.dynasty + ' · ' + xzr_author.name + '</span>' : '')
+        + '<p>' + item.content + '</p>'
+        + '</div></li>';
+    });
+
+    document.getElementById('xzr_list').innerHTML = xzr_html
+      || '<li class="xzr_empty">没有匹配的诗词，换个关键字试试</li>';
+
+    document.getElementById('xzr_tip').innerHTML =
+      '共 <b>' + xzr_poems.length + '</b> 首 · 当前显示 <b>' + xzr_list.length + '</b> 首'
+      + (xzr_sorted ? ' · 已按标题长度排序' : ' · 原始顺序');
+  }
+
+  // 输入框实时筛选：每次输入都重新渲染列表
+  document.getElementById('xzr_search').addEventListener('input', function () {
+    xzr_render();
+  });
+
+  // 点击排序按钮：在"按标题长度排序"与"原始顺序"之间切换
+  document.getElementById('xzr_sort').addEventListener('click', function () {
+    xzr_sorted = !xzr_sorted;
+    this.classList.toggle('xzr_on', xzr_sorted);
+    this.textContent = xzr_sorted ? '恢复原始顺序' : '按标题长度排序';
+    xzr_render();
+  });
+
+  // 点击重置：清空关键字并恢复原始顺序
+  document.getElementById('xzr_reset').addEventListener('click', function () {
+    document.getElementById('xzr_search').value = '';
+    xzr_sorted = false;
+    var xzr_sortBtn = document.getElementById('xzr_sort');
+    xzr_sortBtn.classList.remove('xzr_on');
+    xzr_sortBtn.textContent = '按标题长度排序';
+    xzr_render();
+  });
+
+  // 页面加载后立即发起请求
+  xzr_loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "poems": [
+    {
+      "content": "你看是不是变了！",
+      "pic": "poems-img/6.jpg",
+      "title": "短歌行"
+    },
+    {
+      "content": "雨前初见花间蕊，雨后全无叶底花。",
+      "pic": "poems-img/2.jpg",
+      "title": "雨晴"
+    },
+    {
+      "content": "花近高楼伤客心，万方多难此登临。",
+      "pic": "poems-img/3.jpg",
+      "title": "脊楼"
+    },
+    {
+      "content": "纤云弄巧，飞星传恨，银汉迢迢暗度。",
+      "pic": "poems-img/4.jpg",
+      "title": "鹊桥仙·纤云弄巧"
+    },
+    {
+      "content": "白日依山尽，黄河入海流。欲穷千里目，更上一层楼。",
+      "pic": "poems-img/1.jpg",
+      "title": "登鹳雀楼"
+    },
+    {
+      "content": "会当凌绝顶，一览众山小。",
+      "pic": "poems-img/5.jpg",
+      "title": "望岳"
+    }
+  ],
+  "authors": [
+    { "name": "曹操", "dynasty": "东汉", "poem": "短歌行" },
+    { "name": "朱淑真", "dynasty": "宋", "poem": "雨晴" },
+    { "name": "杜甫", "dynasty": "唐", "poem": "脊楼" },
+    { "name": "秦观", "dynasty": "宋", "poem": "鹊桥仙·纤云弄巧" },
+    { "name": "王之涣", "dynasty": "唐", "poem": "登鹳雀楼" },
+    { "name": "杜甫", "dynasty": "唐", "poem": "望岳" }
+  ]
+}
