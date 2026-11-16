@@ -94,6 +94,11 @@
   // 接口基础地址：两个接口共用，末尾保留斜杠方便拼接
   var xzr_api = 'http://localhost:3004/api/';
 
+  // 静态托管环境（GitHub Pages 等）没有 Node 服务，改用同目录 db/db.json 兜底；
+  // 本机访问仍走 Express 接口，方便演示"关服务器出提示"的验收效果
+  var xzr_static = location.search.indexOf('static=1') > -1
+    || (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1');
+
   // 两个接口的数据都放在这里，搜索与排序都在内存里做，不重复请求
   var xzr_poems = [];
   var xzr_authors = [];
@@ -103,6 +108,11 @@
 
   // 用 Promise.all 同时请求两个接口，全部拿到后再渲染，避免先后闪烁
   function xzr_loadData() {
+    // 强制静态模式（?static=1）或部署到静态托管时，直接读 db/db.json
+    if (xzr_static) {
+      xzr_loadStatic();
+      return;
+    }
     Promise.all([
       fetch(xzr_api + 'poems').then(function (res) { return res.json(); }),
       fetch(xzr_api + 'authors').then(function (res) { return res.json(); })
@@ -113,11 +123,31 @@
         '接口连通 · 共 <b>' + xzr_poems.length + '</b> 首诗词、<b>' + xzr_authors.length + '</b> 位作者 · 数据来自 localhost:3004';
       xzr_render();
     }).catch(function () {
+      // 静态托管或强制 static=1 时，改读同目录的 db/db.json，保证线上也能看到卡片
+      if (xzr_static) {
+        xzr_loadStatic();
+        return;
+      }
       // 服务器没启动时给出可操作提示，而不是白屏
       document.getElementById('xzr_tip').innerHTML = '接口未连通';
       document.getElementById('xzr_list').innerHTML =
         '<li class="xzr_err">数据获取失败！请先在 <code>db</code> 文件夹里运行 <code>node server.js</code>（端口 3004），' +
         '再刷新本页。</li>';
+    });
+  }
+
+  // 静态兜底：直接读取仓库里的 db/db.json，拆成诗词与作者两份数据
+  function xzr_loadStatic() {
+    fetch('db/db.json').then(function (res) { return res.json(); }).then(function (db) {
+      xzr_poems = db.poems;
+      xzr_authors = db.authors;
+      xzr_render();
+      document.getElementById('xzr_tip').innerHTML =
+        '静态演示模式 · 共 <b>' + xzr_poems.length + '</b> 首诗词、<b>' + xzr_authors.length + '</b> 位作者 · 数据来自 db/db.json';
+    }).catch(function () {
+      document.getElementById('xzr_tip').innerHTML = '数据文件读取失败';
+      document.getElementById('xzr_list').innerHTML =
+        '<li class="xzr_err">读取 <code>db/db.json</code> 失败，请确认该文件与 poems.html 在同一目录结构下。</li>';
     });
   }
 
