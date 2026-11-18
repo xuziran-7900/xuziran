@@ -94,6 +94,16 @@
             xzr_video.hidden = true;
             xzr_empty.hidden = false;
         });
+
+        // iOS Safari 省流量不预加载视频，loadeddata 不会自动触发：
+        // 改用 HEAD 请求主动探测视频是否存在，存在就显示带封面的播放器
+        fetch(xzr_video.getAttribute('src'), { method: 'HEAD' })
+            .then(function (xzr_res) {
+                if (xzr_res.ok) xzr_showVideo();
+            })
+            .catch(function () {
+                // 探测失败保留占位，不打扰用户
+            });
     }
 
     window.xzr_setupVideoSlot = xzr_setupVideoSlot;
