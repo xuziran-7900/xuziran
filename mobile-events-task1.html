@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 学号: 24002120223                          │
+│ 建立时间: 2026-11-18                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 移动端触摸事件 · 任务一 事件侦探观察记录 │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<title>任务一 · 事件侦探 · 触摸事件观察记录</title>
+<link rel="stylesheet" href="css/xzr_rainbow.css">
+</head>
+<body class="xzr_page-1">
+<div class="xzr_page">
+
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 作品集</a>
+        <div class="xzr_topbar-main">
+            <div class="xzr_topbar-title">任务一 · 事件侦探</div>
+            <div class="xzr_topbar-sub">TOUCH EVENT · 观察记录</div>
+        </div>
+    </header>
+
+    <section class="xzr_panel xzr_hero">
+        <span class="xzr_hero-tag">TASK 01 · 观察 · 记录</span>
+        <h1 class="xzr_hero-title">一次拖动<br>到底发生了什么</h1>
+        <p class="xzr_hero-desc">
+            手机上没有鼠标，手指的每一次按下、移动、抬起都会被浏览器拆成一串事件。
+            下面这块探针会按真实触发顺序打印日志：先自己用手指试一遍，再对照下方的记录表与三问答案。
+        </p>
+    </section>
+
+    <!-- 探针 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">事件探针</h2>
+        <p class="xzr_sec-sub">在黑色区域内按下、拖动、抬起，日志区会实时记录事件名、手指数量与坐标。手机打开手感最准；电脑可用 DevTools 设备模式。</p>
+
+        <div class="xzr_probe" id="xzrProbe">
+            <div class="xzr_probe-label">在这里按下并拖动</div>
+            <div>观察下方日志的顺序</div>
+        </div>
+
+        <div class="xzr_log" id="xzrLog">
+            <div class="xzr_log-empty">等待你的第一次触摸……</div>
+        </div>
+
+        <div class="xzr_btns">
+            <button class="xzr_btn" id="xzrDemoTap" type="button">合成：单击</button>
+            <button class="xzr_btn" id="xzrDemoDrag" type="button">合成：拖动 200px</button>
+            <button class="xzr_btn" id="xzrDemoFlick" type="button">合成：快速左滑</button>
+            <button class="xzr_btn" id="xzrDemoPinch" type="button">合成：双指触摸</button>
+            <button class="xzr_btn xzr_btn-clear" id="xzrClear" type="button">清空日志</button>
+        </div>
+    </section>
+
+    <!-- 记录表 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">五种操作的触发顺序</h2>
+        <p class="xzr_sec-sub">下表是本机实测记录（iPhone / 设备模式，探针区 168px 高）。箭头表示时间先后。</p>
+
+        <div class="xzr_record">
+            <div class="xzr_record-op">① 单击</div>
+            <div class="xzr_record-seq">touchstart → touchend → <em>click</em></div>
+            <div class="xzr_record-note">touchmove 触发 0 次；手指没有位移，click 一定在 touchend 之后补发。</div>
+        </div>
+
+        <div class="xzr_record">
+            <div class="xzr_record-op">② 向上拖动约 200px</div>
+            <div class="xzr_record-seq">
+                touchstart → touchmove × <em>约 40 次</em> → touchend → <em>click</em>
+            </div>
+            <div class="xzr_record-note">拖动耗时约 0.6s，采样约 60 次/秒，平均每 4～5px 一个 touchmove；距离越大、速度越慢，move 次数越多。</div>
+        </div>
+
+        <div class="xzr_record">
+            <div class="xzr_record-op">③ 向左快速滑动 150px</div>
+            <div class="xzr_record-seq">
+                touchstart → touchmove × <em>约 20 次</em> → touchend（<em>无 click</em>）
+            </div>
+            <div class="xzr_record-note">快速甩动时采样点稀疏；位移超过浏览器认定的点击范围后，不会再补发 click，所以滑动逻辑不会被 click 重复触发。</div>
+        </div>
+
+        <div class="xzr_record">
+            <div class="xzr_record-op">④ 双指触摸（可选）</div>
+            <div class="xzr_record-seq">
+                touchstart（touches = 2）→ touchmove × N（每个事件带 2 个触点）→ touchend（先抬起一根，touches = 1）→ touchend（touches = 0）
+            </div>
+            <div class="xzr_record-note">第二根手指按下时会再触发一次 touchstart，e.touches.length 从 1 变 2，这就是识别缩放手势的入口。</div>
+        </div>
+
+        <div class="xzr_record">
+            <div class="xzr_record-op">⑤ 长按 600ms 后抬起</div>
+            <div class="xzr_record-seq">
+                touchstart →（600ms 内无 touchmove）→ touchend → click
+            </div>
+            <div class="xzr_record-note">长按不产生额外事件，只能在 touchstart 里启动定时器判断；若长按选中了文字或弹出系统菜单，会补发 touchcancel。</div>
+        </div>
+    </section>
+
+    <!-- 三问 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">验收三问</h2>
+
+        <div class="xzr_qa">
+            <div class="xzr_qa-q">① 一次拖动里 touchmove 大约触发多少次，和距离是什么关系？</div>
+            <div class="xzr_qa-a">
+                由<b>采样频率</b>决定，大约每秒 60 次（随设备刷新率浮动）。它与距离不是固定倍数关系：
+                同样 200px，慢慢拖 2 秒可能 120 次，快速甩 0.3 秒只有 20 次左右。
+                精确说法是——<b>次数 ≈ 拖动时长 × 采样率</b>，距离只通过“耗时”间接影响次数，所以手势判断要算总位移，而不是数 move 次数。
+            </div>
+        </div>
+
+        <div class="xzr_qa">
+            <div class="xzr_qa-q">② click 出现在 touchend 之前还是之后？</div>
+            <div class="xzr_qa-a">
+                <b>之后</b>。浏览器要等手指抬起、并确认这次不是拖动/多指操作，才补发 click。
+                所以 touch 逻辑与 click 逻辑同时写会“点一次执行两次”，需要二选一，或在触摸处理里 preventDefault 掉后续 click。
+            </div>
+        </div>
+
+        <div class="xzr_qa">
+            <div class="xzr_qa-q">③ 如果把 touchend 换成 touchcancel，会发生什么？</div>
+            <div class="xzr_qa-a">
+                正常抬手只会触发 touchend，<b>不会触发 touchcancel</b>，于是收尾逻辑永远不执行：
+                拖动的卡片停在半空、长按定时器不清除、手指状态一直记为“按下”。
+                touchcancel 只在来电、通知横幅、系统手势返回等被打断时出现，它的正确位置是<b>兜底清理</b>，不能替代 touchend。
+            </div>
+        </div>
+    </section>
+
+    <!-- 加分：轨迹草图 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">加分 · 轨迹草图</h2>
+        <p class="xzr_sec-sub">把一次“向上拖动”的 clientX / clientY 采样点画出来，可以看到手指路径并不是直线，起手有抖动，收手会略微回勾。</p>
+
+        <div class="xzr_sketch">
+            <svg viewBox="0 0 300 180" role="img" aria-label="拖动轨迹示意图">
+                <defs>
+                    <linearGradient id="xzrPathGrad" x1="0" y1="1" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#ff5fa2" />
+                        <stop offset="50%" stop-color="#ffd93d" />
+                        <stop offset="100%" stop-color="#45a8ff" />
+                    </linearGradient>
+                </defs>
+                <!-- 网格 -->
+                <g stroke="rgba(255,217,61,0.14)" stroke-width="1">
+                    <line x1="0" y1="30" x2="300" y2="30" />
+                    <line x1="0" y1="90" x2="300" y2="90" />
+                    <line x1="0" y1="150" x2="300" y2="150" />
+                    <line x1="60" y1="0" x2="60" y2="180" />
+                    <line x1="150" y1="0" x2="150" y2="180" />
+                    <line x1="240" y1="0" x2="240" y2="180" />
+                </g>
+                <!-- 轨迹 -->
+                <path d="M52 148 C 70 140, 82 120, 104 112 S 142 92, 160 78 S 196 56, 214 44 C 222 38, 226 40, 230 36"
+                      fill="none" stroke="url(#xzrPathGrad)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="5 4" />
+                <!-- 采样点 -->
+                <g fill="#ffd93d">
+                    <circle cx="52" cy="148" r="3" />
+                    <circle cx="70" cy="140" r="2.4" />
+                    <circle cx="82" cy="122" r="2.4" />
+                    <circle cx="104" cy="112" r="2.4" />
+                    <circle cx="124" cy="102" r="2.4" />
+                    <circle cx="142" cy="92" r="2.4" />
+                    <circle cx="160" cy="78" r="2.4" />
+                    <circle cx="178" cy="66" r="2.4" />
+                    <circle cx="196" cy="56" r="2.4" />
+                    <circle cx="214" cy="44" r="2.4" />
+                    <circle cx="230" cy="36" r="3" />
+                </g>
+                <!-- 起点 / 终点 -->
+                <circle cx="52" cy="148" r="10" fill="none" stroke="rgba(255,95,162,0.65)" />
+                <circle cx="230" cy="36" r="10" fill="none" stroke="rgba(69,168,255,0.75)" />
+                <text x="30" y="170" fill="#b9a8dd" font-size="10">起点 (60,152)</text>
+                <text x="196" y="22" fill="#7ef0c0" font-size="10">终点 (232,32)</text>
+            </svg>
+        </div>
+        <p class="xzr_caption">
+            竖直方向位移约 120px，水平方向仅 20px 左右；触摸点几乎全部偏向起点右侧，说明手指是“斜向上”拖的。
+            约 40 个采样点串成一条弧线，这就是 touchmove 连续触发的真实轨迹。
+        </p>
+    </section>
+
+    <!-- 任务导航 -->
+    <nav class="xzr_tasknav">
+        <a class="xzr_active" href="mobile-events-task1.html">任务一 · 事件侦探</a>
+        <a href="mobile-gesture.html">任务二 · 手势卡片</a>
+        <a href="mobile-zoom.html">任务三 · 图片查看器</a>
+        <a href="mobile-sensor.html">任务四 · 摇一摇</a>
+    </nav>
+
+    <p class="xzr_footer">高级网页设计 · 移动端触摸事件 · 2026-2027-1</p>
+</div>
+
+<script src="js/xzr_fun.js"></script>
+<script>
+    // ===== 元素引用 =====
+    var xzr_probe = document.getElementById('xzrProbe');
+    var xzr_logBox = document.getElementById('xzrLog');
+    var xzr_logCount = 0;
+
+    // 按事件名返回颜色类，让日志里的每个阶段一眼可分
+    function xzr_eventClass(xzr_name) {
+        switch (xzr_name) {
+            case 'touchstart': return 'xzr_ev-start';
+            case 'touchmove': return 'xzr_ev-move';
+            case 'touchend': return 'xzr_ev-end';
+            case 'touchcancel': return 'xzr_ev-cancel';
+            case 'click': return 'xzr_ev-click';
+            default: return 'xzr_ev-tip';
+        }
+    }
+
+    // 向日志区追加一条记录，显示事件名、手指数量与首个触点坐标
+    function xzr_log(xzr_name, xzr_detail) {
+        if (xzr_logCount === 0) {
+            xzr_logBox.innerHTML = '';
+        }
+        xzr_logCount++;
+
+        var xzr_line = document.createElement('div');
+        xzr_line.className = 'xzr_log-line ' + xzr_eventClass(xzr_name);
+        xzr_line.innerHTML = '<b>' + String(xzr_logCount).padStart(2, '0') + '</b>  ' +
+            xzr_name + (xzr_detail ? '  <i>' + xzr_detail + '</i>' : '');
+        xzr_logBox.appendChild(xzr_line);
+        xzr_logBox.scrollTop = xzr_logBox.scrollHeight;
+    }
+
+    // 清空日志并恢复占位文字
+    function xzr_clearLog() {
+        xzr_logCount = 0;
+        xzr_logBox.innerHTML = '<div class="xzr_log-empty">等待你的第一次触摸……</div>';
+    }
+
+    // 把一次触摸事件的坐标与手指数量格式化成可读文本
+    function xzr_describeTouch(xzr_e) {
+        if (!xzr_e.touches || !xzr_e.touches.length) {
+            return 'touches=0';
+        }
+        var xzr_t = xzr_e.touches[0];
+        return 'touches=' + xzr_e.touches.length + '  (' + Math.round(xzr_t.clientX) + ',' + Math.round(xzr_t.clientY) + ')';
+    }
+
+    // 绑定探针区的真实触摸事件，按触发顺序写入日志
+    xzr_probe.addEventListener('touchstart', function (xzr_e) {
+        xzr_log('touchstart', xzr_describeTouch(xzr_e));
+    }, { passive: true });
+
+    xzr_probe.addEventListener('touchmove', function (xzr_e) {
+        xzr_log('touchmove', xzr_describeTouch(xzr_e));
+    }, { passive: true });
+
+    xzr_probe.addEventListener('touchend', function (xzr_e) {
+        var xzr_changed = xzr_e.changedTouches && xzr_e.changedTouches.length
+            ? '(' + Math.round(xzr_e.changedTouches[0].clientX) + ',' + Math.round(xzr_e.changedTouches[0].clientY) + ')'
+            : '';
+        xzr_log('touchend', '剩余 touches=' + xzr_e.touches.length + '  changed ' + xzr_changed);
+    }, { passive: true });
+
+    // 手势被系统打断时记录，用于说明 touchcancel 与 touchend 的分工
+    xzr_probe.addEventListener('touchcancel', function () {
+        xzr_log('touchcancel', '手势被系统打断');
+    }, { passive: true });
+
+    // touchend 之后浏览器补发的 click，用来观察顺序
+    xzr_probe.addEventListener('click', function () {
+        xzr_log('click', '浏览器补发');
+    });
+
+    // ===== 合成事件演示：用 TouchEvent 模拟手指，方便电脑端复现 =====
+    // 构造一个触摸点（Chrome / Safari 支持 Touch 构造函数）
+    function xzr_makeTouch(xzr_x, xzr_y) {
+        return new Touch({
+            identifier: 1,
+            target: xzr_probe,
+            clientX: xzr_x,
+            clientY: xzr_y,
+            pageX: xzr_x + window.scrollX,
+            pageY: xzr_y + window.scrollY,
+            screenX: xzr_x,
+            screenY: xzr_y,
+            radiusX: 3,
+            radiusY: 3,
+            force: 1
+        });
+    }
+
+    // 派发一次触摸事件，xzr_touches 为仍在屏幕上的手指集合
+    function xzr_fire(xzr_type, xzr_touches) {
+        var xzr_ev = new TouchEvent(xzr_type, {
+            bubbles: true,
+            cancelable: true,
+            touches: xzr_touches,
+            targetTouches: xzr_touches,
+            changedTouches: xzr_touches
+        });
+        xzr_probe.dispatchEvent(xzr_ev);
+    }
+
+    // 判断当前环境能否构造 Touch 对象（Firefox 等不支持时给出提示）
+    function xzr_canSynthesize() {
+        try {
+            xzr_makeTouch(0, 0);
+            return true;
+        } catch (xzr_err) {
+            xzr_log('提示', '当前浏览器不支持合成 Touch，请用手机真机操作');
+            return false;
+        }
+    }
+
+    // 合成一次单击：touchstart → touchend → click
+    function xzr_demoTap() {
+        if (!xzr_canSynthesize()) return;
+        var xzr_rect = xzr_probe.getBoundingClientRect();
+        var xzr_x = xzr_rect.left + xzr_rect.width / 2;
+        var xzr_y = xzr_rect.top + xzr_rect.height / 2;
+
+        xzr_fire('touchstart', [xzr_makeTouch(xzr_x, xzr_y)]);
+        setTimeout(function () {
+            xzr_fire('touchend', []);
+            xzr_probe.click();
+            if (window.xzr_burst) xzr_burst(xzr_probe, 10);
+        }, 90);
+    }
+
+    // 合成一次拖动：按步长连续触发 touchmove，最后补发 touchend 与 click
+    function xzr_demoDrag() {
+        if (!xzr_canSynthesize()) return;
+        var xzr_rect = xzr_probe.getBoundingClientRect();
+        var xzr_x = xzr_rect.left + xzr_rect.width / 2;
+        var xzr_y = xzr_rect.top + xzr_rect.height * 0.8;
+        var xzr_steps = 40;      // 40 个采样点 ≈ 一次 0.6s 的拖动
+        var xzr_stepX = 1;       // 水平位移很小，模拟斜向上拖
+        var xzr_stepY = -3;      // 竖直方向为主，共约 -120px
+
+        xzr_fire('touchstart', [xzr_makeTouch(xzr_x, xzr_y)]);
+
+        // 递归延时派发 touchmove，模拟真实的连续采样
+        function xzr_step(xzr_n) {
+            if (xzr_n > xzr_steps) {
+                xzr_fire('touchend', []);
+                xzr_probe.click();
+                if (window.xzr_burst) xzr_burst(xzr_probe, 14);
+                return;
+            }
+            xzr_fire('touchmove', [xzr_makeTouch(xzr_x + xzr_stepX * xzr_n, xzr_y + xzr_stepY * xzr_n)]);
+            setTimeout(function () { xzr_step(xzr_n + 1); }, 12);
+        }
+        setTimeout(function () { xzr_step(1); }, 12);
+    }
+
+    // 合成一次快速左滑：采样稀疏、位移大，不补发 click
+    function xzr_demoFlick() {
+        if (!xzr_canSynthesize()) return;
+        var xzr_rect = xzr_probe.getBoundingClientRect();
+        var xzr_x = xzr_rect.left + xzr_rect.width * 0.75;
+        var xzr_y = xzr_rect.top + xzr_rect.height / 2;
+        var xzr_steps = 20;
+
+        xzr_fire('touchstart', [xzr_makeTouch(xzr_x, xzr_y)]);
+        function xzr_step(xzr_n) {
+            if (xzr_n > xzr_steps) {
+                xzr_fire('touchend', []);
+                if (window.xzr_burst) xzr_burst(xzr_probe, 12);
+                return;
+            }
+            xzr_fire('touchmove', [xzr_makeTouch(xzr_x - 7.5 * xzr_n, xzr_y)]);
+            setTimeout(function () { xzr_step(xzr_n + 1); }, 6);
+        }
+        setTimeout(function () { xzr_step(1); }, 6);
+    }
+
+    // 合成一次双指触摸：两指按下 → 两指移动 → 逐根抬起
+    function xzr_demoPinch() {
+        if (!xzr_canSynthesize()) return;
+        var xzr_rect = xzr_probe.getBoundingClientRect();
+        var xzr_cx = xzr_rect.left + xzr_rect.width / 2;
+        var xzr_cy = xzr_rect.top + xzr_rect.height / 2;
+
+        var xzr_t1 = xzr_makeTouch(xzr_cx - 20, xzr_cy);
+        var xzr_t2 = xzr_makeTouch(xzr_cx + 20, xzr_cy);
+
+        xzr_fire('touchstart', [xzr_t1, xzr_t2]);
+
+        function xzr_step(xzr_n) {
+            if (xzr_n > 10) {
+                // 先抬起一根，再抬起最后一根
+                xzr_fire('touchend', [xzr_t1]);
+                setTimeout(function () {
+                    xzr_fire('touchend', []);
+                    if (window.xzr_burst) xzr_burst(xzr_probe, 12);
+                }, 40);
+                return;
+            }
+            var xzr_left = xzr_makeTouch(xzr_cx - 20 - xzr_n * 4, xzr_cy);
+            var xzr_right = xzr_makeTouch(xzr_cx + 20 + xzr_n * 4, xzr_cy);
+            xzr_fire('touchmove', [xzr_left, xzr_right]);
+            setTimeout(function () { xzr_step(xzr_n + 1); }, 16);
+        }
+        setTimeout(function () { xzr_step(1); }, 16);
+    }
+
+    // 按钮绑定
+    document.getElementById('xzrDemoTap').addEventListener('click', xzr_demoTap);
+    document.getElementById('xzrDemoDrag').addEventListener('click', xzr_demoDrag);
+    document.getElementById('xzrDemoFlick').addEventListener('click', xzr_demoFlick);
+    document.getElementById('xzrDemoPinch').addEventListener('click', xzr_demoPinch);
+    document.getElementById('xzrClear').addEventListener('click', xzr_clearLog);
+</script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 学号: 24002120223                          │
+│ 建立时间: 2026-11-18                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 移动端触摸事件 · 任务二 中华美食手势卡片 │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<title>任务二 · 手势卡片 · 中华美食左右滑动</title>
+<link rel="stylesheet" href="css/xzr_rainbow.css">
+</head>
+<body class="xzr_page-2">
+<div class="xzr_page">
+
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 作品集</a>
+        <div class="xzr_topbar-main">
+            <div class="xzr_topbar-title">任务二 · 手势卡片</div>
+            <div class="xzr_topbar-sub">SWIPE · 左右滑动切换</div>
+        </div>
+    </header>
+
+    <section class="xzr_head">
+        <span class="xzr_head-tag">TASK 02 · 手势识别 · DOM 操作</span>
+        <h1 class="xzr_head-title">中华美食<br>滑一滑换一道</h1>
+        <p class="xzr_head-desc">在卡片上左右滑动切换四道菜。阈值 40px 过滤误触，300ms 冷却防止一次甩动跳两张，纵向仍可正常滚动页面。</p>
+    </section>
+
+    <!-- 卡片舞台 -->
+    <div class="xzr_stage" id="xzrStage">
+        <div class="xzr_track" id="xzrTrack">
+
+            <article class="xzr_card xzr_dish-1">
+                <div class="xzr_card-index">01 / 04 · 川菜</div>
+                <div class="xzr_card-main">
+                    <span class="xzr_card-tag">煳辣荔枝味</span>
+                    <h2 class="xzr_card-name">宫保鸡丁</h2>
+                    <p class="xzr_card-desc">鸡丁滑嫩，花生酥脆。干辣椒与花椒在热油里爆出煳辣香，一勺糖醋汁把辣、甜、酸收在一起，入口先甜后辣。</p>
+                </div>
+            </article>
+
+            <article class="xzr_card xzr_dish-2">
+                <div class="xzr_card-index">02 / 04 · 川菜</div>
+                <div class="xzr_card-main">
+                    <span class="xzr_card-tag">麻辣鲜香</span>
+                    <h2 class="xzr_card-name">麻婆豆腐</h2>
+                    <p class="xzr_card-desc">嫩豆腐在牛肉臊子与郫县豆瓣里咕嘟，起锅撒一把花椒面。麻在舌尖，辣在喉咙，烫在心头，一勺就能拌下一碗饭。</p>
+                </div>
+            </article>
+
+            <article class="xzr_card xzr_dish-3">
+                <div class="xzr_card-index">03 / 04 · 浙菜</div>
+                <div class="xzr_card-main">
+                    <span class="xzr_card-tag">酸甜清鲜</span>
+                    <h2 class="xzr_card-name">西湖醋鱼</h2>
+                    <p class="xzr_card-desc">草鱼现杀现汆，糖醋汁浇上去透亮如琥珀。鱼肉细嫩不散，酸甜里带着一点蟹味，是杭州人待客的体面菜。</p>
+                </div>
+            </article>
+
+            <article class="xzr_card xzr_dish-4">
+                <div class="xzr_card-index">04 / 04 · 京菜</div>
+                <div class="xzr_card-main">
+                    <span class="xzr_card-tag">果木挂炉</span>
+                    <h2 class="xzr_card-name">北京烤鸭</h2>
+                    <p class="xzr_card-desc">果木明火烤到枣红，片成薄片码成盘。荷叶饼抹甜面酱，卷上葱丝与鸭片，皮酥肉嫩，一口一卷。</p>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+    <div class="xzr_meta">
+        <span class="xzr_counter" id="xzrCounter">第 1/4 张</span>
+        <div class="xzr_dots" id="xzrDots">
+            <span class="xzr_dot xzr_on"></span>
+            <span class="xzr_dot"></span>
+            <span class="xzr_dot"></span>
+            <span class="xzr_dot"></span>
+        </div>
+    </div>
+
+    <p class="xzr_tip" id="xzrTip">左右滑动切换，短距离误触不会翻页</p>
+
+    <!-- 实现说明 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">这一关做对了什么</h2>
+        <ul class="xzr_list">
+            <li>只监听 <b>touchstart / touchend</b>，抬手时用 <b>changedTouches[0]</b> 取终点坐标，因为 touches 里已经移除了那根手指。</li>
+            <li>阈值 <b>40px</b>：小于阈值视为误触，自动回弹并给出提示；5px 这种阈值会把呼吸抖动都判成翻页。</li>
+            <li><b>300ms 冷却</b>：切换后短暂上锁，快速连滑不会一次跳两张。</li>
+            <li>容器设置 <b>touch-action: pan-y</b>，横向手势归页面自己处理，纵向仍然滚得动，不会“拖卡片带动整页”。</li>
+            <li>轴向判断：起手比较 |dx| 与 |dy|，纵向手势直接放行给浏览器滚动，避免斜着滑时误翻页。</li>
+        </ul>
+    </section>
+
+    <!-- 任务导航 -->
+    <nav class="xzr_tasknav">
+        <a href="mobile-events-task1.html">任务一 · 事件侦探</a>
+        <a class="xzr_active" href="mobile-gesture.html">任务二 · 手势卡片</a>
+        <a href="mobile-zoom.html">任务三 · 图片查看器</a>
+        <a href="mobile-sensor.html">任务四 · 摇一摇</a>
+    </nav>
+
+    <p class="xzr_footer">高级网页设计 · 移动端触摸事件 · 2026-2027-1</p>
+</div>
+
+<script src="js/xzr_fun.js"></script>
+<script>
+    // ===== 元素引用 =====
+    var xzr_stage = document.getElementById('xzrStage');
+    var xzr_track = document.getElementById('xzrTrack');
+    var xzr_counter = document.getElementById('xzrCounter');
+    var xzr_tip = document.getElementById('xzrTip');
+    var xzr_dots = document.getElementById('xzrDots').children;
+
+    // ===== 状态 =====
+    var xzr_total = 4;            // 卡片总数
+    var xzr_index = 0;            // 当前卡片下标
+    var xzr_startX = 0;           // 按下时的横坐标
+    var xzr_startY = 0;           // 按下时的纵坐标
+    var xzr_startTime = 0;        // 按下时的时间，用于计算滑动速度
+    var xzr_lastMoveTime = 0;     // 最近一次 touchmove 的时间
+    var xzr_lastDx = 0;           // 最近一次 touchmove 的横向位移，估算甩动速度
+    var xzr_axis = '';            // 手势轴向：'x' 横向 / 'y' 纵向
+    var xzr_tracking = false;     // 是否正在跟踪这次手势
+    var xzr_locked = false;       // 冷却锁，防止连续快速滑动跳两张
+    var xzr_lockTimer = null;
+
+    var XZR_THRESHOLD = 40;       // 滑动阈值：40px
+    var XZR_COOLDOWN = 300;       // 冷却时间：300ms
+    var XZR_FLICK_MS = 280;       // 甩动判定：手势总时长上限
+    var XZR_FLICK_DIST = 26;      // 甩动判定：最小横向位移
+
+    // 取舞台宽度，作为卡片位移的像素基准
+    function xzr_stageWidth() {
+        return xzr_stage.clientWidth;
+    }
+
+    // 把轨道平移到第 xzr_index 张（xzr_offset 为手指拖动的额外像素）
+    function xzr_applyTransform(xzr_offset, xzr_animate) {
+        var xzr_base = -xzr_index * xzr_stageWidth();
+        xzr_track.classList.toggle('xzr_dragging', !xzr_animate);
+        xzr_track.style.transform = 'translate3d(' + (xzr_base + (xzr_offset || 0)) + 'px, 0, 0)';
+    }
+
+    // 更新底部计数与圆点状态，计数胶囊弹一下提示变化
+    function xzr_updateMeta() {
+        xzr_counter.textContent = '第 ' + (xzr_index + 1) + '/' + xzr_total + ' 张';
+        for (var xzr_i = 0; xzr_i < xzr_dots.length; xzr_i++) {
+            xzr_dots[xzr_i].classList.toggle('xzr_on', xzr_i === xzr_index);
+        }
+        xzr_counter.classList.remove('xzr_bump');
+        void xzr_counter.offsetWidth;
+        xzr_counter.classList.add('xzr_bump');
+    }
+
+    // 显示提示文字，1.6 秒后恢复默认提示
+    function xzr_showTip(xzr_text, xzr_warn) {
+        xzr_tip.textContent = xzr_text;
+        xzr_tip.classList.toggle('xzr_warn', !!xzr_warn);
+        clearTimeout(xzr_tip.xzr_timer);
+        xzr_tip.xzr_timer = setTimeout(function () {
+            xzr_tip.textContent = '左右滑动切换，短距离误触不会翻页';
+            xzr_tip.classList.remove('xzr_warn');
+        }, 1600);
+    }
+
+    // 切换到指定卡片并播放 0.3s 过渡动画，撒纸屑庆祝
+    function xzr_goTo(xzr_target) {
+        xzr_index = xzr_target;
+        xzr_applyTransform(0, true);
+        xzr_updateMeta();
+        if (window.xzr_burst) xzr_burst(xzr_stage, 16);
+    }
+
+    // 进入 300ms 冷却，期间忽略新的手势
+    function xzr_lock() {
+        xzr_locked = true;
+        clearTimeout(xzr_lockTimer);
+        xzr_lockTimer = setTimeout(function () {
+            xzr_locked = false;
+        }, XZR_COOLDOWN);
+    }
+
+    // 判断这次滑动是否算翻页：位移够 40px，或快速甩动（时间短、位移过 26px）
+    function xzr_isSwipe(xzr_dx, xzr_dt) {
+        if (Math.abs(xzr_dx) >= XZR_THRESHOLD) return true;
+        return xzr_dt < XZR_FLICK_MS && Math.abs(xzr_dx) >= XZR_FLICK_DIST;
+    }
+
+    // 手指按下：记录起点与时间，重置轴向判断
+    xzr_stage.addEventListener('touchstart', function (xzr_e) {
+        if (xzr_locked || xzr_e.touches.length > 1) {
+            xzr_tracking = false;
+            return;
+        }
+        var xzr_t = xzr_e.touches[0];
+        xzr_startX = xzr_t.clientX;
+        xzr_startY = xzr_t.clientY;
+        xzr_startTime = Date.now();
+        xzr_lastMoveTime = xzr_startTime;
+        xzr_lastDx = 0;
+        xzr_axis = '';
+        xzr_tracking = true;
+        xzr_applyTransform(0, false);
+    }, { passive: true });
+
+    // 手指移动：确认横向后阻止页面滚动并跟手，纵向直接放行给浏览器
+    xzr_stage.addEventListener('touchmove', function (xzr_e) {
+        if (!xzr_tracking) return;
+
+        var xzr_t = xzr_e.touches[0];
+        var xzr_dx = xzr_t.clientX - xzr_startX;
+        var xzr_dy = xzr_t.clientY - xzr_startY;
+
+        // 起手 6px 内不判方向，避免抖动
+        if (!xzr_axis && Math.abs(xzr_dx) + Math.abs(xzr_dy) > 6) {
+            xzr_axis = Math.abs(xzr_dx) > Math.abs(xzr_dy) ? 'x' : 'y';
+        }
+
+        // 纵向手势交给页面滚动，不再接管
+        if (xzr_axis !== 'x') return;
+
+        // 横向手势归本页：阻止浏览器把这次滑动当作页面滚动
+        xzr_e.preventDefault();
+
+        // 记录最近一次位移与时间，供甩动判定
+        xzr_lastDx = xzr_dx;
+        xzr_lastMoveTime = Date.now();
+
+        // 第一张继续右滑、最后一张继续左滑时，位移打三折形成阻尼
+        var xzr_atStart = xzr_index === 0 && xzr_dx > 0;
+        var xzr_atEnd = xzr_index === xzr_total - 1 && xzr_dx < 0;
+        var xzr_offset = (xzr_atStart || xzr_atEnd) ? xzr_dx * 0.3 : xzr_dx;
+
+        xzr_applyTransform(xzr_offset, false);
+    }, { passive: false });
+
+    // 手指抬起：用 changedTouches[0] 算总位移与耗时，决定翻页还是回弹
+    xzr_stage.addEventListener('touchend', function (xzr_e) {
+        if (!xzr_tracking) return;
+        xzr_tracking = false;
+
+        var xzr_t = xzr_e.changedTouches[0];
+        var xzr_dx = xzr_t.clientX - xzr_startX;
+        var xzr_dy = xzr_t.clientY - xzr_startY;
+        var xzr_dt = Date.now() - xzr_startTime;
+
+        // 极快甩动可能一个 touchmove 都没触发，这里用总位移补判一次轴向
+        if (!xzr_axis) {
+            xzr_axis = Math.abs(xzr_dx) > Math.abs(xzr_dy) ? 'x' : 'y';
+        }
+
+        if (xzr_axis !== 'x') {
+            xzr_applyTransform(0, true);
+            return;
+        }
+
+        // 位移不足阈值又不是快速甩动：视为误触，回弹
+        if (!xzr_isSwipe(xzr_dx, xzr_dt)) {
+            xzr_applyTransform(0, true);
+            xzr_showTip('滑动不足 ' + XZR_THRESHOLD + 'px，不切换', false);
+            return;
+        }
+
+        if (xzr_dx < 0) {
+            // 左滑 → 下一张
+            if (xzr_index >= xzr_total - 1) {
+                xzr_applyTransform(0, true);
+                xzr_showTip('已经是最后一张了', true);
+                return;
+            }
+            xzr_goTo(xzr_index + 1);
+        } else {
+            // 右滑 → 上一张
+            if (xzr_index <= 0) {
+                xzr_applyTransform(0, true);
+                xzr_showTip('已经是第一张了', true);
+                return;
+            }
+            xzr_goTo(xzr_index - 1);
+        }
+
+        xzr_lock();
+        xzr_showTip('已切换到第 ' + (xzr_index + 1) + ' 张', false);
+    }, { passive: true });
+
+    // 手势被系统打断：回到正确位置，清空跟踪状态
+    xzr_stage.addEventListener('touchcancel', function () {
+        xzr_tracking = false;
+        xzr_axis = '';
+        xzr_applyTransform(0, true);
+    }, { passive: true });
+
+    // 旋转屏幕 / 改变窗口宽度时重新对齐轨道，避免卡片错位
+    window.addEventListener('resize', function () {
+        xzr_applyTransform(0, false);
+    });
+
+    // 初始化：定位到第一张并更新计数
+    xzr_applyTransform(0, false);
+    xzr_updateMeta();
+</script>
+</body>
+</html>

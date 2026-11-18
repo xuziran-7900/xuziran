@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 学号: 24002120223                          │
+│ 建立时间: 2026-11-18                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 移动端触摸事件 · 任务三 图片查看器（双指缩放 / 双击放大 / 拖动） │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<title>任务三 · 图片查看器 · 双指缩放与拖动</title>
+<link rel="stylesheet" href="css/xzr_rainbow.css">
+</head>
+<body class="xzr_page-3">
+<div class="xzr_page">
+
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 作品集</a>
+        <div class="xzr_topbar-main">
+            <div class="xzr_topbar-title">任务三 · 图片查看器</div>
+            <div class="xzr_topbar-sub">PINCH · 缩放 / 拖动 / 双击</div>
+        </div>
+    </header>
+
+    <section class="xzr_head">
+        <span class="xzr_head-tag">TASK 03 · 多指手势 · 变换 · 状态管理</span>
+        <h1 class="xzr_head-title">双指放大<br>看清每一块帆板</h1>
+        <p class="xzr_head-desc">1× ～ 4× 双指缩放，以两指中点为基准；放大后单指拖动查看细节；双击在 1× 与 2× 之间切换，松手自动收进边界。</p>
+    </section>
+
+    <p class="xzr_hint">双指缩放请用手机打开；电脑可在 DevTools 设备模式下模拟触摸，或直接双击图片切换 2× 查看效果。</p>
+
+    <!-- 查看器 -->
+    <div class="xzr_viewer" id="xzrViewer">
+        <img class="xzr_photo" id="xzrPhoto" src="swiper-imgs/tiangong_1.jpg"
+             alt="空间站在地球轨道上的画面，太阳能帆板与舱体细节可放大查看" draggable="false">
+
+        <div class="xzr_viewbar">
+            <div>
+                <div class="xzr_viewbar-title">空间站 · 近地轨道</div>
+                <div class="xzr_viewbar-sub">双指缩放 · 单指拖动 · 双击放大</div>
+            </div>
+            <span class="xzr_badge" id="xzrScaleBadge">1.0×</span>
+        </div>
+    </div>
+
+    <div class="xzr_toolbar">
+        <button class="xzr_btn" id="xzrReset" type="button">复位 1×</button>
+        <span class="xzr_toolbar-note">放大后拖动到边缘会被限制，缩回 1× 自动居中。</span>
+    </div>
+
+    <!-- 真机测试录屏占位：把录屏放到 videos/xzr_t3_demo.mp4 后自动显示 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">真机测试录屏</h2>
+        <p class="xzr_sec-sub">用手机完成双指缩放、单指拖动、双击放大、旋转屏幕不丢状态的操作并录屏，把视频放到 videos/xzr_t3_demo.mp4，页面会自动加载显示。</p>
+        <div class="xzr_video-slot" id="xzrVideoSlotT3">
+            <video src="videos/xzr_t3_demo.mp4" controls playsinline preload="metadata" hidden></video>
+            <div class="xzr_video-empty">
+                <span class="xzr_video-emoji">🎬</span>
+                <span class="xzr_video-text">录屏占位 · 等你放视频</span>
+                <span class="xzr_video-path">videos/xzr_t3_demo.mp4</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 说明 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">缩放为什么不会“跳”</h2>
+        <ul class="xzr_list">
+            <li>双指按下时先记下<b>两指中点</b>（换算成相对查看器中心的坐标）、当前 <b>scale</b> 与 <b>translate</b>。</li>
+            <li>每一帧按 <b>newScale / startScale</b> 的比例同步修正位移：<b>tx' = mx − (mx − tx) × 比例</b>，中点下的那块画面始终保持不动。</li>
+            <li>所有坐标统一用 <b>clientX / clientY</b> 再减去容器 rect，父子级不混用 page 坐标，避免滚动偏移造成错位。</li>
+            <li>双指过程中<b>不开启 CSS 过渡</b>（transition: none），抬手后才用 0.25s 过渡做回弹，跟手且不拖泥带水。</li>
+        </ul>
+        <p class="xzr_panel-note">旋转屏幕时只做边界重算，scale 与位移状态保留，所以放大后横屏不会回到 1×。</p>
+    </section>
+
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">边界与状态</h2>
+        <ul class="xzr_list">
+            <li>缩放范围限制在 <b>1× ～ 4×</b>；缩到 1× 以下直接吸附回 1× 并居中。</li>
+            <li>拖动位移上限 = (容器宽 × scale − 容器宽) ÷ 2，松手后统一 clamp，<b>1× 时拖不动</b>。</li>
+            <li>双指中途抬起一根手指，立刻切到单指拖动模式并重置起点，画面不会瞬移。</li>
+            <li>监听 <b>touchcancel</b> 收尾，来电或通知打断后状态不会卡在“按下”。</li>
+        </ul>
+    </section>
+
+    <!-- 任务导航 -->
+    <nav class="xzr_tasknav">
+        <a href="mobile-events-task1.html">任务一 · 事件侦探</a>
+        <a href="mobile-gesture.html">任务二 · 手势卡片</a>
+        <a class="xzr_active" href="mobile-zoom.html">任务三 · 图片查看器</a>
+        <a href="mobile-sensor.html">任务四 · 摇一摇</a>
+    </nav>
+
+    <p class="xzr_footer">高级网页设计 · 移动端触摸事件 · 2026-2027-1</p>
+</div>
+
+<script src="js/xzr_fun.js"></script>
+<script>
+    // ===== 元素与状态 =====
+    var xzr_viewer = document.getElementById('xzrViewer');
+    var xzr_photo = document.getElementById('xzrPhoto');
+    var xzr_badge = document.getElementById('xzrScaleBadge');
+
+    var xzr_scale = 1;            // 当前缩放倍数
+    var xzr_tx = 0;               // 当前横向位移（px，相对容器中心）
+    var xzr_ty = 0;               // 当前纵向位移
+    var xzr_mode = 'none';        // 'none' | 'drag' | 'pinch'
+
+    var xzr_startDist = 0;        // 双指按下时的两指间距
+    var xzr_startScale = 1;       // 双指按下时的缩放倍数
+    var xzr_startTx = 0;          // 手势开始时的位移
+    var xzr_startTy = 0;
+    var xzr_midX = 0;             // 双指按下时两指中点（相对容器中心）
+    var xzr_midY = 0;
+
+    var xzr_fingerX = 0;          // 单指拖动起点
+    var xzr_fingerY = 0;
+
+    var xzr_tapStart = 0;         // 本次按下的时间
+    var xzr_lastTap = 0;          // 上一次点击的时间
+    var xzr_moved = 0;            // 本次手势的最大位移，用于区分拖动与点击
+
+    var XZR_MIN_SCALE = 1;
+    var XZR_MAX_SCALE = 4;
+
+    // 计算两指之间的直线距离
+    function xzr_distance(xzr_t1, xzr_t2) {
+        return Math.hypot(xzr_t2.clientX - xzr_t1.clientX, xzr_t2.clientY - xzr_t1.clientY);
+    }
+
+    // 把两指中点换算成相对容器中心的坐标
+    function xzr_midRelative(xzr_t1, xzr_t2) {
+        var xzr_rect = xzr_viewer.getBoundingClientRect();
+        return {
+            x: (xzr_t1.clientX + xzr_t2.clientX) / 2 - xzr_rect.left - xzr_rect.width / 2,
+            y: (xzr_t1.clientY + xzr_t2.clientY) / 2 - xzr_rect.top - xzr_rect.height / 2
+        };
+    }
+
+    // 根据当前 scale 计算允许的最大位移（放大多少就能移多少）
+    function xzr_maxOffset(xzr_scale) {
+        var xzr_rect = xzr_viewer.getBoundingClientRect();
+        return {
+            x: Math.max(0, (xzr_rect.width * xzr_scale - xzr_rect.width) / 2),
+            y: Math.max(0, (xzr_rect.height * xzr_scale - xzr_rect.height) / 2)
+        };
+    }
+
+    // 把位移限制在边界内；1× 时强制居中
+    function xzr_clamp(xzr_animate) {
+        var xzr_max = xzr_maxOffset(xzr_scale);
+        xzr_tx = Math.max(-xzr_max.x, Math.min(xzr_max.x, xzr_tx));
+        xzr_ty = Math.max(-xzr_max.y, Math.min(xzr_max.y, xzr_ty));
+        if (xzr_scale <= 1.001) {
+            xzr_tx = 0;
+            xzr_ty = 0;
+        }
+        xzr_render(xzr_animate);
+    }
+
+    // 渲染 transform，xzr_animate 为 true 时开启 0.25s 过渡
+    function xzr_render(xzr_animate) {
+        xzr_photo.style.transition = xzr_animate
+            ? 'transform 0.25s cubic-bezier(0.22, 0.8, 0.24, 1)'
+            : 'none';
+        xzr_photo.style.transform =
+            'translate3d(' + xzr_tx + 'px, ' + xzr_ty + 'px, 0) scale(' + xzr_scale + ')';
+        xzr_badge.textContent = xzr_scale.toFixed(1) + '×';
+    }
+
+    // 把 scale 限制在 1～4 之间
+    function xzr_clampScale(xzr_value) {
+        return Math.max(XZR_MIN_SCALE, Math.min(XZR_MAX_SCALE, xzr_value));
+    }
+
+    // 以 (xzr_anchorX, xzr_anchorY) 为不动点缩放到 xzr_newScale，该点下的画面位置不变
+    function xzr_zoomTo(xzr_newScale, xzr_anchorX, xzr_anchorY, xzr_animate) {
+        var xzr_ratio = xzr_newScale / xzr_scale;
+        xzr_tx = xzr_anchorX - (xzr_anchorX - xzr_tx) * xzr_ratio;
+        xzr_ty = xzr_anchorY - (xzr_anchorY - xzr_ty) * xzr_ratio;
+        xzr_scale = xzr_newScale;
+        xzr_clamp(xzr_animate);
+    }
+
+    // 手指按下：区分单指拖动、双指缩放，并记录本次按下的时间与位置
+    xzr_viewer.addEventListener('touchstart', function (xzr_e) {
+        xzr_tapStart = Date.now();
+        xzr_moved = 0;
+        xzr_startTx = xzr_tx;
+        xzr_startTy = xzr_ty;
+
+        if (xzr_e.touches.length >= 2) {
+            // 双指：进入缩放模式，记下初始间距与两指中点
+            xzr_mode = 'pinch';
+            xzr_startDist = xzr_distance(xzr_e.touches[0], xzr_e.touches[1]);
+            xzr_startScale = xzr_scale;
+            var xzr_mid = xzr_midRelative(xzr_e.touches[0], xzr_e.touches[1]);
+            xzr_midX = xzr_mid.x;
+            xzr_midY = xzr_mid.y;
+            xzr_render(false);
+        } else if (xzr_scale > 1) {
+            // 单指且已放大：进入拖动模式
+            xzr_mode = 'drag';
+            xzr_fingerX = xzr_e.touches[0].clientX;
+            xzr_fingerY = xzr_e.touches[0].clientY;
+            xzr_render(false);
+        } else {
+            xzr_mode = 'none';
+        }
+    }, { passive: true });
+
+    // 手指移动：双指按比例缩放（以中点为准），单指平移
+    xzr_viewer.addEventListener('touchmove', function (xzr_e) {
+        // 阻止浏览器的整页缩放 / 滚动，手势归本页所有
+        xzr_e.preventDefault();
+
+        if (xzr_mode === 'pinch' && xzr_e.touches.length >= 2) {
+            var xzr_dist = xzr_distance(xzr_e.touches[0], xzr_e.touches[1]);
+            if (!xzr_startDist) return;
+
+            // 本帧目标倍数 = 按下倍数 ×（当前间距 / 初始间距）
+            var xzr_target = xzr_clampScale(xzr_startScale * (xzr_dist / xzr_startDist));
+            var xzr_ratio = xzr_target / xzr_startScale;
+
+            // 以"按下时的两指中点"为不动点，同步修正位移，缩放就不跳
+            xzr_tx = xzr_midX - (xzr_midX - xzr_startTx) * xzr_ratio;
+            xzr_ty = xzr_midY - (xzr_midY - xzr_startTy) * xzr_ratio;
+            xzr_scale = xzr_target;
+
+            xzr_clamp(false);
+            return;
+        }
+
+        if (xzr_mode === 'drag' && xzr_e.touches.length === 1) {
+            var xzr_dx = xzr_e.touches[0].clientX - xzr_fingerX;
+            var xzr_dy = xzr_e.touches[0].clientY - xzr_fingerY;
+            xzr_moved = Math.max(xzr_moved, Math.abs(xzr_dx) + Math.abs(xzr_dy));
+
+            xzr_tx = xzr_startTx + xzr_dx;
+            xzr_ty = xzr_startTy + xzr_dy;
+            xzr_clamp(false);
+        }
+    }, { passive: false });
+
+    // 手指抬起：收尾（双指抬一根转拖动、缩回 1× 居中、识别双击）
+    xzr_viewer.addEventListener('touchend', function (xzr_e) {
+        if (xzr_mode === 'pinch') {
+            if (xzr_e.touches.length === 1) {
+                // 双指松开一根：立即切换为单指拖动，重置参考点避免画面瞬移
+                xzr_mode = 'drag';
+                xzr_fingerX = xzr_e.touches[0].clientX;
+                xzr_fingerY = xzr_e.touches[0].clientY;
+                xzr_startTx = xzr_tx;
+                xzr_startTy = xzr_ty;
+                xzr_render(false);
+                return;
+            }
+
+            // 双指全部抬起：低于 1× 吸附回 1×，否则保持并 clamp
+            xzr_mode = 'none';
+            if (xzr_scale < 1.02) {
+                xzr_scale = 1;
+                xzr_tx = 0;
+                xzr_ty = 0;
+            }
+            xzr_clamp(true);
+            return;
+        }
+
+        if (xzr_mode === 'drag' && xzr_e.touches.length === 0) {
+            xzr_mode = 'none';
+            xzr_clamp(true);
+            xzr_checkDoubleTap();
+            return;
+        }
+
+        if (xzr_mode === 'none' && xzr_e.touches.length === 0) {
+            xzr_checkDoubleTap();
+        }
+    }, { passive: true });
+
+    // 手势被系统打断：清理状态并回弹到合法位置
+    xzr_viewer.addEventListener('touchcancel', function () {
+        xzr_mode = 'none';
+        xzr_startDist = 0;
+        xzr_clamp(true);
+    }, { passive: true });
+
+    // 判断是否发生双击：两次点击间隔小于 300ms、位移小于 10px
+    function xzr_checkDoubleTap() {
+        var xzr_now = Date.now();
+        var xzr_isTap = xzr_moved < 10 && (xzr_now - xzr_tapStart) < 250;
+
+        if (!xzr_isTap) {
+            xzr_lastTap = 0;
+            return;
+        }
+
+        if (xzr_now - xzr_lastTap < 300) {
+            // 双击：在 1× 与 2× 之间切换，以容器中心为缩放基准
+            var xzr_target = xzr_scale > 1.5 ? 1 : 2;
+            xzr_zoomTo(xzr_target, 0, 0, true);
+            if (window.xzr_burst) xzr_burst(xzr_viewer, 18);
+            xzr_lastTap = 0;
+        } else {
+            xzr_lastTap = xzr_now;
+        }
+    }
+
+    // 复位按钮：回到 1× 并居中
+    document.getElementById('xzrReset').addEventListener('click', function () {
+        xzr_scale = 1;
+        xzr_tx = 0;
+        xzr_ty = 0;
+        xzr_render(true);
+    });
+
+    // 电脑端鼠标双击：与触摸双击共用缩放逻辑，方便桌面验证
+    xzr_viewer.addEventListener('dblclick', function () {
+        // 触摸刚结束时浏览器可能补发 dblclick，此时忽略，避免重复切换
+        if (Date.now() - xzr_tapStart < 600) return;
+        var xzr_target = xzr_scale > 1.5 ? 1 : 2;
+        xzr_zoomTo(xzr_target, 0, 0, true);
+    });
+
+    // 旋转屏幕 / 改变窗口尺寸时重算边界，保留缩放与位移状态
+    function xzr_handleResize() {
+        xzr_clamp(false);
+    }
+
+    window.addEventListener('resize', xzr_handleResize);
+    window.addEventListener('orientationchange', function () {
+        setTimeout(xzr_handleResize, 260);
+    });
+
+    // 初始化渲染
+    xzr_render(false);
+
+    // 初始化录屏占位槽：视频文件存在则显示，不存在保留占位
+    xzr_setupVideoSlot('xzrVideoSlotT3');
+</script>
+</body>
+</html>

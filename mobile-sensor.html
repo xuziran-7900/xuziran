@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 学号: 24002120223                          │
+│ 建立时间: 2026-11-18                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: 移动端触摸事件 · 任务四 摇一摇抽菜谱 + 倾斜视差（含降级） │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<title>任务四 · 摇一摇 · 今日菜谱</title>
+<link rel="stylesheet" href="css/xzr_rainbow.css">
+</head>
+<body class="xzr_page-4">
+<div class="xzr_page">
+
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 作品集</a>
+        <div class="xzr_topbar-main">
+            <div class="xzr_topbar-title">任务四 · 摇一摇 + 视差</div>
+            <div class="xzr_topbar-sub">MOTION + ORIENTATION · 传感器 / 降级</div>
+        </div>
+    </header>
+
+    <section class="xzr_head">
+        <span class="xzr_head-tag">TASK 04 · 设备能力 · 权限 · 降级</span>
+        <h1 class="xzr_head-title">摇一摇抽菜谱<br>倾斜出视差</h1>
+        <p class="xzr_head-desc">题目二选一，这里 A、B 都做了：A 摇一摇——devicemotion 合成加速度超过阈值 18 抽一道菜，1.5 秒冷却；B 倾斜视差——deviceorientation 的 gamma / beta 驱动三层元素错位移动。</p>
+    </section>
+
+    <!-- 抽取区 -->
+    <section class="xzr_stage">
+        <div class="xzr_plate" id="xzrPlate">
+            <div class="xzr_plate-inner">
+                <div class="xzr_plate-tag">今日菜谱</div>
+                <div class="xzr_plate-name" id="xzrDishName">摇一摇</div>
+                <div class="xzr_plate-desc" id="xzrDishDesc">摇动手机，抽一道今天的菜</div>
+            </div>
+        </div>
+
+        <div class="xzr_readout">
+            合成加速度 <b id="xzrMag">—</b> m/s² · 触发阈值 18
+        </div>
+
+        <p class="xzr_status" id="xzrStatus">正在检测传感器…</p>
+
+        <div class="xzr_btns">
+            <button class="xzr_btn" id="xzrPermit" type="button" hidden>启用传感器</button>
+            <button class="xzr_btn xzr_btn-ghost" id="xzrFallback" type="button" hidden>点我抽一次</button>
+        </div>
+    </section>
+
+    <!-- 加分 · 倾斜视差（B 方案） -->
+    <section class="xzr_panel" id="xzrTiltPanel">
+        <h2 class="xzr_sec-title">倾斜视差 · B 方案</h2>
+        <p class="xzr_sec-sub" id="xzrTiltSub">左右倾斜手机：远景糖点缓移、中层食物小步跟随、近景蛋糕反向移动、彩虹签飘得最远——四层速度都不一样才有景深。电脑上把鼠标移进场景也能预览。</p>
+        <div class="xzr_tilt-scene" id="xzrTiltScene">
+            <div class="xzr_tilt-bg" id="xzrTiltBg"></div>
+            <div class="xzr_tilt-food xzr_tilt-far" id="xzrTiltFar">
+                <span>🥟</span><span>🍩</span><span>🍓</span><span>🥑</span>
+            </div>
+            <div class="xzr_tilt-food xzr_tilt-mid" id="xzrTiltMid">
+                <span>🍔</span><span>🍣</span><span>🥗</span><span>🍜</span>
+            </div>
+            <div class="xzr_tilt-emoji" id="xzrTiltEmoji">🍰</div>
+            <div class="xzr_tilt-tag" id="xzrTiltTag">倾斜我 ↔ ↕</div>
+        </div>
+    </section>
+
+    <!-- 说明：两个加速度的区别 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">acceleration 与 accelerationIncludingGravity</h2>
+        <ul class="xzr_list">
+            <li><b>accelerationIncludingGravity</b>：包含重力加速度。手机静止平放时三轴合成约为 <b>9.8 m/s²</b>，摇动时数值会冲到 20 以上，所以判断“摇一摇”用它。</li>
+            <li><b>acceleration</b>：已剔除重力，只保留设备自身运动产生的加速度；静止时接近 0，需要先做静止校准，部分设备还会直接返回 null。</li>
+            <li>因此本页取 <b>accelerationIncludingGravity</b> 的合成值，阈值 18 就是“静置 9.8 + 晃动增量”的经验分界。</li>
+        </ul>
+    </section>
+
+    <!-- 说明：降级 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">为什么必须做降级</h2>
+        <ul class="xzr_list">
+            <li>台式机、部分安卓机型没有加速度传感器，<b>devicemotion 永远不会触发</b>；只写监听会得到一片空白页面，用户以为页面坏了。</li>
+            <li>iOS 13+ 必须在<b>用户手势</b>中调用 requestPermission()，且需要 HTTPS；直接监听会被静默拦截。</li>
+            <li>降级方案：1.6 秒内收不到有效数据就显示“当前设备不支持，请用手机打开”，并亮出<b>点我抽一次</b>按钮，用点击完成同样的随机抽取。</li>
+            <li>冷却 1.5 秒配合页面可见性判断，一次摇动只会触发一次，不会连抽十道菜。</li>
+        </ul>
+        <p class="xzr_panel-note">传感器事件必须在真机测试；电脑浏览器即使返回事件，加速度数据也常为 null。</p>
+    </section>
+
+    <!-- 真机测试录屏占位：把录屏放到 videos/xzr_t4_demo.mp4 后自动显示 -->
+    <section class="xzr_panel">
+        <h2 class="xzr_sec-title">真机测试录屏</h2>
+        <p class="xzr_sec-sub">用手机完成摇一摇抽菜、冷却验证、倾斜视差与降级提示的录屏，把视频放到 videos/xzr_t4_demo.mp4，页面会自动加载显示。</p>
+        <div class="xzr_video-slot" id="xzrVideoSlotT4">
+            <video src="videos/xzr_t4_demo.mp4" controls playsinline preload="metadata" hidden></video>
+            <div class="xzr_video-empty">
+                <span class="xzr_video-emoji">🎥</span>
+                <span class="xzr_video-text">录屏占位 · 等你放视频</span>
+                <span class="xzr_video-path">videos/xzr_t4_demo.mp4</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 任务导航 -->
+    <nav class="xzr_tasknav">
+        <a href="mobile-events-task1.html">任务一 · 事件侦探</a>
+        <a href="mobile-gesture.html">任务二 · 手势卡片</a>
+        <a href="mobile-zoom.html">任务三 · 图片查看器</a>
+        <a class="xzr_active" href="mobile-sensor.html">任务四 · 摇一摇</a>
+    </nav>
+
+    <p class="xzr_footer">高级网页设计 · 移动端触摸事件 · 2026-2027-1</p>
+</div>
+
+<script src="js/xzr_fun.js"></script>
+<script>
+    // ===== 菜谱数据 =====
+    var xzr_dishes = [
+        { name: '番茄牛腩', desc: '酸甜浓郁，牛腩炖到软烂，汤汁拌饭一绝' },
+        { name: '蒜香排骨', desc: '外酥里嫩，蒜香直冲鼻腔，越啃越香' },
+        { name: '干锅花菜', desc: '干香微辣，花菜吸满腊肉与辣椒的油香' },
+        { name: '清蒸鲈鱼', desc: '只放葱姜与豉油，把鲜味留得最直接' },
+        { name: '酸辣土豆丝', desc: '脆爽带酸，一筷子下去能扒半碗饭' },
+        { name: '老鸭汤', desc: '汤色清亮，入口回甘，适合慢慢喝' },
+        { name: '梅菜扣肉', desc: '肥而不腻，梅干菜的咸香全渗进肉里' },
+        { name: '三鲜馄饨', desc: '皮薄馅大，一碗热汤下肚，胃先暖起来' }
+    ];
+
+    // ===== 元素引用 =====
+    var xzr_plate = document.getElementById('xzrPlate');
+    var xzr_dishName = document.getElementById('xzrDishName');
+    var xzr_dishDesc = document.getElementById('xzrDishDesc');
+    var xzr_magEl = document.getElementById('xzrMag');
+    var xzr_status = document.getElementById('xzrStatus');
+    var xzr_permitBtn = document.getElementById('xzrPermit');
+    var xzr_fallbackBtn = document.getElementById('xzrFallback');
+
+    // 倾斜视差元素
+    var xzr_tiltScene = document.getElementById('xzrTiltScene');
+    var xzr_tiltBg = document.getElementById('xzrTiltBg');
+    var xzr_tiltFar = document.getElementById('xzrTiltFar');
+    var xzr_tiltMid = document.getElementById('xzrTiltMid');
+    var xzr_tiltEmoji = document.getElementById('xzrTiltEmoji');
+    var xzr_tiltTag = document.getElementById('xzrTiltTag');
+    var xzr_tiltSub = document.getElementById('xzrTiltSub');
+
+    // ===== 状态 =====
+    var xzr_lastDish = -1;         // 上一次抽到的下标，避免连续重复
+    var xzr_cooldown = false;      // 1.5s 冷却锁
+    var xzr_hasData = false;       // 是否收到过有效加速度数据
+    var xzr_hasOrient = false;     // 是否收到过有效方向数据（视差用）
+    var xzr_watchdog = null;       // 超时降级定时器
+
+    var XZR_SHAKE_THRESHOLD = 18;  // 合成加速度阈值
+    var XZR_COOLDOWN = 1500;       // 冷却时间 1.5s
+
+    // 更新状态文字，xzr_warn 为 true 时显示为警示色
+    function xzr_setStatus(xzr_text, xzr_warn) {
+        xzr_status.textContent = xzr_text;
+        xzr_status.classList.toggle('xzr_warn', !!xzr_warn);
+    }
+
+    // 随机抽一道菜并播放弹出动画，避免与上一道重复
+    function xzr_pickDish() {
+        var xzr_i = Math.floor(Math.random() * xzr_dishes.length);
+        if (xzr_i === xzr_lastDish) {
+            xzr_i = (xzr_i + 1) % xzr_dishes.length;
+        }
+        xzr_lastDish = xzr_i;
+
+        xzr_dishName.textContent = xzr_dishes[xzr_i].name;
+        xzr_dishDesc.textContent = xzr_dishes[xzr_i].desc;
+
+        // 重新触发旋转 + 光晕动画：先移除类，强制回流后再加回
+        xzr_plate.classList.remove('xzr_spin');
+        void xzr_plate.offsetWidth;
+        xzr_plate.classList.add('xzr_spin');
+
+        xzr_plate.classList.remove('xzr_shaking');
+        void xzr_plate.offsetWidth;
+        xzr_plate.classList.add('xzr_shaking');
+
+        // 抽中时撒一把纸屑，强化"中奖"的感觉
+        if (window.xzr_burst) xzr_burst(xzr_plate, 20);
+    }
+
+    // 触发一次抽取：冷却锁 + 1.5 秒后解锁
+    function xzr_trigger(xzr_source) {
+        if (xzr_cooldown) return;
+        xzr_cooldown = true;
+
+        xzr_pickDish();
+        xzr_setStatus(xzr_source === 'sensor' ? '检测到摇动，已为你抽取' : '已为你抽取一道菜');
+
+        setTimeout(function () {
+            xzr_cooldown = false;
+            if (xzr_hasData) {
+                xzr_setStatus('再摇一次，换一道菜');
+            }
+        }, XZR_COOLDOWN);
+    }
+
+    // 显示不支持提示，并亮出点击抽取的降级按钮
+    function xzr_showUnsupported() {
+        if (xzr_hasData) return;
+        xzr_setStatus('当前设备不支持，请用手机打开', true);
+        xzr_fallbackBtn.hidden = false;
+        xzr_magEl.textContent = '—';
+
+        // 倾斜视差同样依赖传感器，一起给出降级说明
+        xzr_tiltScene.classList.add('xzr_tilt_off');
+        xzr_tiltSub.textContent = '当前设备没有传感器，倾斜视差不可用；真机上倾斜手机即可看到四层视差。';
+
+        if (xzr_watchdog) {
+            clearTimeout(xzr_watchdog);
+            xzr_watchdog = null;
+        }
+    }
+
+    // 处理 devicemotion：计算合成加速度，超过阈值就抽取
+    function xzr_onMotion(xzr_e) {
+        var xzr_a = xzr_e.accelerationIncludingGravity;
+        if (!xzr_a || xzr_a.x === null) {
+            return;
+        }
+
+        if (!xzr_hasData) {
+            xzr_hasData = true;
+            if (xzr_watchdog) {
+                clearTimeout(xzr_watchdog);
+                xzr_watchdog = null;
+            }
+            xzr_fallbackBtn.hidden = true;
+            xzr_setStatus('传感器已就绪，摇一摇手机');
+        }
+
+        // 三轴合成加速度：静止约 9.8，摇动会冲过 20
+        var xzr_mag = Math.sqrt(
+            (xzr_a.x || 0) * (xzr_a.x || 0) +
+            (xzr_a.y || 0) * (xzr_a.y || 0) +
+            (xzr_a.z || 0) * (xzr_a.z || 0)
+        );
+
+        xzr_magEl.textContent = xzr_mag.toFixed(1);
+
+        // 数值超过阈值且不在冷却中，判定为一次摇动
+        if (xzr_mag > XZR_SHAKE_THRESHOLD && !xzr_cooldown && document.visibilityState === 'visible') {
+            xzr_trigger('sensor');
+        }
+    }
+
+    // 处理 deviceorientation：用 gamma / beta 驱动四层视差
+    function xzr_onOrientation(xzr_e) {
+        if (xzr_e.gamma === null && xzr_e.beta === null) {
+            return;
+        }
+
+        if (!xzr_hasOrient) {
+            xzr_hasOrient = true;
+            xzr_tiltSub.textContent = '传感器已就绪：倾斜手机看四层食物的景深视差。';
+        }
+
+        // gamma：左右倾斜角（-90~90），手持时常用范围约 ±30，做限幅防拉飞
+        var xzr_g = Math.max(-28, Math.min(28, xzr_e.gamma || 0));
+        // beta：前后倾斜角，手机竖握自然状态约 45°，减去它得到相对偏移
+        var xzr_b = Math.max(-24, Math.min(24, (xzr_e.beta || 0) - 45));
+
+        xzr_applyTilt(xzr_g, xzr_b);
+    }
+
+    // 把倾斜角换算成四层位移：越远的层越慢、越近的层越快且方向相反
+    function xzr_applyTilt(xzr_g, xzr_b) {
+        xzr_tiltBg.style.transform =
+            'translate(' + (xzr_g * 1.1) + 'px, ' + (-xzr_b * 0.7) + 'px)';
+        xzr_tiltFar.style.transform =
+            'translate(' + (xzr_g * 0.6) + 'px, ' + (-xzr_b * 0.4) + 'px)';
+        xzr_tiltMid.style.transform =
+            'translate(' + (-xzr_g * 1.3) + 'px, ' + (xzr_b * 0.9) + 'px)';
+        xzr_tiltEmoji.style.transform =
+            'translate(' + (-xzr_g * 2.1) + 'px, ' + (xzr_b * 1.5) + 'px) rotate(' + (xzr_g * 0.4) + 'deg)';
+        xzr_tiltTag.style.transform =
+            'translate(calc(-50% + ' + (-xzr_g * 3.4) + 'px), ' + (xzr_b * 2.2) + 'px)';
+    }
+
+    // 电脑预览：鼠标在场景里移动等效于倾斜，方便没有传感器的设备看效果
+    xzr_tiltScene.addEventListener('mousemove', function (xzr_e) {
+        var xzr_rect = xzr_tiltScene.getBoundingClientRect();
+        var xzr_g = ((xzr_e.clientX - xzr_rect.left) / xzr_rect.width - 0.5) * 56;
+        var xzr_b = ((xzr_e.clientY - xzr_rect.top) / xzr_rect.height - 0.5) * 48;
+        xzr_applyTilt(xzr_g, xzr_b);
+    });
+
+    // 鼠标离开场景：四层缓回原位
+    xzr_tiltScene.addEventListener('mouseleave', function () {
+        xzr_applyTilt(0, 0);
+    });
+
+    // 绑定 devicemotion + deviceorientation，并启动 1.6 秒无数据降级检测
+    function xzr_bindMotion() {
+        window.addEventListener('devicemotion', xzr_onMotion, { passive: true });
+        window.addEventListener('deviceorientation', xzr_onOrientation, { passive: true });
+
+        xzr_watchdog = setTimeout(function () {
+            if (!xzr_hasData) {
+                xzr_showUnsupported();
+            }
+        }, 1600);
+    }
+
+    // 判断是否为 iOS / iPadOS（这两个系统才需要用户手势申请传感器权限）
+    function xzr_isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    // 初始化传感器：判断是否支持、是否需要在用户手势里申请权限
+    function xzr_initSensor() {
+        if (typeof DeviceMotionEvent === 'undefined') {
+            xzr_showUnsupported();
+            return;
+        }
+
+        // iOS 13+ 必须由用户点击触发权限申请
+        if (xzr_isIOS() && typeof DeviceMotionEvent.requestPermission === 'function') {
+            xzr_permitBtn.hidden = false;
+            xzr_setStatus('iOS 需先点"启用传感器"并允许动作与方向访问');
+            xzr_fallbackBtn.hidden = false;
+            return;
+        }
+
+        xzr_bindMotion();
+        xzr_setStatus('正在检测传感器…');
+    }
+
+    // 点击"启用传感器"：iOS 需在同一用户手势里申请动作 + 方向两组权限
+    function xzr_requestPermission() {
+        var xzr_requests = [];
+
+        // 收集需要申请的权限（motion 管摇一摇，orientation 管倾斜视差）
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+            xzr_requests.push(DeviceMotionEvent.requestPermission());
+        }
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            xzr_requests.push(DeviceOrientationEvent.requestPermission());
+        }
+
+        if (!xzr_requests.length) {
+            xzr_bindMotion();
+            return;
+        }
+
+        Promise.all(xzr_requests).then(function (xzr_results) {
+            var xzr_granted = xzr_results.every(function (xzr_r) { return xzr_r === 'granted'; });
+            if (xzr_granted) {
+                xzr_permitBtn.hidden = true;
+                xzr_fallbackBtn.hidden = true;
+                xzr_bindMotion();
+                xzr_setStatus('权限已授予，摇一摇或倾斜手机');
+            } else {
+                xzr_showUnsupported();
+                xzr_setStatus('未获得传感器权限，可点下方按钮抽取', true);
+            }
+        }).catch(function () {
+            xzr_showUnsupported();
+            xzr_setStatus('当前环境无法申请权限，可点下方按钮抽取', true);
+        });
+    }
+
+    // 按钮绑定
+    xzr_permitBtn.addEventListener('click', xzr_requestPermission);
+    xzr_fallbackBtn.addEventListener('click', function () {
+        xzr_trigger('button');
+    });
+
+    // 初始化
+    xzr_initSensor();
+
+    // 初始化录屏占位槽：视频文件存在则显示，不存在保留占位
+    xzr_setupVideoSlot('xzrVideoSlotT4');
+</script>
+</body>
+</html>
