@@ -645,3 +645,11 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 为什么不提交
+
+---
+
+- **时间**: 2026-11-20
+- **模型**: GLM-5.3-Flash
+- **提示词内容**:
+
+你这页面打开都不对（附截图：file:///api/health 与 file:// 方式打开 news/gallery 页面数据加载失败）
