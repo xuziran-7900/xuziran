@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：中华美食街在线客服页（同一 /api/chat 接口，只换 system 人设：只答营业时间/招牌菜/配送范围，其余引导留言）
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>中华美食街 · 在线客服</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+        <h1 class="xzr_title">中华美食街 · 在线客服</h1>
+    </header>
+    <p class="xzr_sub">CUSTOMER SERVICE · 与 AI 聊天共用一个接口，只换了 system 人设</p>
+
+    <div class="xzr_info-bar">
+        <span class="xzr_info-label">接口地址</span>
+        <span class="xzr_info-value">POST /api/chat（persona=foodstreet）</span>
+        <span class="xzr_info-label">能答范围</span>
+        <span class="xzr_info-value">营业时间 · 招牌菜 · 配送范围</span>
+    </div>
+
+    <section class="xzr_chat-box" id="xzrChatBox"></section>
+
+    <form class="xzr_chat-form" id="xzrChatForm">
+        <input class="xzr_chat-input" id="xzrChatInput" type="text" placeholder="请问营业时间 / 招牌菜 / 配送范围…" autocomplete="off">
+        <button class="xzr_chat-send" id="xzrChatSend" type="submit">发送</button>
+    </form>
+
+    <p class="xzr_chat-tip">
+        💡 试试快捷提问，也可以问点"分外事"（如"帮我写作业"）看客服怎么礼貌拒绝：
+        <button type="button" class="xzr_chat-select" data-xzr-q="你们几点营业？">营业时间</button>
+        <button type="button" class="xzr_chat-select" data-xzr-q="有什么招牌菜？多少钱？">招牌菜</button>
+        <button type="button" class="xzr_chat-select" data-xzr-q="能送到我们学校吗？">配送范围</button>
+        <button type="button" class="xzr_chat-select" data-xzr-q="帮我写一首诗">范围外问题</button>
+    </p>
+
+    <footer class="xzr_foot">徐子然 24002120223 · ai-xzr · LLM 应用</footer>
+</main>
+
+<script>
+// 姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+// 功能名称：在线客服逻辑（复用 /api/chat，persona 固定 foodstreet；多轮历史 + 快捷提问）
+
+// 保存客服对话历史（多轮对话同样要把历史一起发过去）
+var xzr_history = [];
+
+// 在聊天区追加一条气泡并返回该元素
+function xzr_addBubble(xzr_text, xzr_type) {
+    var xzr_el = document.createElement('div');
+    xzr_el.className = 'xzr_msg xzr_msg-' + xzr_type;
+    xzr_el.textContent = xzr_text;
+    var xzr_box = document.getElementById('xzrChatBox');
+    xzr_box.appendChild(xzr_el);
+    xzr_box.scrollTop = xzr_box.scrollHeight;
+    return xzr_el;
+}
+
+// 发送一条消息：persona 固定为 foodstreet（中华美食街客服人设由后端 system 消息控制）
+function xzr_sendMessage(xzr_text) {
+    var xzr_sendBtn = document.getElementById('xzrChatSend');
+    var xzr_input = document.getElementById('xzrChatInput');
+
+    xzr_addBubble(xzr_text, 'user');
+    xzr_history.push({ role: 'user', content: xzr_text });
+    xzr_input.value = '';
+    xzr_sendBtn.disabled = true;
+    xzr_input.disabled = true;
+
+    // 等待提示气泡，回答回来后替换
+    var xzr_thinking = xzr_addBubble('正在思考…', 'ai');
+
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: xzr_history, provider: 'siliconflow', persona: 'foodstreet' })
+    })
+    .then(function (xzr_res) { return xzr_res.json(); })
+    .then(function (xzr_res) {
+        console.log('chat 接口返回:', xzr_res);
+        if (xzr_res.code !== 0) {
+            xzr_history.pop();
+            xzr_thinking.remove();
+            xzr_addBubble('❌ ' + (xzr_res.msg || '未知错误'), 'err');
+            return;
+        }
+        var xzr_reply = xzr_res.data.reply || '（模型返回了空回答）';
+        xzr_thinking.remove();
+        xzr_addBubble(xzr_reply, 'ai');
+        xzr_history.push({ role: 'assistant', content: xzr_reply });
+    })
+    .catch(function (xzr_err) {
+        console.error('请求 /api/chat 失败:', xzr_err);
+        xzr_history.pop();
+        xzr_thinking.remove();
+        xzr_addBubble('❌ 请求失败：' + xzr_err.message + '（请确认后端已启动）', 'err');
+    })
+    .finally(function () {
+        xzr_sendBtn.disabled = false;
+        xzr_input.disabled = false;
+        xzr_input.focus();
+    });
+}
+
+// 表单提交：发送输入框内容
+document.getElementById('xzrChatForm').addEventListener('submit', function (xzr_e) {
+    xzr_e.preventDefault();
+    var xzr_text = document.getElementById('xzrChatInput').value.trim();
+    if (!xzr_text) return;
+    xzr_sendMessage(xzr_text);
+});
+
+// 快捷提问按钮：点击直接把预设问题发出去
+document.querySelectorAll('[data-xzr-q]').forEach(function (xzr_btn) {
+    xzr_btn.addEventListener('click', function () {
+        xzr_sendMessage(xzr_btn.getAttribute('data-xzr-q'));
+    });
+});
+
+// 页面打开时客服先打招呼
+xzr_addBubble('您好！欢迎光临中华美食街 🍜 我是客服小美，可以为您解答营业时间、招牌菜、配送范围三类问题～', 'ai');
+</script>
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>

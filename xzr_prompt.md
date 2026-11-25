@@ -718,3 +718,35 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 把这几个都删了（附截图：作品集首页移动端 手势卡片T2/图片查看器T3/摇一摇抽菜谱T4 三张卡片 → 已从首页删除，页面文件保留）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+把这个做一个返回主页的按钮（附截图：ai-xzr 首页 → 顶部加"← 返回作品集主页"按钮，链接 http://localhost:8000/index.html）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+（用户发来七牛 SK）sk-2426****5ac62 → 语音识别"不好使"排查：七牛 Qwen-Audio-3.0-ASR-Flash 网关返回 no available channels（chat/transcriptions 两端点均无通道，模型广场展示但无部署）；改用硅基流动 Qwen/Qwen3-ASR-1.7B（whisper 兼容 /v1/audio/transcriptions 端点）实测识别成功；顺带修复上传超 20MB 时返回报错页的问题（multer 错误包装为 JSON 友好提示）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+不好使（附截图：ai-chat 页服务商切到七牛 · conatus-free，连续两条消息返回"请求太频繁被限流"）→ 排查：七牛返回 429 free_campaign_global_limit（免费模型全局共享额度限流，Key/模型本身正常，单发 curl 可成功）；修复：/api/chat 遇 429 自动重试 2 次（间隔 3s/6s），提示文案改为"免费额度限流中，请等十几秒再发一条"；等 20 秒后实测七牛回复成功
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+按照里面的图片给我做一个网页，课堂实践课堂实践展示，里面要包含图片和内容讲解，你就结合这节课玩所做的内容写（附 /Users/xuziran/Desktop/未命名文件夹 5 张截图）→ 新建 ai-xzr/frontend/class-showcase.html：5 个实践板块（AI 聊天/客服人设/RAG 知识库/图像识别/语音识别）每板块截图+讲解，加概述/踩坑与解决/课堂收获板块，截图拷入 frontend/img/，xzr_main.css 追加 xzr_show_* 样式，首页新增"课堂实践展示"导航卡

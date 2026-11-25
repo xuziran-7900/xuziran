@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：LLM 应用课堂任务作业文档（任务一 Key 安全 / 任务二客服人设 / 任务三多平台切换与答辩三问）
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LLM 课堂任务 · 作业文档</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+<style>
+.xzr_hw-code {
+    background: #f3effc;
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #4a3d6e;
+    margin: 10px 0 16px;
+}
+.xzr_hw-tbl { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 13px; }
+.xzr_hw-tbl th, .xzr_hw-tbl td { border: 1px solid rgba(167, 139, 250, 0.35); padding: 8px 10px; text-align: left; vertical-align: top; line-height: 1.7; }
+.xzr_hw-tbl th { background: rgba(167, 139, 250, 0.15); color: #4a3d6e; }
+.xzr_hw-ok { color: #0a9d6e; font-weight: 800; }
+.xzr_hw-no { color: #c2255c; font-weight: 800; }
+.xzr_hw-sec h2 {
+    font-size: 17px;
+    margin: 26px 0 12px;
+    padding: 9px 14px;
+    background: var(--xzr-rainbow);
+    border-radius: 12px;
+    color: #fff;
+}
+.xzr_hw-sec p { font-size: 14px; line-height: 1.9; color: var(--xzr-ink); margin-bottom: 8px; }
+.xzr_hw-sec li { font-size: 14px; line-height: 1.9; color: var(--xzr-ink); margin-left: 22px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+        <h1 class="xzr_title">LLM 课堂任务 · 作业文档</h1>
+    </header>
+    <p class="xzr_sub">HOMEWORK · 任务一 Key 安全 + 任务二 客服人设 + 任务三 多平台切换 · 徐子然 24002120223</p>
+
+    <div class="xzr_hw-sec xzr_card" style="padding:18px 20px 22px;">
+
+        <h2>⭐ 任务一 · 把 Key 藏好（安全规范）</h2>
+        <p><b>① .env 是否在 .gitignore 中：</b><span class="xzr_hw-ok">✅ 是</span>。<code>git check-ignore backend/.env</code> 返回 backend/.env，证明它已被忽略，永远不会进 Git。</p>
+        <p><b>② 前端代码里是否残留 Key：</b><span class="xzr_hw-ok">✅ 无</span>。对全项目执行 <code>grep -rn "sk-vffy" --exclude-dir=node_modules</code>，除 backend/.env 外 0 命中；对 Git 追踪的全部文件再搜一遍也是 0 命中。</p>
+        <p><b>③ Key 截图打码：</b>本作业中 Key 一律显示为脱敏形式：<code>sk-vffy**************cjxj</code>（真实 Key 只存在于 backend/.env 一个地方）。</p>
+        <p><b>④ 我找到的 3 处"可能泄露 Key 的地方"：</b></p>
+        <ul>
+            <li><b>写进前端 JS/HTML：</b>网页源码是公开的，按 F12 打开 Sources 一眼就能看到，等于把钥匙贴在门上；<b>正确做法</b>是 Key 只放 backend/.env，前端只请求自己的后端接口。</li>
+            <li><b>.env 忘记加 .gitignore 就 git commit：</b>一旦提交，即使后续删除，Key 也永久留在 Git 历史记录里，推到 GitHub/Gitee 后任何人翻历史都能翻到；<b>正确做法</b>是建项目第一天就写好 .gitignore。</li>
+            <li><b>截图 / 聊天群 / 文档里贴 Key 原文：</b>终端 curl 命令里带着 Authorization 头直接截图、把 Key 原文发班级群或写进 README/AGENTS.md，都会让 Key 永久扩散；<b>正确做法</b>是一律打码成 sk-****。</li>
+        </ul>
+
+        <h2>⭐⭐ 任务二 · 客服人设改造（提示词工程）</h2>
+        <p><b>① system 提示词全文</b>（存放在 backend/app.js 的 XZR_PERSONAS.foodstreet，页面 customer-service.html）：</p>
+        <div class="xzr_hw-code">你是"中华美食街"在线客服。你只回答三类问题：
+①营业时间（每天 10:00-22:00，节假日不休）；
+②招牌菜（北京烤鸭 88 元、四川火锅人均 90 元、广东早茶人均 45 元、兰州拉面 18 元）；
+③配送范围（门店 5 公里内免费配送，超出收 5 元配送费）。
+遇到这三类以外的问题（闲聊、写作业、问路、其他店铺等），
+要礼貌说明"抱歉，我是美食街客服，只能回答营业时间、招牌菜、
+配送范围三类问题，其他需求请在留言板留言"，并引导用户留言。</div>
+        <p><b>② 5 个问题实测结果</b>（3 个该答、2 个该拒，全部真实接口返回）：</p>
+        <table class="xzr_hw-tbl">
+            <tr><th style="width:34%">问题</th><th style="width:12%">预期</th><th>模型实际回答（摘录）</th><th style="width:10%">判定</th></tr>
+            <tr><td>你们几点营业？</td><td>该答</td><td>"每天的营业时间是 10:00-22:00，节假日不休"</td><td class="xzr_hw-ok">✅ 答对</td></tr>
+            <tr><td>有什么招牌菜？多少钱？</td><td>该答</td><td>"北京烤鸭 88 元、四川火锅人均 90 元、广东早茶人均 45 元、兰州拉面 18 元"</td><td class="xzr_hw-ok">✅ 答对</td></tr>
+            <tr><td>能送到 5 公里外的小区吗？运费多少？</td><td>该答</td><td>"可以送到 5 公里外的小区，超出范围会收取 5 元的配送费"</td><td class="xzr_hw-ok">✅ 答对</td></tr>
+            <tr><td>帮我写一首关于春天的诗</td><td>该拒</td><td>"抱歉，我是美食街客服，只能回答营业时间、招牌菜、配送范围三类问题，其他需求请在留言板留言"</td><td class="xzr_hw-ok">✅ 拒了</td></tr>
+            <tr><td>附近有没有健身房推荐？</td><td>该拒</td><td>"抱歉，我是美食街客服……期待您的宝贵建议！"</td><td class="xzr_hw-ok">✅ 拒了</td></tr>
+        </table>
+        <p><b>③ 为什么这样写能"管住"模型？</b>四个原因：</p>
+        <ul>
+            <li><b>先定身份：</b>开头"你是中华美食街在线客服"给模型设了角色，角色比命令更持久——模型后续每句回答都会代入这个身份。</li>
+            <li><b>白名单 + 给足事实：</b>明确列出"只答三类"，并把每类的准确数据（时间、菜价、配送费）直接写在提示词里，模型照着念即可，不需要也不倾向于自由发挥编造。</li>
+            <li><b>给现成的拒绝话术：</b>范围外问题最怕模型"好心办坏事"（比如真给它写诗）。提示词里直接提供一句固定的拒答模板 + 引导留言的动作，模型遇到超纲问题就会套用这句台词，而不是即兴发挥。</li>
+            <li><b>测试闭环：</b>人设不是写完就信，必须用"3 该答 + 2 该拒"真实问题验证。实测 5/5 符合预期，说明这份提示词在 Qwen2.5-7B 上有效。</li>
+        </ul>
+
+        <h2>⭐⭐⭐ 任务三 · 多平台热切换 + 答辩三问（工程思维）</h2>
+        <p><b>实现方式：</b>后端 .env 里存两组配置（SILICONFLOW_* 和 QINIU_* 三件套），<code>/api/chat</code> 接口接收 <code>provider</code> 参数决定读哪一组；前端 ai-chat.html 只加了一个下拉框，切换时不改任何代码。</p>
+        <div class="xzr_hw-code">// backend/.env（两组配置并存）
+SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1      SILICONFLOW_MODEL=Qwen/Qwen2.5-7B-Instruct
+QINIU_CUSTOMER_SERVICE_BASE_URL=https://api.qnaigc.com/v1   QINIU_CUSTOMER_SERVICE_MODEL=qiniu/conatus-free
+
+// 前端切换（ai-chat.html）
+&lt;select id="xzrProviderSelect"&gt;
+  &lt;option value="siliconflow"&gt;硅基流动 · Qwen2.5-7B&lt;/option&gt;
+  &lt;option value="qiniu"&gt;七牛 · conatus-free&lt;/option&gt;
+&lt;/select&gt;   // 选中值作为 provider 字段发给后端即可</div>
+        <p><b>演示状态：</b>硅基流动正常对话 ✅；七牛的配置三件套已写入 .env、切换链路已验证（切换后请求确实走了 QINIU 配置），等七牛 Key 申请下来填进 .env 重启即可照常对话（当前未配 Key 时会返回友好提示而不是白屏，这也是一种"能用"）。</p>
+        <p><b>答辩三问：</b></p>
+        <ul>
+            <li><b>① 为什么 Key 不能放前端？</b>网页代码是公开的，按 F12 就能看到全部源码和网络请求。Key 写在前端等于把家门钥匙贴在门上，任何人都能复制去刷你的免费额度，甚至产生欠费。正确做法是 Key 只放后端 .env（.gitignore 排除），前端把问题发给自己的后端，由后端带 Key 转发——和数据库密码不进前端是同一个思路。</li>
+            <li><b>② 多轮对话为什么要把历史消息一起发？</b>因为大模型本身是无状态的：每次请求都是独立的一次计算，服务器不记得上一轮说过什么。所谓"记得上文"，是客户端自己维护 messages 数组，每轮把 system + 全部历史 + 新问题一起发过去，模型看完整个对话才"显得"有记忆。我实测：第一轮说"我叫徐子然"，第二轮问"我刚才说我叫什么"，模型答"你刚才说你叫徐子然"——靠的就是完整 messages。</li>
+            <li><b>③ 换个平台你改哪几个值？为什么只改这几个？</b>只改三个值：baseURL、model、apiKey，而且全在 .env 里，代码一行不动。原因是主流大模型平台都兼容 OpenAI 接口格式——请求地址结构（baseURL+/chat/completions）、请求体（model + messages 数组）、响应体（choices[0].message.content）完全一样。所以换平台只是换"门牌号 + 模型名 + 钥匙"，房子的结构不用动。</li>
+        </ul>
+
+    </div>
+
+    <footer class="xzr_foot">高级网页设计 · LLM 应用课堂任务 · 徐子然 24002120223 · 2026-11-25</footer>
+</main>
+
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>

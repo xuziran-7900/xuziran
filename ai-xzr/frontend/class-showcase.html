@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+┌─────────────────────────────────────────────────┐
+│ 作者: 徐子然 (xu-ziran)                         │
+│ 学号: 24002120223                               │
+│ 建立时间: 2026-11-25                            │
+│ 使用大模型: Trae (proprietary model from Trae team) │
+│ 功能名称: LLM 应用课堂实践展示页（截图 + 讲解）   │
+└─────────────────────────────────────────────────┘
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>课堂实践展示 · ai-xzr · LLM 应用</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas id="xzrBgCanvas" class="xzr_bg-canvas"></canvas>
+<script src="js/xzr_guard.js"></script>
+<script src="js/xzr_bg.js"></script>
+
+<main class="xzr_page">
+    <header class="xzr_topbar" style="justify-content:flex-start;">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+    </header>
+
+    <header class="xzr_hero">
+        <p class="xzr_sub" style="letter-spacing:3px;">CLASS SHOWCASE · 课堂实践展示</p>
+        <h1 class="xzr_hero-title">LLM 应用 · 五个实践任务全记录</h1>
+        <p class="xzr_gallery-note">本页记录本次 LLM 应用课的五个课堂实践：每个任务都配有<b>实际操作截图</b>和<b>实现讲解</b>。所有功能均由 Express 后端转发大模型 API 完成，API Key 只存在 backend/.env，前端与 Git 全库零残留。</p>
+    </header>
+
+    <!-- 概述卡 -->
+    <section class="xzr_show-card">
+        <h2 class="xzr_show-h2">📋 本节课做了什么</h2>
+        <p class="xzr_show-p">围绕"把大模型 API 用起来、用得安全、管得住、换得动"这条主线，完成了五个递进的实践任务：</p>
+        <div class="xzr_show-toc">
+            <a class="xzr_chip" href="#xzrT1">① AI 聊天 · 多轮对话</a>
+            <a class="xzr_chip" href="#xzrT2">② 客服人设 · 提示词工程</a>
+            <a class="xzr_chip" href="#xzrT3">③ RAG 知识库问答</a>
+            <a class="xzr_chip" href="#xzrT4">④ 图像识别</a>
+            <a class="xzr_chip" href="#xzrT5">⑤ 语音识别</a>
+        </div>
+        <p class="xzr_show-p">技术栈：Express + fetch 转发硅基流动 / 七牛两家平台的 OpenAI 兼容接口；文件解析用 pdf-parse / mammoth / adm-zip；语音转写走 whisper 兼容端点。</p>
+    </section>
+
+    <!-- 实践一 -->
+    <section class="xzr_show-card" id="xzrT1">
+        <h2 class="xzr_show-h2"><span class="xzr_show-no">实践一</span>AI 聊天 · 多轮对话与 Key 安全</h2>
+        <figure class="xzr_show-fig">
+            <img src="img/xzr_show_chat.png" alt="AI 聊天页面实测截图：询问 cook 是什么意思，模型给出中英文解释">
+            <figcaption>实测：提问"cook是什么意思"，硅基流动 Qwen2.5-7B-Instruct 正确给出动词"烹饪"、名词"厨师"的解释</figcaption>
+        </figure>
+        <div class="xzr_show-text">
+            <h3>做了什么</h3>
+            <p>从零搭起"前端页面 → Express 后端 → 大模型 API"的完整链路。前端只把对话发给自己的后端 /api/chat，由后端带着 Key 转发硅基流动，再把回答送回来。</p>
+            <h3>怎么实现</h3>
+            <ul>
+                <li><b>Key 安全</b>：Key 只写在 backend/.env（.gitignore 排除，永不进 Git），前端源码、页面、Git 全库搜索零残留——前端只知道"问自己的后端"，根本接触不到 Key</li>
+                <li><b>多轮对话</b>：前端维护完整的 messages 数组，每次提问把<b>全部历史消息</b>一起发过去，模型才能"记住"上文</li>
+                <li><b>等待体验</b>：请求期间显示"正在思考…"气泡，回答返回后替换</li>
+            </ul>
+            <h3>验证</h3>
+            <p>先问"我叫徐子然"，再追问"我刚才问了什么"——模型能准确答上来，证明多轮对话确实用的是完整 messages；把 Key 故意改错一位，页面显示"Key 无效或已失效"的中文友好提示而不是白屏。</p>
+        </div>
+    </section>
+
+    <!-- 实践二 -->
+    <section class="xzr_show-card" id="xzrT2">
+        <h2 class="xzr_show-h2"><span class="xzr_show-no">实践二</span>中华美食街在线客服 · 提示词工程</h2>
+        <figure class="xzr_show-fig">
+            <img src="img/xzr_show_service.png" alt="在线客服页面实测截图：询问招牌菜，客服答出北京烤鸭、四川火锅、广东早茶、兰州拉面的价格并引导留言">
+            <figcaption>实测：问"招牌菜是什么"，客服报出四道招牌菜及价格（烤鸭 88 元 / 火锅 90 元 / 早茶 45 元 / 拉面 18 元），并引导需要更多内容时留言</figcaption>
+        </figure>
+        <div class="xzr_show-text">
+            <h3>做了什么</h3>
+            <p>把通用 AI 聊天改造成"中华美食街在线客服"：<b>接口一行代码都没改</b>，只把 system 提示词从通用助手换成了美食街客服人设（persona=foodstreet）。</p>
+            <h3>system 提示词怎么写才能"管住"模型</h3>
+            <ul>
+                <li><b>定身份</b>：开头锁定"你是中华美食街客服小美"，角色的边界先立住</li>
+                <li><b>白名单 + 给足事实</b>：明确"只回答营业时间、招牌菜、配送范围三类问题"，并把这三类的真实数据直接写进提示词——模型有据可依就不会瞎编</li>
+                <li><b>给现成的拒绝台词</b>：规定超出范围时"礼貌说明只服务这三类问题，并引导留言"，模型照着说就行，不会临场发挥</li>
+            </ul>
+            <h3>验证（5 问测试）</h3>
+            <p>营业时间、招牌菜、配送费 3 个该答的全答对（价格精确到元）；"写一首诗""推荐健身房"2 个该拒的都礼貌拒绝并引导留言——5/5 符合预期。</p>
+        </div>
+    </section>
+
+    <!-- 实践三 -->
+    <section class="xzr_show-card" id="xzrT3">
+        <h2 class="xzr_show-h2"><span class="xzr_show-no">实践三</span>RAG 知识库 · 上传解析 + 检索问答</h2>
+        <figure class="xzr_show-fig">
+            <img src="img/xzr_show_kb.png" alt="知识库页面实测截图：四个知识库文件列表，询问画地为牢脚本的回答与来源片段标注">
+            <figcaption>实测：知识库里有 4 个文件（docx / pdf / pptx / txt）；问"画地为牢的脚本讲述了什么"，模型依据上传的 docx 回答，并列出引用的 3 个来源片段（第 12 块 · 相关度 10 等）</figcaption>
+        </figure>
+        <div class="xzr_show-text">
+            <h3>做了什么</h3>
+            <p>完整的 RAG（检索增强生成）流程：<b>上传 → 解析 → 切块入库 → 检索 → 拼提示词 → 回答并标注来源</b>。</p>
+            <h3>怎么实现</h3>
+            <ul>
+                <li><b>支持格式</b>：TXT 直接读；PDF 用 pdf-parse；DOC/DOCX 用 mammoth；PPT/PPTX 用 adm-zip 解包后提取 XML 文本；超 20MB 拒收并友好提示</li>
+                <li><b>入库</b>：全文按 ~500 字切块，连同文件信息存进 MySQL 两张表（xzr_kb_files / xzr_kb_chunks），页面可管理（列表 + 删除）</li>
+                <li><b>问答</b>：把问题拆成关键词，检索相似度最高的 3 个片段，拼进 system 提示词，并规定"只依据资料回答，资料里没有就如实说没找到"</li>
+                <li><b>课程要求</b>：控制台完整打印发给大模型的数据（含检索到的片段）和大模型返回的数据</li>
+            </ul>
+            <h3>验证</h3>
+            <p>营业时间、摊位租金（来自 pptx）都答对并正确标注来源文件和分块；故意问知识库里没有的问题，模型如实回答"没有找到相关内容"，没有瞎编。</p>
+        </div>
+    </section>
+
+    <!-- 实践四 -->
+    <section class="xzr_show-card" id="xzrT4">
+        <h2 class="xzr_show-h2"><span class="xzr_show-no">实践四</span>图像识别 · 看图说话</h2>
+        <figure class="xzr_show-fig">
+            <img src="img/xzr_show_vision.png" alt="图像识别页面实测截图：上传动画剧照，模型给出画面内容与含义解读">
+            <figcaption>实测：上传一张国风动画剧照（老者、少年与地上的圆圈），问"这张图片讲述了什么"，模型给出氛围、人物、构图和象征意义的完整解读</figcaption>
+        </figure>
+        <div class="xzr_show-text">
+            <h3>做了什么</h3>
+            <p>上传图片（可自定义提问），后端把图片转成 base64 dataURL，按 OpenAI 兼容的 image_url 格式发给硅基流动的多模态视觉模型 <b>Qwen/Qwen3-VL-8B-Instruct</b>，返回中文描述。</p>
+            <h3>实现要点</h3>
+            <ul>
+                <li>图片走内存存储（multer memoryStorage），不落盘，转 base64 直接进请求体</li>
+                <li>控制台同样打印收发数据（图片太大只打印前 200 字符）</li>
+                <li>识别结果验证：模型准确说出"深蓝墨绿冷色调、油灯暖光、老者持杖、少年立于圆圈中"，还解读出"师徒传承、人生转折"两层含义——细节描述与原图一致</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 实践五 -->
+    <section class="xzr_show-card" id="xzrT5">
+        <h2 class="xzr_show-h2"><span class="xzr_show-no">实践五</span>语音识别 ASR · 录音转文字</h2>
+        <figure class="xzr_show-fig">
+            <img src="img/xzr_show_asr.png" alt="语音识别页面实测截图：录音 2 秒后识别出你好你好">
+            <figcaption>实测：浏览器录音 2 秒（"你好，你好"）→ 识别输出"你好，你好。"，模型 Qwen/Qwen3-ASR-1.7B</figcaption>
+        </figure>
+        <div class="xzr_show-text">
+            <h3>做了什么</h3>
+            <p>输入语音、输出文字：页面支持<b>麦克风录音</b>（MediaRecorder）和<b>上传音频文件</b>两种方式，后端转发语音识别模型完成转写。</p>
+            <h3>实现要点与踩坑</h3>
+            <ul>
+                <li>课程指定的七牛 <b>Qwen-Audio-3.0-ASR-Flash</b> 模型：模型广场有展示，但网关实测返回 <code>no available channels</code>（无可用部署），chat 与转写两个端点都试过</li>
+                <li><b>解决</b>：换用硅基流动的 Qwen/Qwen3-ASR-1.7B（同为 Qwen 语音识别模型），走 whisper 兼容的 /v1/audio/transcriptions 端点，用原生 FormData 把音频原样转发</li>
+                <li>只改了 .env 模型名 + 后端一个端点，前端零改动——正是"多平台热切换"思路的应用</li>
+                <li>控制台打印收发数据；识别验证：合成的"大家好，我是徐子然……"语音被准确转成文字（"七牛"被听成"犀牛"，属模型听写误差）</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 踩坑与解决 -->
+    <section class="xzr_show-card">
+        <h2 class="xzr_show-h2">🧗 踩坑与解决（答辩加分点）</h2>
+        <div class="xzr_show-text">
+            <ul>
+                <li><b>ASR 模型无通道</b>：七牛指定模型有展示无部署 → 实测两个端点留证（报错原文 no available channels）→ 换同家族 Qwen3-ASR，只改配置不改前端</li>
+                <li><b>七牛免费模型 429 全局限流</b>：conatus-free 额度池全用户共享 → 后端遇到 429 自动重试 2 次（间隔 3s / 6s），多数情况无感知恢复；仍失败才提示"免费额度限流中，请等十几秒"</li>
+                <li><b>上传超 20MB</b>：最初 Express 返回报错页 → 用 multer 错误包装统一转成 JSON 友好提示"文件超过 20MB 限制，请压缩后再上传"</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 收获 -->
+    <section class="xzr_show-card">
+        <h2 class="xzr_show-h2">💡 课堂收获</h2>
+        <div class="xzr_show-text">
+            <ul>
+                <li><b>安全</b>：Key 永远只放后端 .env，前端是"透明"的，放前端等于公开</li>
+                <li><b>提示词工程</b>：管住模型靠"定身份 + 白名单 + 给足事实 + 给现成台词"，并要用该答/该拒的测试用例闭环验证</li>
+                <li><b>多轮对话</b>：模型本身无记忆，靠前端每次发完整 messages 实现"记得上文"</li>
+                <li><b>RAG</b>：让模型"开卷考试"——只依据检索到的资料回答，能显著减少胡编，还能标注来源</li>
+                <li><b>工程思维</b>：平台切换只改配置；报错要翻译成人话；每一步都留实测证据</li>
+            </ul>
+            <p class="xzr_show-p" style="margin-top:16px;">—— 徐子然 24002120223 · ai-xzr · LLM 应用课堂实践</p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

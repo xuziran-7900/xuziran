@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：图像识别页（上传图片 → 硅基流动 Qwen3-VL 视觉模型 → 返回图片描述）
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>图像识别 · ai-xzr</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+        <h1 class="xzr_title">图像识别</h1>
+    </header>
+    <p class="xzr_sub">VISION · 上传图片 → 视觉大模型识别 → 返回图片描述</p>
+
+    <div class="xzr_info-bar">
+        <span class="xzr_info-label">接口地址</span>
+        <span class="xzr_info-value">POST /api/ai/vision</span>
+        <span class="xzr_info-label">模型</span>
+        <span class="xzr_info-value">Qwen/Qwen3-VL-8B-Instruct（硅基流动）</span>
+    </div>
+
+    <section class="xzr_card">
+        <div class="xzr_upload-row">
+            <button class="xzr_file-btn" id="xzrPickBtn" type="button">🖼️ 选择图片</button>
+            <input type="file" id="xzrImageInput" accept="image/*" hidden>
+            <button class="xzr_go-btn" id="xzrGoBtn" type="button" disabled>开始识别</button>
+        </div>
+        <img class="xzr_img-preview" id="xzrPreview" alt="图片预览">
+        <textarea class="xzr_chat-input" id="xzrQuestionInput" rows="2" placeholder="想让模型做什么？留空则默认"请详细描述这张图片的内容"" style="width:100%; resize:vertical;"></textarea>
+        <div class="xzr_loading" id="xzrResult" style="padding:20px 0;">识别结果会显示在这里</div>
+    </section>
+
+    <footer class="xzr_foot">徐子然 24002120223 · ai-xzr · 图像识别</footer>
+</main>
+
+<script>
+// 姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+// 功能名称：图像识别逻辑（本地预览 → FormData 上传 → 展示视觉模型返回的描述）
+
+// 当前选中的图片文件
+var xzr_pickedImage = null;
+
+// 点击"选择图片"触发隐藏的 file input
+document.getElementById('xzrPickBtn').addEventListener('click', function () {
+    document.getElementById('xzrImageInput').click();
+});
+
+// 选中图片后立即本地预览并激活识别按钮
+document.getElementById('xzrImageInput').addEventListener('change', function () {
+    xzr_pickedImage = this.files[0] || null;
+    var xzr_btn = document.getElementById('xzrGoBtn');
+    var xzr_preview = document.getElementById('xzrPreview');
+    if (xzr_pickedImage) {
+        // FileReader 把本地图片读成 dataURL 用于预览（不经过后端）
+        var xzr_reader = new FileReader();
+        xzr_reader.onload = function (xzr_e) {
+            xzr_preview.src = xzr_e.target.result;
+            xzr_preview.style.display = 'block';
+        };
+        xzr_reader.readAsDataURL(xzr_pickedImage);
+        xzr_btn.disabled = false;
+        document.getElementById('xzrResult').textContent = '识别结果会显示在这里';
+    } else {
+        xzr_preview.style.display = 'none';
+        xzr_btn.disabled = true;
+    }
+});
+
+// 点击"开始识别"：图片上传给后端 → 后端转发视觉模型 → 展示描述
+document.getElementById('xzrGoBtn').addEventListener('click', function () {
+    if (!xzr_pickedImage) return;
+    var xzr_btn = this;
+    var xzr_result = document.getElementById('xzrResult');
+    var xzr_form = new FormData();
+    xzr_form.append('image', xzr_pickedImage);
+    xzr_form.append('question', document.getElementById('xzrQuestionInput').value);
+
+    xzr_btn.disabled = true;
+    xzr_result.textContent = '🖼️ 正在识别图片…';
+
+    fetch('/api/ai/vision', { method: 'POST', body: xzr_form })
+        .then(function (xzr_res) { return xzr_res.json(); })
+        .then(function (xzr_res) {
+            console.log('vision 接口返回:', xzr_res);
+            if (xzr_res.code !== 0) {
+                xzr_result.textContent = '❌ ' + xzr_res.msg;
+                return;
+            }
+            xzr_result.style.textAlign = 'left';
+            xzr_result.style.padding = '0';
+            xzr_result.innerHTML =
+                '<div class="xzr_msg xzr_msg-ai" style="max-width:100%;"></div>' +
+                '<div class="xzr_kb-meta" style="margin-top:8px;">模型：' + xzr_res.data.model + '</div>';
+            xzr_result.querySelector('.xzr_msg-ai').textContent = xzr_res.data.description;
+        })
+        .catch(function (xzr_err) {
+            console.error('识别失败:', xzr_err);
+            xzr_result.textContent = '❌ 请求失败：' + xzr_err.message;
+        })
+        .finally(function () { xzr_btn.disabled = false; });
+});
+</script>
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>

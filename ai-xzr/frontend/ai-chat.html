@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：AI 聊天页（多轮对话，支持硅基流动/七牛服务商切换，走后端 /api/chat 转发，Key 不进前端）
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI 聊天 · ai-xzr</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+        <h1 class="xzr_title">AI 聊天</h1>
+    </header>
+    <p class="xzr_sub">AI CHAT · 多轮对话 · 服务商可切换</p>
+
+    <div class="xzr_info-bar">
+        <span class="xzr_info-label">接口地址</span>
+        <span class="xzr_info-value">POST /api/chat</span>
+        <span class="xzr_info-label">Key 位置</span>
+        <span class="xzr_info-value">backend/.env（不进前端、不进 Git）</span>
+    </div>
+
+    <div class="xzr_chat-toolbar">
+        <label class="xzr_info-label" for="xzrProviderSelect">服务商：</label>
+        <select class="xzr_chat-select" id="xzrProviderSelect">
+            <option value="siliconflow">硅基流动 · Qwen2.5-7B</option>
+            <option value="qiniu">七牛 · conatus-free</option>
+        </select>
+    </div>
+
+    <section class="xzr_chat-box" id="xzrChatBox"></section>
+
+    <form class="xzr_chat-form" id="xzrChatForm">
+        <input class="xzr_chat-input" id="xzrChatInput" type="text" placeholder="问我任何问题，例如：你好，请介绍一下你自己" autocomplete="off">
+        <button class="xzr_chat-send" id="xzrChatSend" type="submit">发送</button>
+    </form>
+
+    <p class="xzr_chat-tip">
+        💡 多轮对话原理：模型本身不记事，每次请求都会把之前的全部对话一起发给模型，所以它能"记得上文"。<br>
+        ⚠️ API Key 只放在后端 .env 里，前端只把问题发给自己的后端 /api/chat，由后端带 Key 转发。
+    </p>
+
+    <footer class="xzr_foot">徐子然 24002120223 · ai-xzr · LLM 应用</footer>
+</main>
+
+<script>
+// 姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+// 功能名称：AI 聊天逻辑（维护 messages 历史 → POST /api/chat → 渲染气泡，失败时显示友好错误）
+
+// 保存完整对话历史：每轮把用户消息和 AI 回复都 push 进去，下次请求一起发过去
+var xzr_history = [];
+
+// 在聊天区追加一条气泡并返回该元素（用于后续替换"正在思考…"为真实回答）
+function xzr_addBubble(xzr_text, xzr_type) {
+    var xzr_el = document.createElement('div');
+    xzr_el.className = 'xzr_msg xzr_msg-' + xzr_type;
+    xzr_el.textContent = xzr_text;
+    var xzr_box = document.getElementById('xzrChatBox');
+    xzr_box.appendChild(xzr_el);
+    xzr_box.scrollTop = xzr_box.scrollHeight;
+    return xzr_el;
+}
+
+// 把后端返回的 code=1 错误翻译成气泡里可读的提示（含状态码场景）
+function xzr_showError(xzr_msg) {
+    xzr_addBubble('❌ ' + xzr_msg, 'err');
+}
+
+// 发送一条用户消息：先渲染用户气泡 → 显示"正在思考…" → 请求后端 → 用回答替换等待气泡
+function xzr_sendMessage(xzr_text) {
+    var xzr_sendBtn = document.getElementById('xzrChatSend');
+    var xzr_input = document.getElementById('xzrChatInput');
+    var xzr_provider = document.getElementById('xzrProviderSelect').value;
+
+    xzr_addBubble(xzr_text, 'user');
+    xzr_history.push({ role: 'user', content: xzr_text });
+    xzr_input.value = '';
+    xzr_sendBtn.disabled = true;
+    xzr_input.disabled = true;
+
+    // 等待提示气泡（.AI 回答回来后会被替换掉）
+    var xzr_thinking = xzr_addBubble('正在思考…', 'ai');
+
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: xzr_history, provider: xzr_provider, persona: 'assistant' })
+    })
+    .then(function (xzr_res) { return xzr_res.json(); })
+    .then(function (xzr_res) {
+        console.log('chat 接口返回:', xzr_res);
+        if (xzr_res.code !== 0) {
+            // 失败：把刚才这条用户消息从历史里弹掉，允许用户直接重发
+            xzr_history.pop();
+            xzr_thinking.remove();
+            xzr_showError(xzr_res.msg || '未知错误');
+            return;
+        }
+        var xzr_reply = xzr_res.data.reply || '（模型返回了空回答）';
+        xzr_thinking.remove();
+        var xzr_bubble = xzr_addBubble(xzr_reply, 'ai');
+        var xzr_meta = document.createElement('span');
+        xzr_meta.className = 'xzr_msg-meta';
+        xzr_meta.textContent = xzr_res.data.provider_name + ' · ' + xzr_res.data.model;
+        xzr_bubble.appendChild(xzr_meta);
+        // AI 回复也要 push 进历史，下一轮才能"记得上文"
+        xzr_history.push({ role: 'assistant', content: xzr_reply });
+    })
+    .catch(function (xzr_err) {
+        console.error('请求 /api/chat 失败:', xzr_err);
+        xzr_history.pop();
+        xzr_thinking.remove();
+        xzr_showError('请求失败：' + xzr_err.message + '（请确认后端已启动）');
+    })
+    .finally(function () {
+        xzr_sendBtn.disabled = false;
+        xzr_input.disabled = false;
+        xzr_input.focus();
+    });
+}
+
+// 点击发送按钮或回车时触发
+document.getElementById('xzrChatForm').addEventListener('submit', function (xzr_e) {
+    xzr_e.preventDefault();
+    var xzr_text = document.getElementById('xzrChatInput').value.trim();
+    if (!xzr_text) return;
+    xzr_sendMessage(xzr_text);
+});
+</script>
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "ai-xzr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI 应用项目（AI 聊天/在线客服/RAG 知识库/图像识别/语音识别）· 徐子然 24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash · 端口 8224",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mammoth": "^1.13.0",
+    "multer": "^2.5.0",
+    "mysql2": "^3.11.5",
+    "pdf-parse": "^2.4.5"
+  }
+}

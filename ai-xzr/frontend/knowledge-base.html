@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：知识库管理页（RAG）：上传 txt/pdf/doc/ppt 解析入库 + 文件列表删除 + 基于知识库的问答
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>知识库问答 · ai-xzr</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+        <h1 class="xzr_title">知识库问答（RAG）</h1>
+    </header>
+    <p class="xzr_sub">KNOWLEDGE BASE · 上传文件 → 解析分块入库 → 检索相关片段 → 大模型依据片段回答</p>
+
+    <div class="xzr_info-bar">
+        <span class="xzr_info-label">上传接口</span>
+        <span class="xzr_info-value">POST /api/kb/upload</span>
+        <span class="xzr_info-label">问答接口</span>
+        <span class="xzr_info-value">POST /api/kb/chat</span>
+        <span class="xzr_info-label">支持格式</span>
+        <span class="xzr_info-value">TXT · PDF · DOC/DOCX · PPT/PPTX</span>
+    </div>
+
+    <!-- 上传模块 -->
+    <section class="xzr_card">
+        <div class="xzr_upload-row">
+            <button class="xzr_file-btn" id="xzrPickBtn" type="button">📁 选择文件（≤20MB）</button>
+            <input type="file" id="xzrFileInput" accept=".txt,.pdf,.doc,.docx,.ppt,.pptx" hidden>
+            <button class="xzr_go-btn" id="xzrUploadBtn" type="button" disabled>上传并解析</button>
+            <span class="xzr_info-label" id="xzrUploadTip">未选择文件</span>
+        </div>
+        <div class="xzr_kb-list" id="xzrFileList">正在加载文件列表…</div>
+    </section>
+
+    <!-- 问答模块 -->
+    <section class="xzr_card" style="margin-top:18px;">
+        <p class="xzr_info-label" style="margin-bottom:10px;">基于知识库问答（后端控制台会打印发给大模型/大模型返回的完整数据）</p>
+        <section class="xzr_chat-box" id="xzrChatBox" style="height:330px;"></section>
+        <form class="xzr_chat-form" id="xzrChatForm">
+            <input class="xzr_chat-input" id="xzrChatInput" type="text" placeholder="先上传文件，再针对文件内容提问，例如：文档里讲了什么？" autocomplete="off">
+            <button class="xzr_chat-send" id="xzrChatSend" type="submit">提问</button>
+        </form>
+    </section>
+
+    <footer class="xzr_foot">徐子然 24002120223 · ai-xzr · RAG 知识库</footer>
+</main>
+
+<script>
+// 姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+// 功能名称：知识库页面逻辑（选择文件上传解析 → 刷新列表 → 基于知识库问答渲染）
+
+// 当前选中的待上传文件
+var xzr_pickedFile = null;
+
+// 在聊天区追加气泡并返回该元素
+function xzr_addBubble(xzr_html, xzr_type) {
+    var xzr_el = document.createElement('div');
+    xzr_el.className = 'xzr_msg xzr_msg-' + xzr_type;
+    xzr_el.innerHTML = xzr_html;
+    var xzr_box = document.getElementById('xzrChatBox');
+    xzr_box.appendChild(xzr_el);
+    xzr_box.scrollTop = xzr_box.scrollHeight;
+    return xzr_el;
+}
+
+// 加载并渲染知识库文件列表（含删除按钮）
+function xzr_loadFiles() {
+    fetch('/api/kb/files')
+        .then(function (xzr_res) { return xzr_res.json(); })
+        .then(function (xzr_res) {
+            console.log('kb files 接口返回:', xzr_res);
+            var xzr_list = document.getElementById('xzrFileList');
+            if (xzr_res.code !== 0 || !xzr_res.data || xzr_res.data.length === 0) {
+                xzr_list.innerHTML = '<div class="xzr_loading">知识库还是空的，先上传一个文件吧（建议先传 2 个构建专属知识库）</div>';
+                return;
+            }
+            xzr_list.innerHTML = '';
+            xzr_res.data.forEach(function (xzr_f) {
+                var xzr_item = document.createElement('div');
+                xzr_item.className = 'xzr_kb-item';
+                xzr_item.innerHTML =
+                    '<span class="xzr_kb-name"></span>' +
+                    '<span class="xzr_kb-meta"></span>' +
+                    '<button class="xzr_kb-del" type="button">删除</button>';
+                xzr_item.querySelector('.xzr_kb-name').textContent = xzr_f.filename;
+                xzr_item.querySelector('.xzr_kb-meta').textContent =
+                    xzr_f.file_type.toUpperCase() + ' · ' + xzr_f.chunk_count + ' 块 · ' + (xzr_f.file_size / 1024).toFixed(1) + 'KB';
+                // 点击删除：二次确认后调用 DELETE 接口
+                xzr_item.querySelector('.xzr_kb-del').addEventListener('click', function () {
+                    if (!confirm('确定删除「' + xzr_f.filename + '」及其全部分块吗？')) return;
+                    fetch('/api/kb/files/' + xzr_f.id, { method: 'DELETE' })
+                        .then(function (xzr_r) { return xzr_r.json(); })
+                        .then(function (xzr_r) {
+                            console.log('删除结果:', xzr_r);
+                            xzr_loadFiles();
+                        });
+                });
+                xzr_list.appendChild(xzr_item);
+            });
+        })
+        .catch(function (xzr_err) { console.error('加载文件列表失败:', xzr_err); });
+}
+
+// 点击"选择文件"按钮触发隐藏的 file input
+document.getElementById('xzrPickBtn').addEventListener('click', function () {
+    document.getElementById('xzrFileInput').click();
+});
+
+// 选中文件后显示文件名并激活上传按钮
+document.getElementById('xzrFileInput').addEventListener('change', function () {
+    xzr_pickedFile = this.files[0] || null;
+    var xzr_tip = document.getElementById('xzrUploadTip');
+    var xzr_btn = document.getElementById('xzrUploadBtn');
+    if (xzr_pickedFile) {
+        xzr_tip.textContent = '已选择：' + xzr_pickedFile.name + '（' + (xzr_pickedFile.size / 1024).toFixed(1) + 'KB）';
+        xzr_btn.disabled = false;
+    } else {
+        xzr_tip.textContent = '未选择文件';
+        xzr_btn.disabled = true;
+    }
+});
+
+// 点击"上传并解析"：multipart 提交到 /api/kb/upload
+document.getElementById('xzrUploadBtn').addEventListener('click', function () {
+    if (!xzr_pickedFile) return;
+    var xzr_btn = this;
+    var xzr_form = new FormData();
+    xzr_form.append('file', xzr_pickedFile);
+    xzr_btn.disabled = true;
+    document.getElementById('xzrUploadTip').textContent = '正在上传解析…';
+
+    fetch('/api/kb/upload', { method: 'POST', body: xzr_form })
+        .then(function (xzr_res) { return xzr_res.json(); })
+        .then(function (xzr_res) {
+            console.log('kb upload 接口返回:', xzr_res);
+            document.getElementById('xzrUploadTip').textContent =
+                xzr_res.code === 0 ? ('✅ 解析成功：切成 ' + xzr_res.data.chunks + ' 块') : ('❌ ' + xzr_res.msg);
+            if (xzr_res.code === 0) {
+                xzr_pickedFile = null;
+                document.getElementById('xzrFileInput').value = '';
+                document.getElementById('xzrUploadBtn').disabled = true;
+                xzr_loadFiles();
+            }
+        })
+        .catch(function (xzr_err) {
+            console.error('上传失败:', xzr_err);
+            document.getElementById('xzrUploadTip').textContent = '❌ 上传失败：' + xzr_err.message;
+        })
+        .finally(function () { xzr_btn.disabled = false; });
+});
+
+// 提交问题：调用 /api/kb/chat（RAG 检索 + 大模型回答）
+document.getElementById('xzrChatForm').addEventListener('submit', function (xzr_e) {
+    xzr_e.preventDefault();
+    var xzr_question = document.getElementById('xzrChatInput').value.trim();
+    if (!xzr_question) return;
+    var xzr_input = document.getElementById('xzrChatInput');
+    var xzr_send = document.getElementById('xzrChatSend');
+
+    xzr_addBubble(xzr_question, 'user');
+    xzr_input.value = '';
+    xzr_send.disabled = true;
+    var xzr_thinking = xzr_addBubble('正在检索知识库并思考…', 'ai');
+
+    fetch('/api/kb/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: xzr_question })
+    })
+    .then(function (xzr_res) { return xzr_res.json(); })
+    .then(function (xzr_res) {
+        console.log('kb chat 接口返回:', xzr_res);
+        xzr_thinking.remove();
+        if (xzr_res.code !== 0) {
+            xzr_addBubble('❌ ' + (xzr_res.msg || '未知错误'), 'err');
+            return;
+        }
+        // 回答 + 来源片段标签（来自哪个文件第几块）
+        var xzr_html = '';
+        var xzr_lines = (xzr_res.data.reply || '').split('\n');
+        xzr_lines.forEach(function (xzr_line, xzr_i) {
+            xzr_html += (xzr_i > 0 ? '<br>' : '') + (xzr_line || ' ');
+        });
+        xzr_html += '<span class="xzr_src-list">';
+        (xzr_res.data.sources || []).forEach(function (xzr_s) {
+            xzr_html += '<span class="xzr_src-chip">📄 ' + xzr_s.filename + ' 第' + xzr_s.seq + '块 · 相关度' + xzr_s.score + '</span>';
+        });
+        xzr_html += '</span>';
+        xzr_addBubble(xzr_html, 'ai');
+    })
+    .catch(function (xzr_err) {
+        xzr_thinking.remove();
+        xzr_addBubble('❌ 请求失败：' + xzr_err.message, 'err');
+    })
+    .finally(function () {
+        xzr_send.disabled = false;
+        xzr_input.focus();
+    });
+});
+
+// 页面加载时拉一次文件列表
+xzr_loadFiles();
+</script>
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：ai-xzr 项目首页（AI 应用导航：AI 聊天/在线客服/知识库 RAG/图像识别/语音识别/作业文档）
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ai-xzr · AI 应用项目首页</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar" style="justify-content:flex-start;">
+        <a class="xzr_back" href="http://localhost:8000/index.html">← 返回作品集主页</a>
+    </header>
+    <header class="xzr_hero">
+        <h1 class="xzr_hero-title">AI 应用项目 · ai-xzr</h1>
+        <p class="xzr_hero-sub">从领 Key 到多模态 —— 大模型应用的五种玩法（聊天 / 客服 / RAG / 视觉 / 语音）</p>
+        <div class="xzr_hero-meta">
+            <div class="xzr_meta-item" style="border-top-color:#ffd93d;">
+                <span class="xzr_meta-label">姓名</span>
+                <span class="xzr_meta-value">徐子然</span>
+            </div>
+            <div class="xzr_meta-item" style="border-top-color:#5ce0b2;">
+                <span class="xzr_meta-label">学号</span>
+                <span class="xzr_meta-value">24002120223</span>
+            </div>
+            <div class="xzr_meta-item" style="border-top-color:#ff6ec7;">
+                <span class="xzr_meta-label">项目名称</span>
+                <span class="xzr_meta-value">ai-xzr</span>
+            </div>
+            <div class="xzr_meta-item" style="border-top-color:#5cb7ff;">
+                <span class="xzr_meta-label">端口</span>
+                <span class="xzr_meta-value">8224</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="xzr_nav-grid">
+        <a class="xzr_nav-card" href="ai-chat.html">
+            <span class="xzr_nav-emoji">🤖</span>
+            <div class="xzr_nav-name">AI 聊天</div>
+            <div class="xzr_nav-desc">多轮对话 · 硅基流动/七牛服务商切换 · Key 藏在后端 .env</div>
+        </a>
+        <a class="xzr_nav-card" href="customer-service.html">
+            <span class="xzr_nav-emoji">🍜</span>
+            <div class="xzr_nav-name">在线客服</div>
+            <div class="xzr_nav-desc">中华美食街客服 · 只答营业时间/招牌菜/配送范围，其余引导留言</div>
+        </a>
+        <a class="xzr_nav-card" href="knowledge-base.html">
+            <span class="xzr_nav-emoji">📚</span>
+            <div class="xzr_nav-name">知识库问答 RAG</div>
+            <div class="xzr_nav-desc">上传 TXT/PDF/Word/PPT 解析入库 · 检索后由大模型依据片段回答</div>
+        </a>
+        <a class="xzr_nav-card" href="vision.html">
+            <span class="xzr_nav-emoji">👁️</span>
+            <div class="xzr_nav-name">图像识别</div>
+            <div class="xzr_nav-desc">上传图片 · Qwen3-VL 视觉模型返回图片描述</div>
+        </a>
+        <a class="xzr_nav-card" href="asr.html">
+            <span class="xzr_nav-emoji">🎙️</span>
+            <div class="xzr_nav-name">语音识别</div>
+            <div class="xzr_nav-desc">麦克风录音或上传音频 · Qwen3-ASR 模型转成文字</div>
+        </a>
+        <a class="xzr_nav-card" href="class-showcase.html">
+            <span class="xzr_nav-emoji">🖼️</span>
+            <div class="xzr_nav-name">课堂实践展示</div>
+            <div class="xzr_nav-desc">五个实践任务截图 + 讲解 · 踩坑与收获</div>
+        </a>
+        <a class="xzr_nav-card" href="llm-task.html">
+            <span class="xzr_nav-emoji">📝</span>
+            <div class="xzr_nav-name">LLM 课堂任务文档</div>
+            <div class="xzr_nav-desc">Key 安全 3 处泄露点 · 客服提示词与 5 问实测 · 答辩三问</div>
+        </a>
+    </section>
+
+    <footer class="xzr_foot">高级网页设计 · LLM 应用 · 徐子然 24002120223 · ai-xzr</footer>
+</main>
+
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>

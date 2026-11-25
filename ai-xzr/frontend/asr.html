@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+功能名称：语音识别页（麦克风录音或上传音频 → 七牛 Qwen-Audio-3.0-ASR-Flash → 输出文字）
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>语音识别 · ai-xzr</title>
+<link rel="stylesheet" href="css/xzr_main.css">
+</head>
+<body>
+<canvas class="xzr_bg-canvas" id="xzrBgCanvas"></canvas>
+
+<main class="xzr_page">
+    <header class="xzr_topbar">
+        <a class="xzr_back" href="index.html">← 返回首页</a>
+        <h1 class="xzr_title">语音识别（ASR）</h1>
+    </header>
+    <p class="xzr_sub">SPEECH TO TEXT · 录音或上传音频 → Qwen3-ASR → 输出文字</p>
+
+    <div class="xzr_info-bar">
+        <span class="xzr_info-label">接口地址</span>
+        <span class="xzr_info-value">POST /api/ai/asr</span>
+        <span class="xzr_info-label">模型</span>
+        <span class="xzr_info-value">Qwen/Qwen3-ASR-1.7B（硅基流动）</span>
+    </div>
+
+    <section class="xzr_card">
+        <div class="xzr_upload-row">
+            <button class="xzr_go-btn" id="xzrRecBtn" type="button">🎙️ 开始录音</button>
+            <button class="xzr_file-btn" id="xzrPickBtn" type="button">📁 上传音频文件</button>
+            <input type="file" id="xzrAudioInput" accept="audio/*" hidden>
+            <button class="xzr_go-btn" id="xzrGoBtn" type="button" disabled>开始识别</button>
+            <span class="xzr_info-label" id="xzrStatusTip">支持麦克风录音，也可以上传 wav / mp3 / m4a 文件</span>
+        </div>
+        <audio class="xzr_img-preview" id="xzrAudioPreview" controls style="display:none;"></audio>
+        <div class="xzr_loading" id="xzrResult" style="padding:20px 0;">识别出的文字会显示在这里</div>
+    </section>
+
+    <footer class="xzr_foot">徐子然 24002120223 · ai-xzr · 语音识别</footer>
+</main>
+
+<script>
+// 姓名：徐子然 | 学号：24002120223 | 时间：2026-11-25 | 大模型：GLM-5.3-Flash
+// 功能名称：语音识别逻辑（MediaRecorder 录音 / 本地文件两种来源 → 上传 /api/ai/asr → 展示转写文字）
+
+// 当前待识别的音频（录音产生的 Blob 或用户选的文件）
+var xzr_audioFile = null;
+// MediaRecorder 录音器实例与录音数据块
+var xzr_recorder = null;
+var xzr_chunks = [];
+
+// 统一处理"拿到一段音频"：预览 + 激活识别按钮
+function xzr_setAudio(xzr_blob, xzr_name) {
+    xzr_audioFile = new File([xzr_blob], xzr_name, { type: xzr_blob.type || 'audio/wav' });
+    var xzr_preview = document.getElementById('xzrAudioPreview');
+    xzr_preview.src = URL.createObjectURL(xzr_blob);
+    xzr_preview.style.display = 'block';
+    document.getElementById('xzrGoBtn').disabled = false;
+    document.getElementById('xzrStatusTip').textContent = '已准备好：' + xzr_name;
+}
+
+// 点击录音按钮：开始/停止 MediaRecorder 录音
+document.getElementById('xzrRecBtn').addEventListener('click', function () {
+    var xzr_btn = this;
+    if (xzr_recorder && xzr_recorder.state === 'recording') {
+        // 正在录音 → 停止（onstop 里生成音频文件）
+        xzr_recorder.stop();
+        return;
+    }
+    // 请求麦克风权限
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function (xzr_stream) {
+            xzr_chunks = [];
+            xzr_recorder = new MediaRecorder(xzr_stream);
+            // 录音过程中每段数据都收集起来
+            xzr_recorder.ondataavailable = function (xzr_e) { xzr_chunks.push(xzr_e.data); };
+            // 停止后把所有块合成一个 webm 音频
+            xzr_recorder.onstop = function () {
+                xzr_stream.getTracks().forEach(function (xzr_t) { xzr_t.stop(); });
+                var xzr_blob = new Blob(xzr_chunks, { type: 'audio/webm' });
+                xzr_setAudio(xzr_blob, '录音.webm');
+                xzr_btn.textContent = '🎙️ 开始录音';
+                document.getElementById('xzrStatusTip').textContent = '录音完成，点击"开始识别"';
+            };
+            xzr_recorder.start();
+            xzr_btn.textContent = '⏹️ 停止录音';
+            document.getElementById('xzrStatusTip').textContent = '录音中…对着麦克风说话，说完点停止';
+        })
+        .catch(function (xzr_err) {
+            console.error('获取麦克风失败:', xzr_err);
+            document.getElementById('xzrStatusTip').textContent = '❌ 无法使用麦克风（' + xzr_err.name + '），可以改用上传音频文件';
+        });
+});
+
+// 点击"上传音频文件"触发隐藏的 file input
+document.getElementById('xzrPickBtn').addEventListener('click', function () {
+    document.getElementById('xzrAudioInput').click();
+});
+
+// 选中本地音频文件
+document.getElementById('xzrAudioInput').addEventListener('change', function () {
+    if (this.files[0]) xzr_setAudio(this.files[0], this.files[0].name);
+});
+
+// 点击"开始识别"：上传音频 → 后端转发七牛 ASR → 展示文字
+document.getElementById('xzrGoBtn').addEventListener('click', function () {
+    if (!xzr_audioFile) return;
+    var xzr_btn = this;
+    var xzr_result = document.getElementById('xzrResult');
+    var xzr_form = new FormData();
+    xzr_form.append('audio', xzr_audioFile);
+
+    xzr_btn.disabled = true;
+    xzr_result.textContent = '🎧 正在识别语音…';
+
+    fetch('/api/ai/asr', { method: 'POST', body: xzr_form })
+        .then(function (xzr_res) { return xzr_res.json(); })
+        .then(function (xzr_res) {
+            console.log('asr 接口返回:', xzr_res);
+            if (xzr_res.code !== 0) {
+                xzr_result.textContent = '❌ ' + xzr_res.msg;
+                return;
+            }
+            xzr_result.style.textAlign = 'left';
+            xzr_result.style.padding = '0';
+            xzr_result.innerHTML =
+                '<div class="xzr_msg xzr_msg-ai" style="max-width:100%;"></div>' +
+                '<div class="xzr_kb-meta" style="margin-top:8px;">模型：' + xzr_res.data.model + '</div>';
+            xzr_result.querySelector('.xzr_msg-ai').textContent = xzr_res.data.text || '（模型没有返回文字）';
+        })
+        .catch(function (xzr_err) {
+            console.error('识别失败:', xzr_err);
+            xzr_result.textContent = '❌ 请求失败：' + xzr_err.message;
+        })
+        .finally(function () { xzr_btn.disabled = false; });
+});
+</script>
+<script src="js/xzr_bg.js"></script>
+<script src="js/xzr_guard.js"></script>
+</body>
+</html>
