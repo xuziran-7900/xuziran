@@ -750,3 +750,11 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 按照里面的图片给我做一个网页，课堂实践课堂实践展示，里面要包含图片和内容讲解，你就结合这节课玩所做的内容写（附 /Users/xuziran/Desktop/未命名文件夹 5 张截图）→ 新建 ai-xzr/frontend/class-showcase.html：5 个实践板块（AI 聊天/客服人设/RAG 知识库/图像识别/语音识别）每板块截图+讲解，加概述/踩坑与解决/课堂收获板块，截图拷入 frontend/img/，xzr_main.css 追加 xzr_show_* 样式，首页新增"课堂实践展示"导航卡
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+提交到github上 →（用户澄清）交到之前 Visual.x 提交的那个仓库，ai-xzr 和 index.html 是一个项目 → 把 ai-xzr 并入 Visual.x 主仓库：.gitignore 移除 ai-xzr/ 忽略，移走嵌套 .git（备份到 /private/tmp），暂存前敏感检查（.env/node_modules/真实密钥 0 命中，3 处均为脱敏文本），commit ebe1d85 推送 GitHub + Gitee 双 remote 成功
