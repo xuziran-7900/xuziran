@@ -710,3 +710,11 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 把这个项目也加到/Users/xuziran/Desktop/Visual.x/index.html这里（在"其余模块"卡前新增 AI 应用项目 ai-xzr 卡片，链接 http://localhost:8224 新窗口打开）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+把这几个都删了（附截图：作品集首页移动端 手势卡片T2/图片查看器T3/摇一摇抽菜谱T4 三张卡片 → 已从首页删除，页面文件保留）
