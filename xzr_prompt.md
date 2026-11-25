@@ -653,3 +653,60 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 你这页面打开都不对（附截图：file:///api/health 与 file:// 方式打开 news/gallery 页面数据加载失败）
+
+---
+
+- **时间**: 2026-11-20
+- **模型**: GLM-5.3-Flash
+- **提示词内容**:
+
+你把首页排版做好看一点，你排版要整齐，字不要歪歪歪扭扭的
+（本条改动同时提交 fullstack-xzr: style: 首页排版整齐化）
+
+---
+
+- **时间**: 2026-11-20
+- **模型**: GLM-5.3-Flash
+- **提示词内容**:
+
+图文列表页面要有这些信息（附课程示例截图：数据表说明行 + 接口地址/数据表/数据量信息条）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+`https://spontaneous-valkyrie-4e4229.netlify.app/llm-app-lesson`按照上面步骤要求，完成2到5步骤内容，硅基流动密钥：sk-vffy****（已脱敏），并提供了 .env 配置模板（SILICONFLOW_API_KEY / BASE_URL / MODEL=Qwen/Qwen2.5-7B-Instruct / VISION_MODEL / AI_PROVIDER / QINIU_CUSTOMER_SERVICE_* 配置）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+（LLM 课程课堂任务）⭐任务一把 Key 藏好：检查 .env 在 .gitignore、前端无 Key 残留、Key 打码进作业文档、列出 3 处可能泄露 Key 的地方；⭐⭐任务二客服人设改造：写出 system 提示词、测试 5 个问题（3 该答 2 该拒）、解释为什么这样写能管住模型；⭐⭐⭐任务三多平台热切换+答辩：硅基流动/七牛切换（后端读配置+前端下拉框）、答辩三问（Key 为什么不能放前端 / 多轮对话为什么发全量历史 / 换平台改哪几个值）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+完成知识库文件上传功能，构建2个知识库文件，完成基于知识库的问答，支持doc和docx，ppt，完成知识库管理（RAG）：基于本地文件（如 PDF/TXT）上传、解析，构建专属自动客服或问答系统，包括知识库文件上传模块。在控制台输出发送给大模型的数据和接受自大模型的数据。完成图像识别功能，上传图片，返回该图片的描述，使用已有的api-key和模型。实现一个语音识别的功能，使用七牛的Qwen-Audio-3.0-ASR-Flash模型，输入语音，输出文字。（附截图：七牛模型广场 Conatus Free 的 API 接入面板）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+你把今天让你做的ai的项目拿出来，这个应该是和全站项目fillstack-xzr同级的一个项目（拆分迁移：AI 聊天/在线客服/RAG 知识库/图像识别/语音识别 → 独立项目，端口确认为 8224）
+
+---
+
+- **时间**: 2026-11-25
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+把这个项目也加到/Users/xuziran/Desktop/Visual.x/index.html这里（在"其余模块"卡前新增 AI 应用项目 ai-xzr 卡片，链接 http://localhost:8224 新窗口打开）
