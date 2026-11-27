@@ -758,3 +758,11 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 提交到github上 →（用户澄清）交到之前 Visual.x 提交的那个仓库，ai-xzr 和 index.html 是一个项目 → 把 ai-xzr 并入 Visual.x 主仓库：.gitignore 移除 ai-xzr/ 忽略，移走嵌套 .git（备份到 /private/tmp），暂存前敏感检查（.env/node_modules/真实密钥 0 命中，3 处均为脱敏文本），commit ebe1d85 推送 GitHub + Gitee 双 remote 成功
+
+---
+
+- **时间**: 2026-11-27
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+（supabase-lesson 步骤五：复制配置，重点看 URL）按照 supabase 的 MCP，把配置写进目录的 .vscode/mcp.json（project_ref=vrufqiqttyzwlrpvasjw），并执行 npx skills add supabase/agent-skills 安装 Agent Skills（附截图：Supabase 控制台 xuziran-7900's Project 状态 Healthy）
