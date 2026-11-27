@@ -766,3 +766,11 @@ https://spontaneous-valkyrie-4e4229.netlify.app/fullstack-init-lesson
 - **提示词内容**:
 
 （supabase-lesson 步骤五：复制配置，重点看 URL）按照 supabase 的 MCP，把配置写进目录的 .vscode/mcp.json（project_ref=vrufqiqttyzwlrpvasjw），并执行 npx skills add supabase/agent-skills 安装 Agent Skills（附截图：Supabase 控制台 xuziran-7900's Project 状态 Healthy）
+
+---
+
+- **时间**: 2026-11-27
+- **模型**: Trae (proprietary model from Trae team)
+- **提示词内容**:
+
+今天这个项目我需要新建一个文件夹做，你做的对吗 / 直接在Visual.x里建文件夹你做的对吗 → 对照课程全文确认：本课是"接 MCP 工具 + 云端建表"，不需要新文件夹，MCP 是项目级配置装在 Visual.x 根目录正确；补充按课程第 4 节 Trae 格式（键名 mcpServers）新建 .trae/mcp.json（此前只写了课程第 5 步 VS Code 格式的 .vscode/mcp.json，键名 servers）
